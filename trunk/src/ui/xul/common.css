@@ -1,0 +1,10 @@
+button{
+   text-align:center
+}
+keyinputbox {
+    -moz-binding: url("common_bindings.xml#keyinputbox") !important;
+}
+
+colorfield{
+   -moz-binding: url("common_bindings.xml#colorfield") !important;
+}
