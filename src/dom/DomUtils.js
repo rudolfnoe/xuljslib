@@ -41,7 +41,24 @@ with(this){
          link.setAttribute("href", url);
          return link;
       },
-
+      
+      getActiveElement: function(win){
+         var activeElement = win.document.activeElement
+         while(activeElement.tagName && (activeElement.tagName =="FRAME" || activeElement.tagName=="IFRAME")){
+            activeElement = activeElement.contentDocument.activeElement
+         }
+         return activeElement
+      },
+      
+      getAncestorBy: function(element, testFunction){
+         while(element = element.parentNode){
+            if(testFunction(element)){
+               return element
+            }
+         }
+         return null
+      },
+      
       //Taken from firebug and modified, see firebug-license.txt
       getBody : function(doc) {
          if (doc.body)
@@ -50,14 +67,22 @@ with(this){
          return bodyElems.length>0?bodyElems[0]:null
       },
       
-      getChildrenBy: function(element, testFunction){
+      getChildrenBy: function(element, testFunction, testOnlyElementChilds){
          var result = new Array()
          var childNodes = element.childNodes
          for (var i = 0; i < childNodes.length; i++) {
+            if(testOnlyElementChilds && children[i].nodeType!=1)
+               continue
             if(testFunction(childNodes[i]))
                result.push(childNodes[i])
          }
          return result
+      },
+      
+      getChildrenByTagName: function(element, childTagName){
+         return this.getChildrenBy(element, function(childNode){
+            return childNode.nodeType==1 && childNode.tagName.toLowerCase()==childTagName.toLowerCase()
+         })
       },
       
       getElementType: function(element){
@@ -89,15 +114,37 @@ with(this){
          }
       },
       
-      getFirstChildBy: function(element, testFunction){
+      getElementsByAttribute: function(docOrElement, attr, value){
+         var xPathExp = "//*[@" + attr
+         if(arguments.length>=3 && value!="*"){
+            xPathExp += "='" + value + "']"
+         }else{
+            xPathExp += "]"
+         }
+         return XPathUtils.getElements(xPathExp, docOrElement)   
+      },
+      
+      getFirstChildBy: function(element, testFunction, testOnlyElementChilds){
          if(!element.hasChildNodes())
             return null
          var children = element.childNodes
          for (var i = 0; i < children.length; i++) {
+            if(testOnlyElementChilds && children[i].nodeType!=1)
+               continue
             if(testFunction(children[i]))
                return children[i]
          }
          return null;
+      },
+      
+      getFirstChildByTagName: function(element, tagName){
+         var testFunction = null
+         if(!tagName || tagName=="*")
+            testFunction = function(){return true}
+         else
+            testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase()
+         }
+         return this.getFirstChildBy(element, testFunction, true)
       },
       
       getFrameByName: function(win, name){
@@ -166,6 +213,19 @@ with(this){
          }
          return node
       },
+      
+      isEditableElement: function(element){
+         if(element==null || element.nodeType!=1)
+             return false;
+         var tagName = element.tagName.toUpperCase();
+         var type = element.type?element.type.toUpperCase():"";
+         var isEditableElement = (((tagName == "INPUT" && (type=="TEXT" || type=="PASSWORD")) || 
+                                   tagName == "TEXTAREA" || 
+                                   tagName == "SELECT") && !element.readonly) ||
+                                   (element.ownerDocument && element.ownerDocument.designMode=="on")
+         return isEditableElement;
+      },
+
 
       isFramesetWindow: function(win){
          if(this.getBody(win.document)==null && win.doc.getElementsByTagName('frameset').length>0)

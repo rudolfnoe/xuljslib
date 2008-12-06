@@ -71,6 +71,8 @@ with(this){
       			
       			for(var name in ObjectToSerilize)
       			{
+                  if(!ObjectToSerilize.hasOwnProperty(name))
+                     continue
       				s += JSerialize(ObjectToSerilize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       			};
       			

@@ -24,7 +24,8 @@ with(this){
       
       notifyListeners: function(event){
          for (var i = 0; i < this.listeners.size(); i++) {
-            this.listeners.get(i).handleEvent(event)
+            if(this.listeners.get(i).isType(event.type))
+               this.listeners.get(i).handleEvent(event)
          }
       },
       
@@ -36,12 +37,16 @@ with(this){
    }
    
    function GenericListener(type, callbackFunc, thisObj){
-      this.type = type
+      this.type = type?type:null
       this.callbackFunc = callbackFunc
       this.thisObj = thisObj
    }
    
    GenericListener.prototype = {
+      isType: function(type){
+         return this.type == "*" || this.type == type
+      },
+
       equals: function(listener){
          if(listener.type==this.type &&
             listener.callbackFunc==this.callbackFunc &&

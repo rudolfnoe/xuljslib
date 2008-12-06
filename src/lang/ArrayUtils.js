@@ -9,6 +9,10 @@ with(this){
             arr[i] = array[i]
          }
          return arr
+      },
+      
+      contains: function(array, value){
+         return array.indexOf(value)!=-1
       }
    }
 

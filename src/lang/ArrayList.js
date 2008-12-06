@@ -18,6 +18,11 @@ with(this){
    ArrayList.prototype = {
       constructor: ArrayList,
       
+      _checkIndexInRange: function(index){
+         if(index<0 || index>=this.array.length)
+            throw new Error('IndexOutOfBounds')
+      },
+      
       add: function(obj){
          this.array.push(obj)
       },
@@ -26,13 +31,23 @@ with(this){
          if(arr.constructor == ArrayList){
          	arr = arr.array
          }
-         for (var i = 0; i < arr.length; i++) {
-         	this.add(arr[i])
+         this.array = this.array.concat(arr)
+      },
+      
+      addAllAtIndex: function(index, arr){
+         if(arr.constructor == ArrayList){
+         	arr = arr.array
          }
+         this.array = this.array.slice(0,index).concat(arr).concat(this.array.slice(index))
       },
       
       addAtIndex: function(index, obj){
-      	this.array = this.array.slice(0,index).concat(obj).concat(this.array.slice(index))
+         if(index<0 || index>this.array.length)
+            throw new Error('IndexOutOfBounds')
+         if(index==this.array.length)
+            this.array.push(obj)
+         else
+      	  this.array = this.array.slice(0,index).concat(obj).concat(this.array.slice(index))
       },
       
       clear: function(){
@@ -50,9 +65,7 @@ with(this){
       },
       
       get: function(index){
-      	if(index>this.array.length-1){
-      		throw new Error("ArrayList.get: IndexOutOfBounds")
-      	}
+         this._checkIndexInRange(index)
       	return this.array[index]
       },
       
@@ -60,15 +73,32 @@ with(this){
          return this.array.indexOf(obj)   
       },
 
+      remove: function(obj){
+         var index = this.array.indexOf(obj)
+         if(index==-1)
+            throw new Error('obj not in list')
+      	this.removeAtIndex(index)
+      },
+      
       removeAtIndex: function(index){
+         this._checkIndexInRange(index)
       	this.array = this.array.slice(0,index).concat(this.array.slice(index+1))
       },
       
-      remove: function(obj){
-      	this.remove(this.array.indexOf(obj))
+      //Params are inclusive bounderies
+      removeRange: function(startIndex, endIndex){
+         this._checkIndexInRange(startIndex)
+         this._checkIndexInRange(endIndex)
+         var lastPart = null
+         if(endIndex<this.size()-1)
+            var lastPart =  this.array.slice(endIndex+1)
+         this.array = this.array.slice(0,startIndex)
+         if(lastPart)
+            this.array = this.array.concat(lastPart)
       },
       
       set: function(index, obj){
+         this._checkIndexInRange(index)
       	this.array[index] = obj
       },
       

@@ -1,5 +1,9 @@
 with(this){
 (function(){
+   //for debug purposes
+   var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+         .getService(Components.interfaces.nsIConsoleService);
+   
 	var BasicObjectTypes = {
 		ARRAY: "Array",
 		BOOL: "Boolean",
@@ -93,23 +97,68 @@ with(this){
    		}
    		return true
    	},
-	
-      extend : function(constructorSubClass, constructorSuperclass) {
+      
+      /*
+       * Only functions are inherited
+       */
+      _waitOnSuperClassLoadMap: {},
+      extend : function(constructorSubClass, constructorSuperclass, namespaceObj) {
+         var constructorSuperclassFunc = null 
+         if(typeof constructorSuperclass == "string"){
+            if(!namespaceObj)
+               throw new Error('When providing contstructor as string namespace obj must not be null')
+            constructorSuperclassFunc = namespaceObj[constructorSuperclass]
+         }else{
+            if(constructorSuperclass==null)
+               throw new Error('constructorSuperclass must not be null')
+            constructorSuperclassFunc = constructorSuperclass
+         }
+            
+         if(constructorSuperclassFunc==null){
+            //TODO remove
+//            consoleService.logStringMessage(constructorSuperclass + " not loaded yet");
+            if(this._waitOnSuperClassLoadMap[constructorSuperclass]==null){
+               this._waitOnSuperClassLoadMap[constructorSuperclass] = new Array()
+               namespaceObj.watch(constructorSuperclass, function(prop, oldval, newval){
+//                  consoleService.logStringMessage(constructorSuperclass + "just loaded");
+                  var subclasses = ObjectUtils._waitOnSuperClassLoadMap[prop]
+                  while(subclasses.length>0){
+                     var subclassConstructor = subclasses.pop()
+                     ObjectUtils.extend(subclassConstructor, newval)
+//                     consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(subclassConstructor) + " extends " + constructorSuperclass);
+                  }
+               })
+            }
+            this._waitOnSuperClassLoadMap[constructorSuperclass].push(constructorSubClass)
+            return
+         }
          function copyMembers(source, target){
             for (var member in source) {
-               if(!target.prototype.hasOwnProperty(member)){
+               if(!target.prototype.hasOwnProperty(member) && (typeof source[member] == "function")){
                  target.prototype[member] = source[member]
                }
             }
             
          }
-         var source = constructorSuperclass.prototype
+         var source = constructorSuperclassFunc.prototype
          do{
             copyMembers(source, constructorSubClass)
             source = source.prototype
          }while(source!=null)
+         //fill supertype array for instanceof
+         var prototypeSubType = constructorSubClass.prototype
+         var prototypeSuperType = constructorSuperclassFunc.prototype
+         if(!prototypeSubType.__supertypes)
+            prototypeSubType.__supertypes = new Array()
+         prototypeSubType.__supertypes.push(this.getTypeFromConstructor(constructorSuperclassFunc))
+         if(prototypeSuperType.__supertypes)
+            prototypeSubType.__supertypes = prototypeSubType.__supertypes.concat(prototypeSuperType.__supertypes) 
+//         consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(constructorSubClass) + " extends " + 
+//            this.getTypeFromConstructor(constructorSuperclassFunc) +
+//            " supertypes: " + prototypeSubType.__supertypes.toString());
+            
       },
-   
+      
    	getType: function(object){
    		if(object==null)
    		   return null
@@ -128,25 +177,24 @@ with(this){
    		   return BasicObjectTypes.OBJECT
    		
    		if(object.constructor && object.constructor.toString().indexOf("function")==0){
-   		   var constructor = object.constructor.toString()
-   		   var className = constructor.match(/^function (\w*)\(/)[1]
-   		   return className
+            return this.getTypeFromConstructor(object.constructor)
    		}else{
    			throw Error('Unkown object')
    		}
    	},
+      
+      getTypeFromConstructor: function(constructorFunc){
+		   var constructorString = constructorFunc.toString()
+		   return constructorString.match(/^function (\w*)\(/)[1]
+      },
    	
    	//Checks wether obj has all functions of constructor
    	instanceOf: function(obj, constructorFunc){
-   		var proto = constructorFunc.prototype
-   		for(var m in proto){
-   			var value = proto[m]
-   			if(this.getType(value)==BasicObjectTypes.FUNCTION && 
-   			   this.getType(obj[m])!=BasicObjectTypes.FUNCTION){
-   			   	return false
-   			}
-   		}
-   		return true
+         if(this.getType(obj) == this.getTypeFromConstructor(constructorFunc))
+            return true
+   		if(!obj.__supertypes)
+            return false
+         return obj.__supertypes.indexOf(this.getTypeFromConstructor(constructorFunc))!=-1
    	}
 	}
 	

@@ -48,13 +48,17 @@ with(this){
 			this.features = features
 		},
 		
-		show: function(){
+		show: function(point){
 			this.dialogContext = new DialogContext(this.argObj)
-			this.dialog = this.parentWin.openDialog(this.url, this.name, 
-                                                (this.modal?"modal=yes,":"") + 
-                                                (this.features?this.features:"") + 
-                                                ", centerscreen=yes", 
-                                                this.dialogContext)
+         var features = this.features?this.features:""
+         features += this.modal?", modal=yes":""
+         if(point==null)
+            features += ", centerscreen=yes"
+         else{
+            features += ", left=" + point.getX() + "px "
+            features += ", top=" + point.getY() + "px "
+         }
+			this.dialog = this.parentWin.openDialog(this.url, this.name, features, this.dialogContext)
 			if(this.modal){
 				this.informListeners();
 			}else{
