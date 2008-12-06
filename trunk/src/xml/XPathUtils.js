@@ -1,24 +1,25 @@
 with(this){
 (function(){
 	var XPathUtils = {
-		createXPath: function(element){
+		createXPath: function(element, noPredicates){
 			var result = ""
 			var doBreak = false
          var loopElem = element
 			do{
-				if(loopElem.hasAttribute('id')){
+            if(loopElem.hasAttribute('id')){
 					result = "id('" + loopElem.id + "')" + result
 					break
 				}
-				if(loopElem.hasAttribute('name')){
-					result = "[@name='" + loopElem.getAttribute('name') + "']" + result
-					doBreak = true
-				}
-            //As result is not need to be unique if removed this.
-				/*if(loopElem.hasAttribute('href')){
-					result = "[@href='" + loopElem.getAttribute('href') + "']" + result
-					doBreak = true
-				}*/
+				if(false){
+   				if(loopElem.hasAttribute('name')){
+   					result = "[@name='" + loopElem.getAttribute('name') + "']" + result
+   					doBreak = true
+   				}
+   				if(loopElem.hasAttribute('href')){
+   					result = "[@href='" + loopElem.getAttribute('href') + "']" + result
+   					doBreak = true
+   				}
+            }
 				if(!doBreak){
 					var index = this.getIndexOfElement(loopElem)
 					if(index!=-1){
@@ -34,19 +35,24 @@ with(this){
 			}while(loopElem.nodeName!='#document')
 			
          //Test uniqueness
-         var elements = this.getElements(result, element.ownerDocument)
+         var elements = this.getElements(result, element.ownerDocument, XPathResult.ORDERED_NODE_ITERATOR_TYPE)
          if(elements.length>1){
-            throw new Error ('Bug in createXPath: Result is not unique. XPathExp: ' + result)
+            var result = this.createXPath(element, true)
+            elements = this.getElements(result, element.ownerDocument)
+         }
+         if(elements.length>1){
+            throw new Error ('Bug in createXPath: None unique result even after adding constraints. XPathExp: ' + result)
          }else if(elements.length==0){
             throw new Error ('Bug in createXPath: Result is empty. XPathExp: ' + result)
          }
 			return result
 		},
 		
-		getElements: function(xPath, doc, xPathResultType){
+		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
-         doc = doc?doc:document
-			var xPathResult = doc.evaluate(xPath, doc, null, resultType, null)
+         contextNode = contextNode?contextNode:document
+         var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument)?contextNode:contextNode.ownerDocument
+			var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
 			var resultArray = []
 			while(entry = xPathResult.iterateNext()){
 				resultArray.push(entry)
@@ -54,8 +60,8 @@ with(this){
 			return resultArray
 		},
 		
-		getElement: function(xPath, doc){
-			var result = this.getElements(xPath, doc)
+		getElement: function(xPath, contextNode){
+			var result = this.getElements(xPath, contextNode)
 			if(result.length>0){
 				return result[0]
 			}else{

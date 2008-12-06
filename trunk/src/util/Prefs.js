@@ -40,6 +40,11 @@ with(this){
 		getIntPref : function(key) {
 			return this.prefs.getIntPref(key)
 		},
+      
+      getPref : function(key, defaultValue){
+         var defaultValue = defaultValue?defaultValue:"" 
+         return Application.prefs.getValue(key, defaultValue) 
+      },
 
 		hasUserPref : function(key) {
 			return this.prefs.prefHasUserValue(key);

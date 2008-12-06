@@ -7,7 +7,7 @@
          <stylesheet src="common_bindings.css"/>
       </resources>
       <content>
-         <xul:textbox xbl:inherits="size, context" 
+         <xul:textbox xbl:inherits="size, context, flex" 
             readonly="true" 
             class="keyinputbox" 
             onkeydown="parentNode.onKeyDown(event);"
@@ -338,5 +338,19 @@
       </implementation>      
       <handlers>
       </handlers>
+   </binding>
+   
+   <binding id="editlistbox" >
+      <content>
+         <children/>
+      </content>
+      <implementation>
+         <constructor>
+            <![CDATA[
+               
+            ]]>
+         </constructor>
+         <property name="_listbox"/>
+      </implementation>
    </binding>  
 </bindings>

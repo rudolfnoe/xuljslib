@@ -17,9 +17,10 @@ const COMBINED_KEY_CODE_REG_EXP = /^[kc]{1}\d*$/
  */
 //TODO different event types
 function ShortcutManager(targetObjects, eventType, suppressShortcutKeys, useCapture){
-   if(targetObjects.constructor.toString().indexOf("function Array")==-1)
-      targetObjects = new Array(targetObjects)
-   this.targetObjects = targetObjects
+   if(targetObjects.constructor && targetObjects.constructor.toString().indexOf("function Array")!=-1)
+      this.targetObjects = targetObjects
+   else
+      this.targetObjects = new Array(targetObjects)
    this.eventType  = arguments.length>=2?eventType:"keydown"
    this.suppressShortcutKeys = arguments.length>=3?suppressShortcutKeys:true
    this.useCapture = arguments.length>=4?useCapture:true
@@ -41,10 +42,7 @@ ShortcutManager.prototype = {
    
    handleElementEvent: function(event){
       var srcElement = event.currentTarget;
-      if(srcElement.id)
-         this.handleEvent(event, srcElement.id)
-      else 
-         this.handleEvent(event, srcElement.name);
+      this.handleEvent(event, srcElement.de_mouseless_shortcutmanager_id);
    },
    
    handleEvent: function(event, elementId){
@@ -128,12 +126,14 @@ ShortcutManager.prototype = {
          element = document.getElementById(elementOrId);
       }else{
          element = elementOrId
-         elementId = element.getAttribute('id') 
+         elementId = element.getAttribute('id')
+         if(StringUtils.isEmpty(elementId)){
+            elementId = (new Date()).toString()
+         }
       }
       if(!element)
          throw new Error("Element for elementId does not exist");
-      if(elementId==null || elementId.length==0)
-         throw new Error('Element must have id')
+      element.de_mouseless_shortcutmanager_id = elementId
       this.elementsWithShortcuts.push(element)
       this._addShortcut(keyCombination, shortcutTarget, targetObj, elementId, clientId)
       element.addEventListener("keydown", this.elementKeyEventHandler, this.useCapture);
@@ -228,6 +228,10 @@ ShortcutManager.prototype = {
       }
       this.shortcuts = null
       this.destroyed = true
+   },
+   
+   hasModifier: function(event){
+      return event.altKey || event.ctrlKey || event.metaKey   
    },
    
    isModifierCombination: function(event, modifierCombination){
