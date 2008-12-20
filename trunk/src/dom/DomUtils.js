@@ -85,6 +85,10 @@ with(this){
          })
       },
       
+      getElementChildren: function(element){
+         return this.getChildrenBy(element, function(){return true}, true)
+      }, 
+      
       getElementType: function(element){
          if(!element || !element.tagName)
                return null;
@@ -122,6 +126,16 @@ with(this){
             xPathExp += "]"
          }
          return XPathUtils.getElements(xPathExp, docOrElement)   
+      },
+      
+      getElementsByTagNameAndAttribute: function(root, tagName, attr, value){
+          var elems = root.getElementsByTagName(tagName)
+          var result = new Array()
+          for (var i = 0; i < elems.length; i++) {
+            if(elems[i].getAttribute(attr)==value)
+               result.push(elems[i])
+          }
+          return result
       },
       
       getFirstChildBy: function(element, testFunction, testOnlyElementChilds){
@@ -214,6 +228,15 @@ with(this){
          return node
       },
       
+      insertAfter: function(newElement, refElement){
+         var parent = refElement.parentNode
+         if(refElement.nextSibling!=null){
+            parent.insertBefore(newElement, refElement.nextSibiling)
+         }else{
+            parent.appendChild(newElement)
+         }
+      },
+      
       isEditableElement: function(element){
          if(element==null || element.nodeType!=1)
              return false;
@@ -228,10 +251,18 @@ with(this){
 
 
       isFramesetWindow: function(win){
-         if(this.getBody(win.document)==null && win.doc.getElementsByTagName('frameset').length>0)
+         if(win.document.getElementsByTagName('frameset').length>0)
             return true
          else
             return false
+      },
+      
+      isVisible: function(element){
+         if(!element.ownerDocument)
+            return false
+         var win = element.ownerDocument.defaultView
+         var style = win.getComputedStyle(element, "")
+         return style.display!="none" && style.visibility!="hidden" && style.visibility!="collapse"
       },
       
       iterateDescendantsByTagName: function(element, descendantTagName, funcPointer){

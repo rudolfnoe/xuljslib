@@ -16,7 +16,12 @@ with(this){
    this["BasicObjectTypes"] = BasicObjectTypes;
 	
 	var ObjectUtils = {
-		deepClone: function(obj){
+		callFunction: function(functionPnt, thisObj, args){
+         thisObj = thisObj?thisObj: this
+         functionPnt.apply(thisObj, args)
+      },
+      
+      deepClone: function(obj){
 			var t = this.getType(obj)
 			var clone = null
 			switch (t){
