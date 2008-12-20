@@ -267,7 +267,7 @@ with (this) {
 						oldValue, newValue) {
 					setTimeout(function() {
 						if (thisObj)
-							callbackFunction.apply(thisObj, newValue)
+							callbackFunction.apply(thisObj, [newValue])
 						else
 							callbackFunction(newValue)
 					})

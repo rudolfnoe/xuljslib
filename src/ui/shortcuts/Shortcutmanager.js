@@ -1,4 +1,6 @@
 with(this){
+(function(){
+
 /*
  * ShortCutManager
  * Version 0.1
@@ -20,7 +22,7 @@ with(this){
  */
 
 //Global variables
-ShortCutManager.currentEvent = null;
+var currentEvent = null;
 
 function ShortCutManager(){
     this.shortCuts = new Object();
@@ -34,6 +36,10 @@ function ShortCutManager_getInstance(){
     return window.shortcutManager;
 }
 ShortCutManager.getInstance=ShortCutManager_getInstance;
+
+ShortCutManager.getCurrentEvent= function(){
+   return currentEvent
+}
 
 function ShortCutManager_addJsShortCut(keyCode, modifierMask, jsCode, clientId){
     if(modifierMask==null){
@@ -77,7 +83,7 @@ function ShortCutManager_onEvent(event, elementId){
     	shortCutKey = elementId + "_" + shortCutKey;
     var shortCutArray = shortCuts[shortCutKey]
     if(shortCutArray){
-        ShortCutManager.currentEvent = event;
+        currentEvent = event;
         for(var i=0; i<shortCutArray.length; i++){
             var result = shortCutArray[i].onEvent(event);
             if(result&ShortCutManager.PREVENT_FURTHER_EVENTS){
@@ -85,7 +91,7 @@ function ShortCutManager_onEvent(event, elementId){
             }
         }
     }else{
-        ShortCutManager.currentEvent = null;
+        currentEvent = null;
     }
 }
 
@@ -177,4 +183,6 @@ ShortCutManager.CTRL_ALT = Event.ALT_MASK | Event.CONTROL_MASK;
 ShortCutManager.SUPPRESS_KEY = 1;
 ShortCutManager.PREVENT_FURTHER_EVENTS = 2
 
+this.ShortCutManager = ShortCutManager
+}).apply(this)
 }

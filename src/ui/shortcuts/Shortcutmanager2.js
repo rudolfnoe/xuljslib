@@ -54,7 +54,7 @@ ShortcutManager.prototype = {
          this.currentEvent = event;
          for (var i = 0; i < shortcutArray.length; i++) {
             var result = shortcutArray[i].handleEvent(event);
-            if(this.suppressShortcutKeys || result&ShortcutManager.SUPPRESS_KEY){
+            if((this.suppressShortcutKeys && !result&ShortcutManager.DO_NOT_SUPPRESS_KEY) || result&ShortcutManager.SUPPRESS_KEY){
                event.preventDefault();
                event.stopPropagation();
             }
@@ -209,15 +209,9 @@ ShortcutManager.prototype = {
     * Encodes KeyEvent
     */
    encodeEvent: function(event){
-       return event.keyCode << 4 | this.encodeEventModifier(event);
+       return event.keyCode << 4 | ShortcutManager.encodeEventModifier(event);
    },
-   
-   encodeEventModifier: function(event){
-       return event.altKey * Event.ALT_MASK |
-           event.ctrlKey * Event.CONTROL_MASK |
-           event.shiftKey * Event.SHIFT_MASK |
-           event.metaKey * Event.META_MASK;
-   },
+   //Provide also as static method
    
    destroy: function(){
       for (var i = 0; i < this.targetObjects.length; i++) {
@@ -230,12 +224,12 @@ ShortcutManager.prototype = {
       this.destroyed = true
    },
    
-   hasModifier: function(event){
-      return event.altKey || event.ctrlKey || event.metaKey   
+   getCurrentEvent: function(){
+      return this.currentEvent 
    },
    
-   isModifierCombination: function(event, modifierCombination){
-       return this.encodeEventModifier(event)==modifierCombination
+   hasModifier: function(event){
+      return event.altKey || event.ctrlKey || event.metaKey   
    },
    
    parseKeyCombination: function(keyCombination){
@@ -259,6 +253,18 @@ ShortcutManager.prototype = {
       }
       return this.createCombinedKeyCode(keyCode, modifierMask)
    }
+}
+
+//"Static" methods
+ShortcutManager.encodeEventModifier =  function(event){
+    return event.altKey * Event.ALT_MASK |
+        event.ctrlKey * Event.CONTROL_MASK |
+        event.shiftKey * Event.SHIFT_MASK |
+        event.metaKey * Event.META_MASK;
+}
+   
+ShortcutManager.isModifierCombination = function(event, modifierCombination){
+   return ShortcutManager.encodeEventModifier(event)==modifierCombination
 }
 
 /*
@@ -347,6 +353,7 @@ ShortcutManager.ALT_SHIFT = Event.ALT_MASK | Event.SHIFT_MASK;
 ShortcutManager.CTRL_ALT = Event.ALT_MASK | Event.CONTROL_MASK;
 ShortcutManager.SUPPRESS_KEY = 1;
 ShortcutManager.PREVENT_FURTHER_EVENTS = 2
+ShortcutManager.DO_NOT_SUPPRESS_KEY = 4;
 
 this["ShortcutManager"] = ShortcutManager;
 }).apply(this)
