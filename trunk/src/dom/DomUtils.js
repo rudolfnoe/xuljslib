@@ -195,7 +195,7 @@ with(this){
                break
             node = node.nextSibling
          }
-         return node
+         return (node && node.nodeType==1)?node:null
       },
       
       /*
@@ -231,7 +231,7 @@ with(this){
       insertAfter: function(newElement, refElement){
          var parent = refElement.parentNode
          if(refElement.nextSibling!=null){
-            parent.insertBefore(newElement, refElement.nextSibiling)
+            parent.insertBefore(newElement, refElement.nextSibling)
          }else{
             parent.appendChild(newElement)
          }
