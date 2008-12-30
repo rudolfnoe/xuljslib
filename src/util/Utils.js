@@ -84,6 +84,11 @@ with (this) {
 						"nsIExtensionManager");
 				return extManager.getInstallLocation(chromeUrl).location
 			},
+         
+         getOperationSystem: function(){
+            return Components.classes["@mozilla.org/xre/app-info;1"]  
+                  .getService(Components.interfaces.nsIXULRuntime).OS
+         },
 
 			/*
 			 * Returns the service object for the specified component and
@@ -290,9 +295,7 @@ with (this) {
 			 */
 			executeDelayedTimerMap : new Object(),
 			executeDelayed : function(timerId, delay, functionPointer, thisObj) {
-				if (this.executeDelayedTimerMap[timerId] != null) {
-					clearTimeout(this.executeDelayedTimerMap[timerId])
-				}
+				this.clearExecuteDelayedTimer(timerId)
 				this.executeDelayedTimerMap[timerId] = setTimeout(function() {
 					if (thisObj != null)
 						functionPointer.apply(thisObj)
@@ -301,6 +304,12 @@ with (this) {
 					Utils.executeDelayedTimerMap[timerId] = null
 				}, delay, this)
 			},
+         
+         clearExecuteDelayedTimer: function(timerId){
+            if (this.executeDelayedTimerMap[timerId] != null) {
+               clearTimeout(this.executeDelayedTimerMap[timerId])
+            }
+         },
 
 			// Converts a pattern in this programs simple notation to a regular
 			// expression.
@@ -361,11 +370,17 @@ with (this) {
 				event.stopPropagation()
 				event.preventDefault()
 			}
-			,
 		}
 
 		this["Utils"] = Utils;
 
+      OperationSystem = {
+         WINDOWS: "WINNT",
+         LINUX: "Linux",
+         MAC_OS_X: "Darwin"
+      }
+		this["OperationSystem"] = OperationSystem;
+      
 	}).apply(this)
 
 }

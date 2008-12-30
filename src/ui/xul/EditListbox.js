@@ -196,7 +196,7 @@ with(this){
       
    }
    
-   ObjectUtils.extend(EditListbox, AbstractGenericEventTarget)
+   ObjectUtils.extend(EditListbox, "AbstractGenericEventTarget", this)
 
    this.EditListbox = EditListbox;
 }).apply(this)

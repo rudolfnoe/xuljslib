@@ -20,10 +20,10 @@ with(this){
          var chromeBaseUri = IO_SERVICE.newURI(chromePath, null, null)
          var chromeBaseFullUri = CHROME_REGISTRY.convertChromeURL(chromeBaseUri)
          var chromeBaseFile = chromeBaseFullUri.QueryInterface(Components.interfaces.nsIFileURL).file; 
-         var startIndexSubPath  = chromeBaseFile.target.length
+         var startIndexSubPath  = chromeBaseFile.path.length
          var files = this.readFileEntries(chromeBaseFile, recursive)
          for (var i = 0; i < files.length; i++) {
-         	var fullPath = files[i].target
+         	var fullPath = files[i].path
          	if((fullPath.lastIndexOf(".js")!=fullPath.length-3) ||
          	     this.shouldBeExcluded(files[i].leafName, excludeArray))
          	   continue

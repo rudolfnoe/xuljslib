@@ -15,7 +15,7 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(DefaultContainerTreeItem, AbstractContainerTreeItem)
+   ObjectUtils.extend(DefaultContainerTreeItem, "AbstractContainerTreeItem", this)
 
    this.DefaultContainerTreeItem = DefaultContainerTreeItem;
 }).apply(this)
