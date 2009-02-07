@@ -15,8 +15,8 @@ with(this){
                ObjectUtils.callFunction(callBackFunc, thisObj, [browsers[i]])
             }
          }
-         
       }
+      
 	}
 
 	this.Firefox = Firefox;

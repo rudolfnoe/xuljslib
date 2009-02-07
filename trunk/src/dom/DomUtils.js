@@ -89,6 +89,10 @@ with(this){
          return this.getChildrenBy(element, function(){return true}, true)
       }, 
       
+      getElementByAnonId: function(xblElement, anonid){
+         return document.getAnonymousElementByAttribute(xblElement, "anonid", anonid)
+      },
+      
       getElementType: function(element){
          if(!element || !element.tagName)
                return null;
@@ -132,8 +136,9 @@ with(this){
           var elems = root.getElementsByTagName(tagName)
           var result = new Array()
           for (var i = 0; i < elems.length; i++) {
-            if(elems[i].getAttribute(attr)==value)
+            if(elems[i].getAttribute(attr)==value || value=="*"){
                result.push(elems[i])
+            }
           }
           return result
       },
@@ -152,6 +157,7 @@ with(this){
       },
       
       getFirstChildByTagName: function(element, tagName){
+         element = element?element:document.documentElement
          var testFunction = null
          if(!tagName || tagName=="*")
             testFunction = function(){return true}
@@ -159,6 +165,15 @@ with(this){
             testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase()
          }
          return this.getFirstChildBy(element, testFunction, true)
+      },
+      
+      getFirstDescendantByTagName: function(element, tagName){
+         element = element?element:document.documentElement
+         var descendants = element.getElementsByTagName(tagName)
+         if(descendants.length==0)
+            return null
+         else
+            return descendants[0]
       },
       
       getFrameByName: function(win, name){
@@ -272,12 +287,12 @@ with(this){
       	}
       },
       
-      // Taken from firebug, see firebug-license.txt
-      iterateWindows : function(win, handler) {
+      // Taken and modified from firebug, see firebug-license.txt
+      iterateWindows : function(win, handler, thisObj) {
          if (!win || !win.document)
             return;
 
-         handler(win);
+         ObjectUtils.callFunction(handler, thisObj, [win])
 
          if (win == top)
             return; // XXXjjb hack for chromeBug
@@ -285,7 +300,7 @@ with(this){
          for (var i = 0; i < win.frames.length; ++i) {
             var subWin = win.frames[i];
             if (subWin != win)
-               this.iterateWindows(subWin, handler);
+               this.iterateWindows(subWin, handler, thisObj);
          }
       },
       

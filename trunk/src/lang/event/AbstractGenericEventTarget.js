@@ -12,6 +12,10 @@ with(this){
          this.listeners.add(new GenericListener(type, callbackFunc, thisObj))
       },
       
+      addEventListener: function(type, callbackFunc, thisObj){
+         this.addListener(type, callbackFunc, thisObj)
+      },
+      
       getListener: function(type, callbackFunc, thisObj){
          var listener = new GenericListener(type, callbackFunc, thisObj)
          for (var i = 0; i < this.listeners.size(); i++) {

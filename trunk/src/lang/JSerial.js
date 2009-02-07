@@ -9,23 +9,22 @@ with(this){
       /* main entry for serialization
        * JavaScript object as an input
        * usage: JSerialize(MyObject);
-       * @ObjectToSerilize: Object which should be serialized
+       * @ObjectToSerialize: Object which should be serialized
        * @objectName: Name of the root object
        * @indentSpace: String with spaces which is used to indent output
        * @ommitFunction: Boolean indicating whether functions should be serialized or not
        * @prefixOfTransientMembers: If attribute of object has this prefix it will not be serialized 
        */
-      function JSerialize(ObjectToSerilize, objectName, indentSpace, ommitFunctions, prefixOfTransientMembers)
+      function JSerialize(ObjectToSerialize, objectName, indentSpace, ommitFunctions, prefixOfTransientMembers)
       {
          indentSpace = indentSpace?indentSpace:'';
          
-         var Type = GetTypeName(ObjectToSerilize);
+         var Type = GetTypeName(ObjectToSerialize);
          
-         if((Type=="Function" && ommitFunctions) || objectName=="prototype" || 
+         if((Type=="Function" && ommitFunctions) || objectName=="prototype" || objectName.indexOf("__")==0 ||  
             (prefixOfTransientMembers!=null && objectName.indexOf(prefixOfTransientMembers)==0)){
          	return ""
          }
-          
          var s = indentSpace  + '<' + objectName +  ' type="' + Type + '">';
          
          switch(Type)
@@ -33,14 +32,14 @@ with(this){
       		case "number":
       		case "boolean":		
       		{
-      			s += ObjectToSerilize; 
+      			s += ObjectToSerialize; 
       		} 
          
       		break;
       	   
       		case "string":
       		{
-      			s += "<![CDATA[" + ObjectToSerilize +"]]>"
+      			s += "<![CDATA[" + ObjectToSerialize +"]]>"
 ;
       		}
       		
@@ -48,7 +47,7 @@ with(this){
 
       		case "date":
       	   {
-      			s += ObjectToSerilize.toLocaleString(); 
+      			s += ObjectToSerialize.toLocaleString(); 
       	   }
       	   break;
       	   
@@ -56,9 +55,9 @@ with(this){
       		{
       			s += "\n";
       				
-      				for(var name in ObjectToSerilize)
+      				for(var name in ObjectToSerialize)
       				{
-      					s += JSerialize(ObjectToSerilize[name], ('index' + name ), indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
+      					s += JSerialize(ObjectToSerialize[name], ('index' + name ), indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       				};
       				
       				s += indentSpace;
@@ -69,11 +68,11 @@ with(this){
       		{
       			s += "\n";
       			
-      			for(var name in ObjectToSerilize)
+      			for(var name in ObjectToSerialize)
       			{
-                  if(!ObjectToSerilize.hasOwnProperty(name))
+                  if(!ObjectToSerialize.hasOwnProperty(name))
                      continue
-      				s += JSerialize(ObjectToSerilize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
+      				s += JSerialize(ObjectToSerialize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       			};
       			
       			s += indentSpace;
@@ -89,10 +88,10 @@ with(this){
       
       // main entry for deserialization
       // XML string as an input
-      function JDeserialize(XmlText, namespaceArray)
+      function JDeserialize(XmlText)
       {
       	var _doc = GetDom(XmlText); 
-      	return Deserial(_doc.childNodes[0], namespaceArray);
+      	return Deserial(_doc.childNodes[0]);
       }
       
       // get dom object . IE or Mozilla
@@ -103,7 +102,7 @@ with(this){
       }
       
       // internal deserialization
-      function Deserial(xn, namespaceArray)
+      function Deserial(xn)
       {
       	var RetObj; 
       	 
@@ -125,7 +124,11 @@ with(this){
       	
       	switch(NodeType)
       	{
-      		case "Array":
+      		case "NULL":
+            {
+               return null
+            }               
+            case "Array":
       		{
       			RetObj = new Array();
       			var arrayIndex = 0
@@ -135,7 +138,7 @@ with(this){
       				if(node.nodeType!=1){
       					continue
       				}
-      				RetObj[arrayIndex++] = Deserial(node, namespaceArray);
+      				RetObj[arrayIndex++] = Deserial(node);
       			}
       			
       			return RetObj;
@@ -147,16 +150,7 @@ with(this){
       		
       		default:
       		{
-   				var ns = ""
-      			if(namespaceArray){
-      				for (var i = 0; i < namespaceArray.length; i++) {
-      					if(window[namespaceArray[i]][NodeType]!=null){
-      						ns = namespaceArray[i]
-      						break;
-      					}
-      				}
-      			}
-      			RetObj = eval("new "+ (ns.length>0?ns+".":"") + NodeType + "()");
+      			RetObj = eval("new "+ NodeType + "()");
       		}
       		break;
       	}
@@ -167,7 +161,7 @@ with(this){
       		if(node.nodeType!=1){
       			continue
       		}
-      		RetObj[node.nodeName] = Deserial(node, namespaceArray);
+      		RetObj[node.nodeName] = Deserial(node);
       	}
       
       	return RetObj;
@@ -254,6 +248,8 @@ with(this){
       	{
       		var ClassName = obj.constructor.toString();
       		ClassName = ClassName.substring(ClassName.indexOf("function") + 8, ClassName.indexOf('(')).replace(/ /g,'');
+            if(obj.__namespace)
+               ClassName = obj.__namespace + "." + ClassName
       		return ClassName;
       	}
       	catch(e) 
@@ -262,19 +258,19 @@ with(this){
       	}
       }
        
-      function GetTypeName(ObjectToSerilize)
+      function GetTypeName(ObjectToSerialize)
       {
-      	if (ObjectToSerilize instanceof Date)
+      	if (ObjectToSerialize instanceof Date)
       		return "date";	
       		
-      	var Type  = typeof(ObjectToSerilize);
+      	var Type  = typeof(ObjectToSerialize);
       
       	if (IsSimpleVar(Type))
       	{
       		return Type;
       	}
       	
-      	Type = GetClassName(ObjectToSerilize); 
+      	Type = GetClassName(ObjectToSerialize); 
       	
       	return Type;
       }

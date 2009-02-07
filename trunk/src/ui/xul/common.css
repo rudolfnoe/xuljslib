@@ -1,9 +1,6 @@
 button{
    text-align:center
 }
-keyinputbox {
-    -moz-binding: url("common_bindings.xml#keyinputbox") !important;
-}
 
 colorfield{
    -moz-binding: url("common_bindings.xml#colorfield") !important;
@@ -11,4 +8,35 @@ colorfield{
 
 editlistbox{
    -moz-binding: url("common_bindings.xml#editlistbox") !important;
+}
+
+dialogheader{
+   -moz-binding: url("common_bindings.xml#dialogheader") !important;
+   background-color:white;
+   margin-top:-8px;
+   margin-right:-8px;
+   margin-bottom: 8px;
+   margin-left:-8px;
+   padding: 5px 8px;
+   border-bottom: 1px inset grey;
+}
+
+.dialogheader-title{
+   font-weight:bold
+}
+
+.dialogheader-message{
+ -moz-appearance: none !important;
+  padding: 0px !important;
+  margin: 0px !important;
+  border: none !important;
+  overflow: visible;
+}
+
+keyinputbox {
+    -moz-binding: url("common_bindings.xml#keyinputbox") !important;
+}
+
+shortstringinputbox{
+   -moz-binding: url("common_bindings.xml#shortstringinputbox") !important;
 }

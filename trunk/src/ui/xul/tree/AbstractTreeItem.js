@@ -4,6 +4,7 @@ with(this){
       this.filtered = false
       this.level = 0
       this.parent = null
+      this.imageSrc = null
    }
    
    AbstractTreeItem.prototype = {
@@ -30,8 +31,12 @@ with(this){
          throw new Error ('Not implemented')
       },
 
-      getImageSrc : function(col) {
-         return null
+      getImageSrc: function(){
+         return this.imageSrc
+      },
+
+      setImageSrc: function(imageSrc){
+         this.imageSrc = imageSrc
       },
       
       getParent: function(){
