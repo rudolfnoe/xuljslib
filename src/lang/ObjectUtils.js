@@ -40,11 +40,19 @@ with(this){
 				   	clone[i] = this.deepClone(obj[i])
 				   }
 				   break;
-				
+				case BasicObjectTypes.OBJECT:
+               clone = {}
+               //no break for further copying of members
 				default:
-				   clone = new obj.constructor()
+               //Clone must be instantiated via eval to assure that
+               //the newly created obj has the scope of the current window
+               if(!clone)
+                  clone = eval("new " + obj.__namespace + "." + t +"()")
 				   for(var m in obj){
-				   	clone[m] = this.deepClone(obj[m])
+                  //Prototype must not be cloned as this results undefined errors when an object is
+                  //created in a Dialog and afterwards used in the opener after the context (the dialog window) is closed.
+                  if(obj.hasOwnProperty(m))
+				   	   clone[m] = this.deepClone(obj[m])
 			      }
 			}
    		return clone

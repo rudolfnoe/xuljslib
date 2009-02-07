@@ -1,43 +1,43 @@
 with(this){
 (function(){
 	var XPathUtils = {
-		createXPath: function(element, noPredicates){
+      defaultPredicateStrategies: null,
+      
+		createXPath: function(element, predicateStrategies){
+         predicateStrategies= predicateStrategies?predicateStrategies:this.getDefaultPredicateStrategies()
 			var result = ""
-			var doBreak = false
          var loopElem = element
 			do{
-            if(loopElem.hasAttribute('id')){
-					result = "id('" + loopElem.id + "')" + result
-					break
-				}
-				if(false){
-   				if(loopElem.hasAttribute('name')){
-   					result = "[@name='" + loopElem.getAttribute('name') + "']" + result
-   					doBreak = true
-   				}
-   				if(loopElem.hasAttribute('href')){
-   					result = "[@href='" + loopElem.getAttribute('href') + "']" + result
-   					doBreak = true
-   				}
+            var locationStep = "/" + loopElem.tagName
+            var predicateStrategy = null
+            for (var i = 0; i < predicateStrategies.length; i++) {
+               predicateStrategy = predicateStrategies[i]
+               var predicate = predicateStrategy.getPredicate(loopElem)
+               if(predicate==null)
+                  continue
+               locationStep += predicate
+               break
             }
-				if(!doBreak){
-					var index = this.getIndexOfElement(loopElem)
-					if(index!=-1){
-						result = "[" + index + "]" + result
-					}
-				}
-				result = "/" + loopElem.tagName + result
-				if(doBreak){
-              result = "/" + result					
-				  break;
-				}
+				result = locationStep + result
+            if(predicateStrategy.isStopFurtherEvalutation(loopElem))
+               break
 				loopElem = loopElem.parentNode
-			}while(loopElem.nodeName!='#document')
+			}while(loopElem.nodeName!='HTML')
+         
+         result = "/" + result
 			
          //Test uniqueness
          var elements = this.getElements(result, element.ownerDocument, XPathResult.ORDERED_NODE_ITERATOR_TYPE)
          if(elements.length>1){
-            var result = this.createXPath(element, true)
+            var found = false
+            for (var i = 0; i < elements.length; i++) {
+               if(element==elements[i]){
+                  result = "(" + result + ")[" + (i+1) + "]"
+                  found = true
+               }
+            }
+            if(!found)
+               throw new Error('invalid xpath expresssion')
             elements = this.getElements(result, element.ownerDocument)
          }
          if(elements.length>1){
@@ -47,6 +47,15 @@ with(this){
          }
 			return result
 		},
+      
+      getDefaultPredicateStrategies: function(){
+         if(!this.defaultPredicateStrategies)
+            this.defaultPredicateStrategies = [new AttributePredicateStrategy('id'),
+                                          new AttributePredicateStrategy('name'),
+                                          new AttributePredicateStrategy('href'),
+                                          new DefaultPredicateStrategy()]
+         return this.defaultPredicateStrategies
+      },
 		
 		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
@@ -78,6 +87,8 @@ with(this){
          var elements = DomUtils.getChildrenBy(parent, function(node){
             return node.tagName == element.tagName
          })
+         if(elements.length==1)
+            return -1
          for (var i = 0; i < elements.length; i++) {
          	if(elements[i]==element){
          		return i+1
@@ -88,5 +99,82 @@ with(this){
    }
    
 	this["XPathUtils"] = XPathUtils;
+   
+   /* Predicate Strategies */
+   function AbstractPredicateStrategy(){
+   }
+   
+   AbstractPredicateStrategy.prototype = {
+      constructor: AbstractPredicateStrategy,   
+      
+      getPredicate: function(element){
+         throw new Error ('not implemented')
+      }
+   }
+   
+   this["AbstractPredicateStrategy"] = AbstractPredicateStrategy
+   
+   function DefaultPredicateStrategy(){
+   }
+   
+   DefaultPredicateStrategy.prototype = {
+      constructor: DefaultPredicateStrategy,
+      
+      getPredicate: function(element){
+         var position = XPathUtils.getIndexOfElement(element)
+         if(position==-1)
+            return null
+         else
+            return "[" + position + "]"
+      },
+      
+      isStopFurtherEvalutation: function(){
+         return false
+      }
+   }
+   ObjectUtils.extend(DefaultPredicateStrategy, AbstractPredicateStrategy)
+   this["DefaultPredicateStrategy"] = DefaultPredicateStrategy
+
+   function AttributePredicateStrategy(attrName){
+      this.attrName = attrName
+   }
+   
+   AttributePredicateStrategy.prototype = {
+      constructor: AttributePredicateStrategy,
+      
+      getPredicate: function(element){
+         if(element.hasAttribute(this.attrName))
+            return "[@" + this.attrName + "=" + "'" + element.getAttribute(this.attrName) + "']"
+         else
+            return null
+      },
+      
+      isStopFurtherEvalutation: function(element){
+         return element.hasAttribute(this.attrName)
+      }
+   }
+   ObjectUtils.extend(AttributePredicateStrategy, AbstractPredicateStrategy)
+   this["AttributePredicateStrategy"] = AttributePredicateStrategy
+   
+   function TextContentPredicateStrategy(){
+   }
+   
+   TextContentPredicateStrategy.prototype = {
+      constructor: TextContentPredicateStrategy,
+      
+      getPredicate: function(element){
+         var firstTextNode = XPathUtils.getElement(".//text()", element)
+         if(!firstTextNode)
+            return null
+         return "[descendant::text()='" + firstTextNode.nodeValue + "']"
+      },
+      
+      isStopFurtherEvalutation: function(){
+         return true
+      }
+   }
+   ObjectUtils.extend(TextContentPredicateStrategy, AbstractPredicateStrategy)
+   this["TextContentPredicateStrategy"] =  TextContentPredicateStrategy
+
 }).apply(this)
 }

@@ -2,6 +2,7 @@ with(this){
 (function(){
 	
 	function AbstractTreeView(tree, rootItem) {
+      this.AbstractGenericEventTarget()
 		this.tree = tree
       this.visibleItems = new ArrayList()
       if(arguments.length>=2){
@@ -42,6 +43,7 @@ with(this){
          if(!parent.isContainer())
             throw new Error('parent is no container')
          parent.addChild(item)
+         this.notifyListeners({type:"add", item:item})
          if(parent.isVisible()){
             var insertIndex = this.getIndexForItem(parent) + parent.getVisibleDescendantsCount()
    			this.visibleItems.addAtIndex(insertIndex, item)
@@ -166,6 +168,10 @@ with(this){
          }
          iterateItem.apply(this, [this.getRootItem()])
       },
+      notifyUpdate: function(item){
+         this.notifyListeners({type:"update", item:item})
+         this.invalidateRow(item)
+      },
       removeItem: function(item){
          if(item.getParent()==null)
             throw new Error('root cannot be removed')
@@ -180,6 +186,7 @@ with(this){
             }else{
       			this.visibleItems.removeAtIndex(index)
             }
+            this.notifyListeners({type:"remove", item:item})
    			this.updateRowCount()
    			this.rowCountChanged(index, -removedItemsCount)
          }
@@ -217,8 +224,9 @@ with(this){
             this.visibleItems.addAllAtIndex(row+1, visibleDescendants)
             this.rowCountChanged(row+1, visibleDescendants.size()) 
          }
-      },
-	}	
+      }
+	}
+   ObjectUtils.extend(AbstractTreeView, "AbstractGenericEventTarget", this)
 	this["AbstractTreeView"] = AbstractTreeView;
 }).apply(this)
 }

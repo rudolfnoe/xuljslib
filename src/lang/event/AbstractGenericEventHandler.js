@@ -14,5 +14,18 @@ with(this){
 		}
 	}
    this["AbstractGenericEventHandler"] = AbstractGenericEventHandler;
+   
+   /*
+    * Constructor for KeyEventHandler
+    */
+   function KeyEventHandler(shortcutManager, scmHandleEventFunction){
+      this.shortcutManager = shortcutManager
+      this.scmHandleEventFunction = scmHandleEventFunction
+      this.handleEvent = function(event){
+         this.shortcutManager[this.scmHandleEventFunction](event)
+      }
+   }
+   this.KeyEventHandler = KeyEventHandler;
+   
 }).apply(this)
 }

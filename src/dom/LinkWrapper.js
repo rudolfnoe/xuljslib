@@ -18,5 +18,6 @@ with(this){
       TAB:"tab",
       WINDOW:"window"
    }
+   this.LinkTarget = LinkTarget;
 }).apply(this)
 }

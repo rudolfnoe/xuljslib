@@ -41,6 +41,15 @@ with(this){
 			return this.prefs.getIntPref(key)
 		},
       
+      getPrefAsArray : function(key, delimiter){
+         var pref = this.getCharPref(key)
+         var result = pref.split(delimiter)
+         for (var i = 0; i < result.length; i++) {
+            result[i] = StringUtils.trim(result[i])
+         }
+         return result
+      },
+      
       getPref : function(key, defaultValue){
          var defaultValue = defaultValue?defaultValue:"" 
          return Application.prefs.getValue(key, defaultValue) 
