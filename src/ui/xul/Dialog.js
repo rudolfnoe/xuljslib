@@ -85,6 +85,10 @@ with(this){
       Dialog.setMessageInHeader("")   
    },
    
+   Dialog.getAcceptButton = function(){
+      return document.getAnonymousElementByAttribute(document.documentElement, "dlgtype", "accept")
+   }
+   
    Dialog.getDialog = function(){
       var dialogs = document.getElementsByTagName('dialog')
       if(dialogs.length!=1)

@@ -16,6 +16,7 @@ with(this){
    this["BasicObjectTypes"] = BasicObjectTypes;
 	
 	var ObjectUtils = {
+      
 		callFunction: function(functionPnt, thisObj, args){
          thisObj = thisObj?thisObj: this
          functionPnt.apply(thisObj, args)
@@ -120,6 +121,8 @@ with(this){
          if(typeof constructorSuperclass == "string"){
             if(!namespaceObj)
                throw new Error('When providing contstructor as string namespace obj must not be null')
+            if(typeof namespaceObj == "string")
+               throw new Error('namespaceObj must not be provided as string')
             constructorSuperclassFunc = namespaceObj[constructorSuperclass]
          }else{
             if(constructorSuperclass==null)
@@ -140,6 +143,7 @@ with(this){
                      ObjectUtils.extend(subclassConstructor, newval)
 //                     consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(subclassConstructor) + " extends " + constructorSuperclass);
                   }
+                  return newval
                })
             }
             this._waitOnSuperClassLoadMap[constructorSuperclass].push(constructorSubClass)
@@ -151,7 +155,6 @@ with(this){
                  target.prototype[member] = source[member]
                }
             }
-            
          }
          var source = constructorSuperclassFunc.prototype
          do{
@@ -201,8 +204,19 @@ with(this){
 		   return constructorString.match(/^function (\w*)\(/)[1]
       },
    	
-   	//Checks wether obj has all functions of constructor
+      injectFunctions: function(targetObj, sourceObj){
+         for(var memberKey in sourceObj){
+            var member = sourceObj[memberKey]
+            if(this.instanceOf(member, Function) && !targetObj.hasOwnProperty(memberKey)){
+               targetObj[memberKey] = sourceObj[memberKey]
+            }
+         }
+      },
+
+      //Checks wether obj has all functions of constructor
    	instanceOf: function(obj, constructorFunc){
+         if(obj==null)
+            return false
          if(this.getType(obj) == this.getTypeFromConstructor(constructorFunc))
             return true
    		if(!obj.__supertypes)

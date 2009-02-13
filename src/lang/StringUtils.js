@@ -57,7 +57,13 @@ with(this){
          return string.replace(/\s/g, "")
       },
    	
-   	trim: function(string){
+   	startsWith: function(string, startString){
+         if(this.isEmpty(string))
+            return false
+         return string.indexOf(startString)==0   
+      },
+      
+      trim: function(string){
    		return string.replace(/^\s*/, "").replace(/\s*$/, "")
    	}
    }

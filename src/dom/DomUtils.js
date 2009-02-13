@@ -11,6 +11,12 @@ with(this){
             doc.documentElement.appendChild(link);
       },
       
+      appendElement: function(parent, tagName){
+         var doc = parent.ownerDocument
+         var newElement = doc.createElement(tagName)
+         return parent.appendChild(newElement)
+      },
+      
       assureStyleSheet: function(doc, url){
          var styleSheets = doc.styleSheets
          var included = false
@@ -83,6 +89,24 @@ with(this){
          return this.getChildrenBy(element, function(childNode){
             return childNode.nodeType==1 && childNode.tagName.toLowerCase()==childTagName.toLowerCase()
          })
+      },
+      
+      getElement: function(elementOrId){
+         if(typeof elementOrId == "string"){
+            return document.getElementById(elementOrId)
+         }else{
+            return elementOrId
+         }
+      },
+      
+      getElements: function(elementOrIdArray){
+         var resultArray = []
+         if(elementOrIdArray){
+            for (var i = 0; i < elementOrIdArray.length; i++) {
+               resultArray.push(this.getElement(elementOrIdArray[i]))
+            }
+         }
+         return resultArray
       },
       
       getElementChildren: function(element){
@@ -342,7 +366,7 @@ with(this){
       RADIO: "RADIO",
       SELECT: "SELECT",
       TEXT: "TEXT",
-      TEXTAREA: "TEXTAREA",
+      TEXTAREA: "TEXTAREA"
    }
    this["HtmlElementType"] = HtmlElementType
       

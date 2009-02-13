@@ -11,7 +11,19 @@ with(this){
 			if(this[funcName] instanceof Function){
 				this[funcName](event)
 			}
-		}
+		},
+      
+      registerMultipleEventListener: function(element, eventTypeArray, useCapture){
+         for (var i = 0; i < eventTypeArray.length; i++) {
+            element.addEventListener(eventTypeArray[i], this, useCapture)
+         }
+      },
+      
+      unRegisterMultipleEventListener: function(element, eventTypeArray, useCapture){
+         for (var i = 0; i < eventTypeArray.length; i++) {
+            element.removeEventListener(eventTypeArray[i], this, useCapture)
+         }
+      }
 	}
    this["AbstractGenericEventHandler"] = AbstractGenericEventHandler;
    
