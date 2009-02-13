@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:xbl="http://www.mozilla.org/xbl">
+   <binding id="commonBase">
+      <implementation>
+         <field name="namespaceObj"/>
+         <constructor>
+            this._setNamespaceObj()
+         </constructor>
+         <method name="_setNamespaceObj">
+            <body>
+            <![CDATA[
+            if(!this.hasAttribute('namespaceObj'))
+               return
+            var namespaceString = this.getAttribute('namespaceObj')
+            var parts = namespaceString.split('.')
+            var namespaceObj = window
+            for(var i=0; i<parts.length; i++){
+               namespaceObj = namespaceObj[parts[i]]
+               if(namespaceObj==null)
+                  throw new Error('defined namespace obj not available')
+            }
+            this.namespaceObj = namespaceObj
+            ]]>
+            </body>
+         </method>
+         <method name="getNamespaceObj">
+            <body>return this.namespaceObj</body>
+         </method>
+      </implementation>
+   </binding>
+</bindings>
