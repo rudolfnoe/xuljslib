@@ -1,0 +1,16 @@
+@CHARSET "ISO-8859-1";
+colorfield{
+   -moz-binding: url("colorfield.xml#colorfield") !important;
+}
+
+dialogheader{
+   -moz-binding: url("dialog.xml#dialogheader") !important;
+}
+
+keyinputbox {
+    -moz-binding: url("keyconfiguration.xml#keyinputbox") !important;
+}
+
+shortstringinputbox{
+   -moz-binding: url("keyconfiguration.xml#shortstringinputbox") !important;
+}

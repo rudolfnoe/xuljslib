@@ -2,53 +2,6 @@ button{
    text-align:center
 }
 
-colorfield{
-   -moz-binding: url("common_bindings.xml#colorfield") !important;
-}
-
-editlistbox{
-   -moz-binding: url("common_bindings.xml#editlistbox") !important;
-}
-
-dialogheader{
-   -moz-binding: url("common_bindings.xml#dialogheader") !important;
-   background-color:white;
-   margin-top:-8px;
-   margin-right:-8px;
-   margin-bottom: 8px;
-   margin-left:-8px;
-   padding: 5px 8px;
-   border-bottom: 1px inset grey;
-}
-
-.dialogheader-title{
-   font-weight:bold
-}
-
-.dialogheader-message{
- -moz-appearance: none !important;
-  padding: 0px !important;
-  margin: 0px !important;
-  border: none !important;
-  overflow: visible;
-}
-
-.error-icon{
-   background: url("./error.ico") no-repeat;
-}
-
-.warning-icon{
-   background: url("./warning.ico") no-repeat;
-}
-
-keyinputbox {
-    -moz-binding: url("common_bindings.xml#keyinputbox") !important;
-}
-
-shortstringinputbox{
-   -moz-binding: url("common_bindings.xml#shortstringinputbox") !important;
-}
-
 treechildren::-moz-tree-checkbox()
 {
     /* css for checked cells */
@@ -58,4 +11,21 @@ treechildren::-moz-tree-checkbox(checked)
 {
     /* css for checked cells */
     list-style-image: url("./tree/checkbox_checked.ico");
+}
+
+#For backward compatibility
+colorfield{
+   -moz-binding: url("../bindings/colorfield.xml#colorfield") !important;
+}
+
+dialogheader{
+   -moz-binding: url("../bindings/dialog.xml#dialogheader") !important;
+}
+
+keyinputbox {
+    -moz-binding: url("../bindings/keyconfiguration.xml#keyinputbox") !important;
+}
+
+shortstringinputbox{
+   -moz-binding: url("../bindings/keyconfiguration.xml#shortstringinputbox") !important;
 }
