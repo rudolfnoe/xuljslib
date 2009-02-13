@@ -2,7 +2,7 @@ with(this){
 (function(){
 	
 	function AbstractTreeView(tree, rootItem) {
-      this.AbstractGenericEventTarget()
+      this.AbstractGenericEventSource()
 		this.tree = tree
       this.visibleItems = new ArrayList()
       if(arguments.length>=2){
@@ -52,7 +52,7 @@ with(this){
          }
       },
       filter: function(filterExp){
-         this._iterateTree(function(item){
+         this.iterateTree(function(item){
             var columns = this.tree.columns
             for (var i = 0; i < columns.length; i++) {
                var cellText = item.getCellText(columns.getColumnAt(i))
@@ -67,7 +67,7 @@ with(this){
          var oldSize = this.visibleItems.size()
          this.visibleItems.clear()
          this.treebox.rowCountChanged(0, -oldSize)
-         this._iterateTree(function(item){
+         this.iterateTree(function(item){
             if(!item.getFiltered()){
                this.visibleItems.add(item)
             }
@@ -79,6 +79,12 @@ with(this){
 		},
 		getCellText : function(row, column) {
          return this.visibleItems.get(row).getCellText(column)
+		},
+		getCellValue : function(row, column) {
+         return this.visibleItems.get(row).getCellValue(column)
+		},
+		setCellValue : function(row, column, value) {
+         return this.visibleItems.get(row).setCellValue(column, value)
 		},
 		getColumnProperties : function(colid, col, props) {
          //TODO
@@ -112,6 +118,9 @@ with(this){
 		getRowProperties : function(row, props) {
          //TODO
 		},
+      getSelectedIndex: function(){
+         return this.tree.currentIndex
+      },
       getSelectedItem: function(){
          if(this.tree.currentIndex==-1)
             return null
@@ -147,26 +156,28 @@ with(this){
       isContainerOpen: function(row){
       	return this.visibleItems.get(row).isContainerOpen()
       },
-		isSeparator : function(row) {
+		isEditable: function(row, column){
+         return false   
+      },
+      isSeparator : function(row) {
          return this.visibleItems.get(row).isSeparator()
 		},
 		isSorted : function() {
          //TODO
 			return false;
 		},
-      _iterateTree: function(callBackFunction){
-         function iterateItem(item){
-            if(!item.isContainer()){
+      iterateTree: function(callBackFunction, skipRoot){
+         function iterateItem(item, skipRoot){
+            if(!skipRoot  || item!=this.rootItem)
                callBackFunction.apply(this, [item])
-               return
-            }else{
+            if(item.isContainer()){
                var children = item.getChildren()
                for (var i = 0; i < children.size(); i++) {
                   iterateItem.apply(this, [children.get(i)])
                }
             }
          }
-         iterateItem.apply(this, [this.getRootItem()])
+         iterateItem.apply(this, [this.getRootItem(), skipRoot])
       },
       notifyUpdate: function(item){
          this.notifyListeners({type:"update", item:item})
@@ -191,10 +202,16 @@ with(this){
    			this.rowCountChanged(index, -removedItemsCount)
          }
       },
-      removeSelected: function(){
+      removeSelected: function(selectNext){
          if(this.tree.currentIndex==-1)
             return
+         var selectedIndex = this.getSelectedIndex()
          this.removeItem(this.getSelectedItem())
+         if(!selectNext || this.rowCount==0)
+            return
+         if(selectedIndex>=this.rowCount)
+            selectedIndex--
+         this.selection.select(selectedIndex)
       },
 		rowCountChanged: function(index, count){
       	if(this.treebox==null)
@@ -226,7 +243,7 @@ with(this){
          }
       }
 	}
-   ObjectUtils.extend(AbstractTreeView, "AbstractGenericEventTarget", this)
+   ObjectUtils.extend(AbstractTreeView, "AbstractGenericEventSource", this)
 	this["AbstractTreeView"] = AbstractTreeView;
 }).apply(this)
 }

@@ -50,8 +50,8 @@ with (this) {
 			/*
 			 * Log error to Console services @param error: error-obj to log
 			 */
-			logError : function(error) {
-				var errorMessage = "";
+			logError : function(error, message) {
+				var errorMessage = message?message+"\n":"";
 				for (e in error) {
 					errorMessage = errorMessage + e + ": " + error[e] + "\n";
 				}
@@ -262,6 +262,7 @@ with (this) {
 								replaceParamArray)
 					}
 				} catch (e) {
+               Utils.logError(e)
 					return null
 				}
 			},

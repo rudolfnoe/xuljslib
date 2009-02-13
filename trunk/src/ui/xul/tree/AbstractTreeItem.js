@@ -31,6 +31,14 @@ with(this){
          throw new Error ('Not implemented')
       },
 
+      getCellValue: function(column) {
+         throw new Error ('Not implemented')
+      },
+
+      setCellValue: function(column, value) {
+         throw new Error ('Not implemented')
+      },
+
       getImageSrc: function(){
          return this.imageSrc
       },
@@ -46,7 +54,7 @@ with(this){
       setParent: function(parent){
          this.parent = parent
       },
-
+      
       isContainer : function() {
          throw new Error('Must be implmeneted')
       },

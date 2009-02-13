@@ -18,6 +18,14 @@ with(this){
          if(this.suspended)
             return
          this.eventHandler.handleEvent(event)
+      },
+      
+      resume: function(){
+        this.setSuspended(false) 
+      },
+      
+      suspend: function(){
+         this.setSuspended(true)
       }
    }
 

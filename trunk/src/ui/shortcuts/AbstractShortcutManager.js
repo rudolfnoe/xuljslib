@@ -112,7 +112,11 @@ with(this){
          }
          this.currentEvent = event
          for (var i = 0; i < commandArray.length; i++) {
-            var result = commandArray[i].handleEvent(event);
+            try{
+               var result = commandArray[i].handleEvent(event);
+            }catch(e){
+               Utils.logError(e)
+            }
             if(this.isStopEvent(result)){
                event.preventDefault();
                event.stopPropagation();

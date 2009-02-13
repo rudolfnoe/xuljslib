@@ -33,10 +33,29 @@ dialogheader{
   overflow: visible;
 }
 
+.error-icon{
+   background: url("./error.ico") no-repeat;
+}
+
+.warning-icon{
+   background: url("./warning.ico") no-repeat;
+}
+
 keyinputbox {
     -moz-binding: url("common_bindings.xml#keyinputbox") !important;
 }
 
 shortstringinputbox{
    -moz-binding: url("common_bindings.xml#shortstringinputbox") !important;
+}
+
+treechildren::-moz-tree-checkbox()
+{
+    /* css for checked cells */
+    list-style-image: url("./tree/checkbox_unchecked.ico");
+}
+treechildren::-moz-tree-checkbox(checked)
+{
+    /* css for checked cells */
+    list-style-image: url("./tree/checkbox_checked.ico");
 }

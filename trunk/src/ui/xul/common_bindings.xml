@@ -37,6 +37,7 @@
             <xul:label class="dialogheader-title" xbl:inherits="value=title"/>
             <xul:hox flex="1">
                <xul:spacer width="10px"/>
+               <xul:label anonid="icon" collapsed="true" flex="0" width="16px"/>
                <xul:textbox anonid="messageField" class="dialogheader-message" xbl:inherits="value=message, rows" multiline="true" rows="1" flex="1" 
                             readonly="true" style="background-color:transparent !important" tabindex="-1"/>
             </xul:hox>
@@ -45,13 +46,14 @@
       <implementation>
          <constructor>
             this.messageField = document.getAnonymousElementByAttribute(this, "anonid", "messageField")
+            this.icon = document.getAnonymousElementByAttribute(this, "anonid", "icon")
             if(!this.hasAttribute("id"))
                this.setAttribute("id", "dialogheader")
          </constructor>
          <method name="clearMessage">
             <body>
                this.messageField.value = ""
-               this.messageField.style.removeProperty("color")
+               this.icon.collapsed = true
             </body>
          </method>
          <method name="restoreDefaultMessage">
@@ -70,12 +72,26 @@
             <parameter name="severity"/>
             <body>
                <![CDATA[
-                  this.clearMessage()
                   this.messageField.value = messageText
                   severity = severity?severity:"INFO"
-                  if(severity.toUpperCase()=="ERROR")
-                     this.messageField.style.setProperty("color", "red", "")
+                  if(severity.toUpperCase()=="INFO"){
+                     this.icon.collapsed = true
+                  }else{
+                     this.icon.collapsed = false
+                     if(severity.toUpperCase()=="ERROR") 
+                        this.icon.className="error-icon"
+                     else if (severity.toUpperCase()=="WARNING")
+                        this.icon.className="warning-icon"
+                     else
+                        throw new Error ('unknown severity')
+                  }
                ]]>
+            </body>
+         </method>
+         <method name="setWarningMessage">
+            <parameter name="messageText"/>
+            <body>
+               this.setMessage(messageText, "WARNING")
             </body>
          </method>
       </implementation>
@@ -86,6 +102,14 @@
          <stylesheet src="common_bindings.css"/>
       </resources>
       <content>
+         <xul:popupset>
+            <xul:menupopup anonid="specialKeysPUP">
+               <xul:menuitem label="Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('TAB')"/>
+               <xul:menuitem label="Shif + Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('SHIFT_TAB')"/>
+               <xul:menuitem label="Escape" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('ESCAPE')"/>
+               <xul:menuitem label="Backspace" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('BACKSPACE')"/>
+            </xul:menupopup>
+         </xul:popupset>
          <xul:hbox>
             <xul:textbox anonid="keyinputbox" 
                xbl:inherits="size, context, flex" 
@@ -95,6 +119,9 @@
                onfocus="style.background='#faa';"
                onblur="style.background='#fff';"
                />
+            <xul:dropmarker anonid="specialKeysDM" tabindex="0" oncommand="document.getBindingParent(this).showSpecialKeysPUP()">
+               
+            </xul:dropmarker>
          </xul:hbox>
       </content>
       <implementation>
@@ -114,10 +141,93 @@
        
       
          <constructor>
+           this.specialKeysDM = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysDM")
+           this.specialKeysPUP = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysPUP")
            this.textbox = document.getAnonymousElementByAttribute(this, "anonid", "keyinputbox")
            if (this.getAttribute('keycode') != '')
              this.updateDisplay();
          </constructor>
+      
+         <method name="getCombinedValue">
+            <body>
+            <![CDATA[
+               return this.keyCode << 4 | this.modifiers;
+            ]]>
+            </body>
+         </method>
+      
+         <method name="getKeyString">
+            <body>
+               return this.getStringForCombinedKeyCode(this.getCombinedValue())
+            </body>
+         </method>
+      
+         <method name="getModifiers">
+            <parameter name="event"/>
+            <body>
+                return event.altKey * Event.ALT_MASK |
+                       event.ctrlKey * Event.CONTROL_MASK |
+                       event.shiftKey * Event.SHIFT_MASK |
+                       event.metaKey * Event.META_MASK;
+            </body>
+         </method> 
+         
+         <method name="getStringForCombinedKeyCode">
+            <parameter name="combinedKeyCode"/>
+            <body>
+                return this.getNamespaceObj().KeyInputbox.getStringForCombinedKeyCode(combinedKeyCode)
+            </body>
+         </method>
+         
+         <method name="isSet">
+            <body>
+               return this.getCombinedValue()!=0
+            </body>
+         </method>
+
+         <method name="hasCtrlAltMeta">
+            <parameter name="event"/>
+            <body>
+               return event.altKey || event.ctrlKey || event.metaKey
+            </body>
+         </method>
+      
+         <method name="onKeyDown">
+            <parameter name="event"/>
+            <body>
+            <![CDATA[
+                var keyCode = event.keyCode
+                if (!this.hasCtrlAltMeta(event)){
+                   if(keyCode==KeyEvent.DOM_VK_TAB || keyCode==KeyEvent.DOM_VK_ESCAPE){
+                     return;
+                   }else if(keyCode==KeyEvent.DOM_VK_BACK_SPACE){
+                      this.setKey(0, 0)
+                      return 
+                   }
+                }
+                this.setKey(event.keyCode, this.getModifiers(event));
+                this.stopEvent(event);
+            ]]>
+            </body>
+         </method> 
+    
+         <method name="setKey">
+            <parameter name="keyCode"/>
+            <parameter name="modifiers"/>
+            <body>
+               this.updateAttr('keycode', keyCode);
+               this.updateAttr('modifiers', modifiers);
+               this.updateDisplay();
+            </body>
+         </method>   
+
+         <method name="stopEvent">
+            <parameter name="event"/>
+            <body>
+                event.preventDefault();
+                event.stopPropagation();
+            </body>
+         </method>
       
          <method name="updateAttr">
             <parameter name="attr"/>
@@ -132,74 +242,13 @@
             ]]>
             </body>
          </method>
-       
+
          <method name="updateDisplay">
             <body>
                this.textbox.value = this.getKeyString();
             </body>
          </method>
-      
-         <method name="getKeyString">
-            <body>
-               return this.getStringForCombinedKeyCode(this.getCombinedValue())
-            </body>
-      	
-         </method>
-         <method name="onKeyDown">
-            <parameter name="event"/>
-            <body>
-            <![CDATA[
-                var keyCode = event.keyCode
-                if (!this.hasCtrlAltMeta(event)){
-                   if(keyCode==KeyEvent.DOM_VK_TAB){
-                     return;
-                   }else if(keyCode==KeyEvent.DOM_VK_BACK_SPACE){
-                      this.setKey(0, 0)
-                      return 
-                   }
-                }
-                this.setKey(event.keyCode, this.getModifiers(event));
-                this.stopEvent(event);
-            ]]>
-            </body>
-         </method> 
-    
-         <method name="stopEvent">
-            <parameter name="event"/>
-            <body>
-                event.preventDefault();
-                event.stopPropagation();
-            </body>
-         </method>
-      
-         <method name="setKey">
-            <parameter name="keyCode"/>
-            <parameter name="modifiers"/>
-            <body>
-               this.updateAttr('keycode', keyCode);
-               this.updateAttr('modifiers', modifiers);
-               this.updateDisplay();
-            </body>
-         </method>   
-      
-      
-         <method name="getModifiers">
-            <parameter name="event"/>
-            <body>
-                return event.altKey * Event.ALT_MASK |
-                       event.ctrlKey * Event.CONTROL_MASK |
-                       event.shiftKey * Event.SHIFT_MASK |
-                       event.metaKey * Event.META_MASK;
-            </body>
-         </method> 
-         
-         <method name="hasCtrlAltMeta">
-            <parameter name="event"/>
-            <body>
-               return event.altKey || event.ctrlKey || event.metaKey
-            </body>
-         </method>
-      
+
          <method name="setCombinedValue">
             <parameter name="value"/>
             <body>
@@ -214,25 +263,36 @@
             ]]>
             </body>
          </method>
-      
-         <method name="getCombinedValue">
+         
+         <method name="setKeyboxFromDropmarkerMenu">
+            <parameter name="keyCombId"/>
             <body>
-            <![CDATA[
-               return this.keyCode << 4 | this.modifiers;
-            ]]>
-            </body>
-         </method>
-      
-         <method name="getStringForCombinedKeyCode">
-            <parameter name="combinedKeyCode"/>
-            <body>
-      		    return this.getNamespaceObj().KeyInputbox.getStringForCombinedKeyCode(combinedKeyCode)
+               <![CDATA[
+                  var combinedValue = 0
+                  switch(keyCombId){
+                     case "TAB": 
+                        combinedValue = 9<<4
+                        break
+                     case "SHIFT_TAB": 
+                        combinedValue = 9<<4|Event.SHIFT_MASK
+                        break
+                     case "ESCAPE": 
+                        combinedValue = 27<<4
+                        break
+                     case "BACKSPACE": 
+                        combinedValue = 8<<4
+                        break
+                     default:
+                        throw new Error('unknown key combination')
+                  }
+                  this.setCombinedValue(combinedValue)
+               ]]>
             </body>
          </method>
          
-         <method name="isSet">
+         <method name="showSpecialKeysPUP">
             <body>
-               return this.getCombinedValue()!=0
+               this.specialKeysPUP.openPopup(this.specialKeysDM, "after_start")
             </body>
          </method>
       </implementation>
