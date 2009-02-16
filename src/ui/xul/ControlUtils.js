@@ -78,6 +78,27 @@ with(this){
          }
       },
       
+      insertTextAt : function(element, textToInsert, insertAt, after) {
+			var newSelectionEnd = element.selectionEnd
+			var newSelectionStart = element.selectionStart
+         if(!after){
+   			newSelectionEnd += textToInsert.length;
+   			newSelectionStart += textToInsert.length;
+         }
+			var currentValue = element.value;
+
+			var beforeText = currentValue.substring(0, insertAt);
+			var afterText = currentValue.substring(insertAt);
+
+			element.value = beforeText + textToInsert + afterText;
+
+			element.setSelectionRange(newSelectionStart, newSelectionEnd);
+		},  
+      
+      insertTextAtCursorPos: function(element, textToInsert, after){
+         this.insertTextAt(element, textToInsert, element.selectionEnd, after)
+      },
+      
       observeControl: function(control, callbackFunc, thisObj){
          var callBack = Utils.bind(callbackFunc, thisObj)
          var tagName = control.tagName.toLowerCase() 

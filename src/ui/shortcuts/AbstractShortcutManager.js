@@ -37,20 +37,20 @@ with(this){
          return this.currentEvent 
       },
    
-      abstractAddShortcut: function(shortcutKey, commandDefinition, comandThisObj, clientId){
+      abstractAddShortcut: function(shortcutKey, cmdDefinition, cmdThisObj, clientId){
          if(this.destroyed)
             throw new Error('Shortcutmananger already destroyed')
    
          var command = null
-         if(commandDefinition.constructor == String){//instanceof doesn't work
-            command = new JsShortcut(commandDefinition, clientId)
-         }else if(typeof commandDefinition == "function" || 
-              (commandDefinition!=null && typeof commandDefinition.handleEvent == "function")){
-           command = new FunctionShortcut(commandDefinition, comandThisObj, clientId)        
-         }else if(commandDefinition instanceof XULElement && commandDefinition.tagName.toLowerCase()=="commandDefinition"){
-            command = new CommandShortcut(commandDefinition, clientId)   
+         if(cmdDefinition.constructor == String){//instanceof doesn't work
+            command = new JsShortcut(cmdDefinition, clientId)
+         }else if(typeof cmdDefinition == "function" || 
+              (cmdDefinition!=null && typeof cmdDefinition.handleEvent == "function")){
+           command = new FunctionShortcut(cmdDefinition, cmdThisObj, clientId)        
+         }else if(cmdDefinition instanceof XULElement && cmdDefinition.tagName.toLowerCase()=="command"){
+            command = new CommandShortcut(cmdDefinition, clientId)   
          }else{
-           throw new Error('commandDefinition is neither String nor Function or EventHandler')  
+           throw new Error('cmdDefinition is neither String nor Function or EventHandler')  
          }
          
          var commandArray = this.shortcutToCommandMap[shortcutKey];

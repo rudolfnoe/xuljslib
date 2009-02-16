@@ -149,6 +149,7 @@ with(this){
             this._waitOnSuperClassLoadMap[constructorSuperclass].push(constructorSubClass)
             return
          }
+         //Function members will be copied explicitly to support multiple inheritance
          function copyMembers(source, target){
             for (var member in source) {
                if(!target.prototype.hasOwnProperty(member) && (typeof source[member] == "function")){

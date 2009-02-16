@@ -22,7 +22,7 @@ with(this){
             if(predicateStrategy.isStopFurtherEvalutation(loopElem))
                break
 				loopElem = loopElem.parentNode
-			}while(loopElem.nodeName!='HTML')
+			}while((loopElem.nodeName!='HTML') && !(loopElem instanceof HTMLDocument))
          
          result = "/" + result
 			
