@@ -11,6 +11,14 @@ keyinputbox {
     -moz-binding: url("keyconfiguration.xml#keyinputbox") !important;
 }
 
+jseditor{
+   -moz-binding: url("editors.xml#jseditor") !important;
+}
+
 shortstringinputbox{
    -moz-binding: url("keyconfiguration.xml#shortstringinputbox") !important;
+}
+
+xmleditor{
+   -moz-binding: url("editors.xml#xmleditor") !important;
 }

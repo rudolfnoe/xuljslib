@@ -39,11 +39,11 @@ ShortcutManager.prototype = {
       var result = this.executeCommands(shortcutKey, event)
    },
    
-   addShortcut: function(keyCombination, shortcutTarget, targetObj, clientId){
-      this.abstractAddShortcut(this.getShortcutKey(keyCombination), shortcutTarget, targetObj, clientId)
+   addShortcut: function(keyCombination, cmdDefinition, cmdThisObj, clientId){
+      this.abstractAddShortcut(this.getShortcutKey(keyCombination), cmdDefinition, cmdThisObj, clientId)
    },
    
-   addShortcutForElement: function(elementOrId, keyCombination, shortcutTarget, targetObj, clientId){
+   addShortcutForElement: function(elementOrId, keyCombination, cmdDefinition, cmdThisObj, clientId){
       var element = null
       var elementId = null
       if(typeof elementOrId == "string"){
@@ -60,7 +60,7 @@ ShortcutManager.prototype = {
          throw new Error("Element for elementId does not exist");
       element.de_mouseless_shortcutmanager_id = elementId
       this.elementsWithShortcuts.push(element)
-      this.abstractAddShortcut(this.getShortcutKey(keyCombination, elementId), shortcutTarget, targetObj, clientId)
+      this.abstractAddShortcut(this.getShortcutKey(keyCombination, elementId), cmdDefinition, cmdThisObj, clientId)
       element.addEventListener("keydown", this.elementKeyEventHandler, this.useCapture);
    },
 
