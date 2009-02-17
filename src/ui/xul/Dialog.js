@@ -53,6 +53,14 @@ with(this){
          }
       },
       
+      isCancel: function(){
+         return this.getResult()==DialogResult.Cancel  
+      },
+
+      isOk: function(){
+         return this.getResult()==DialogResult.OK  
+      },
+      
       setFeatures: function(features){
          this.features = features
       },
