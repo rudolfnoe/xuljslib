@@ -33,6 +33,19 @@ with(this){
          this.addStyleSheet(doc, link)
       },
       
+      blurActiveElement: function(win){
+         Assert.paramsNotNull(arguments)
+         var activeElement = this.getActiveElement(win)
+         if(!activeElement)
+            return
+         if(activeElement.blur){       
+            activeElement.blur()
+         }
+         if(activeElement.ownerDocument.designMode=="on"){
+            activeElement.ownerDocument.defaultView.top.focus()
+         }
+      },
+      
       containsFrames: function(win){
       	return win.frames.length>0
       },
@@ -267,13 +280,28 @@ with(this){
          return node
       },
       
+      insertAsFirstChild: function(newElement, parent){
+         Assert.paramsNotNull(arguments)
+         if(parent.hasChildNodes()){
+            parent.insertBefore(newElement, parent.firstChild)
+         }else{
+            parent.appendChild(newElement)
+         }
+      },
+      
       insertAfter: function(newElement, refElement){
+         Assert.paramsNotNull(arguments)
          var parent = refElement.parentNode
          if(refElement.nextSibling!=null){
             parent.insertBefore(newElement, refElement.nextSibling)
          }else{
             parent.appendChild(newElement)
          }
+      },
+      
+      insertBefore: function(newElement, refElement){
+         Assert.paramsNotNull(arguments)
+         refElement.parentNode.insertBefore(newElement, refElement)
       },
       
       isEditableElement: function(element){

@@ -22,6 +22,16 @@ with(this){
          functionPnt.apply(thisObj, args)
       },
       
+      /* check whether the provided obj contains a member with the provided value*/
+      containsValue: function(obj, memberVal){
+         Assert.paramsNotNull(arguments)
+         for(var m in obj){
+            if(obj[m]==memberVal)
+               return true
+         }
+         return false
+      },
+      
       deepClone: function(obj){
 			var t = this.getType(obj)
 			var clone = null
@@ -223,7 +233,8 @@ with(this){
    		if(!obj.__supertypes)
             return false
          return obj.__supertypes.indexOf(this.getTypeFromConstructor(constructorFunc))!=-1
-   	}
+   	} 
+     
 	}
 	
 	this["ObjectUtils"] = ObjectUtils;
