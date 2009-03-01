@@ -1,11 +1,11 @@
 with(this){
 (function(){
-   function AbstractGenericEventSource(){
+   function GenericEventSource(){
       this.listeners = new ArrayList()
    }
    
-   AbstractGenericEventSource.prototype = {
-      AbstractGenericEventSource: AbstractGenericEventSource,
+   GenericEventSource.prototype = {
+      GenericEventSource: GenericEventSource,
 
       addListener: function(type, callbackFuncOrEventHandler, thisObj){
          this.removeListener(type, callbackFuncOrEventHandler, thisObj)
@@ -48,6 +48,9 @@ with(this){
       }
    }
    
+   /*
+    * Abstract superclass for event listeners
+    */
    function AbstractEventListener(type){
       this.type = type?type:null
    }
@@ -58,6 +61,10 @@ with(this){
 
       isType: function(type){
          return this.type == "*" || this.type == type
+      },
+      
+      handleEvent: function(event){
+        throw new Error('must be overridden') 
       }
    }
 
@@ -81,10 +88,7 @@ with(this){
       },
       
       handleEvent: function(event){
-         if(this.thisObj)
-            this.callbackFunc.apply(this.thisObj, [event])
-         else
-            this.callbackFunc(event)
+         ObjectUtils.callFunction(this.callbackFunc, this.thisObj, [event])
       }
    }
    ObjectUtils.extend(GenericEventListener, AbstractEventListener)
@@ -112,6 +116,6 @@ with(this){
    }
    ObjectUtils.extend(EventListenerWrapper, AbstractEventListener)
    
-   this["AbstractGenericEventSource"] = AbstractGenericEventSource
+   this["GenericEventSource"] = GenericEventSource
 }).apply(this)
 }
