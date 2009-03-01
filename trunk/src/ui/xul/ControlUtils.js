@@ -114,6 +114,13 @@ with(this){
             Utils.observeObject(control, "value", function(newValue){
                callBack(control, newValue)
             })
+         }else if(tagName=="checkbox"){
+            control.addEventListener("command", function(){
+               callBack(control, control.checked)
+            }, true)
+            Utils.observeObject(control, "checked", function(newValue){
+               callBack(control, newValue)
+            })
          }
       },
 		

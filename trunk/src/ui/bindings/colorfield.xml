@@ -3,11 +3,11 @@
    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
    xmlns:xbl="http://www.mozilla.org/xbl">
 
-   <binding id="colorfield" >
+   <binding id="colorfield" extends="general.xml#commonBase">
       <content>
          <xul:hbox flex="1">
             <xul:menulist flex="1" editable="true" onselect="document.getBindingParent(this).onMenulistChange()" 
-                          oninput="de_mouseless_common.ControlUtils.filterMenulist(this); document.getBindingParent(this).onMenulistChange()">
+                          oninput="document.getBindingParent(this).onMenulistInput()">
                <xul:menupopup maxheight="208px">
                   <xul:menuitem label="AliceBlue"/>        
                   <xul:menuitem label="AntiqueWhite"/>
@@ -180,6 +180,14 @@
             <body>
             <![CDATA[
                this.value = this.colorML.value
+            ]]>
+            </body>
+         </method>
+         <method name="onMenulistInput">
+            <body>
+            <![CDATA[
+               this.getNamespaceObj().ControlUtils.filterMenulist(this);
+               this.onMenulistChange()
             ]]>
             </body>
          </method>

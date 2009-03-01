@@ -2,7 +2,7 @@ with(this){
 (function(){
 	
 	function AbstractTreeView(tree, rootItem) {
-      this.AbstractGenericEventSource()
+      this.GenericEventSource()
 		this.tree = tree
       this.visibleItems = new ArrayList()
       if(arguments.length>=2){
@@ -243,7 +243,7 @@ with(this){
          }
       }
 	}
-   ObjectUtils.extend(AbstractTreeView, "AbstractGenericEventSource", this)
+   ObjectUtils.extend(AbstractTreeView, "GenericEventSource", this)
 	this["AbstractTreeView"] = AbstractTreeView;
 }).apply(this)
 }

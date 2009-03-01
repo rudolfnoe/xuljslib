@@ -12,6 +12,9 @@ with(this){
       },
 
       injectStyleListener: function(element){
+         //Hack: if wrappedJSObject is available use this, as otherwise in some cases (not all)
+         //"Too much recursion" error occurs
+         element = element.wrappedJSObject?element.wrappedJSObject:element
          var style = element.style
          style.setPropertyOriginal = style.setProperty
          style.setProperty = function(style, value, priority){

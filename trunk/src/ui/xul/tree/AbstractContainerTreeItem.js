@@ -69,7 +69,7 @@ with(this){
 
       setContainerOpen: function(containerOpen){
          this.containerOpen = containerOpen
-      },
+      }
       
       
    }

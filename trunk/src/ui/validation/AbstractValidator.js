@@ -3,7 +3,7 @@ with(this){
    const EVENT_TYPE_VALID_STATE_CHANGED = "validStateChanged"
    
    function AbstractValidator(){
-      this.AbstractGenericEventSource()
+      this.GenericEventSource()
       this.validState = null
    }
    
@@ -40,7 +40,7 @@ with(this){
       
    }
    
-   ObjectUtils.extend(AbstractValidator, "AbstractGenericEventSource", this)
+   ObjectUtils.extend(AbstractValidator, "GenericEventSource", this)
 
    this.AbstractValidator = AbstractValidator;
 }).apply(this)

@@ -55,7 +55,7 @@ with (this) {
 				for (e in error) {
 					errorMessage = errorMessage + e + ": " + error[e] + "\n";
 				}
-				this.logMessage(errorMessage);
+				Components.utils.reportError(errorMessage);
 			},
 
 			logDebugMessage : function(messageString, debugPrefId) {
@@ -303,7 +303,7 @@ with (this) {
 					else
 						functionPointer()
 					Utils.executeDelayedTimerMap[timerId] = null
-				}, delay, this)
+				}, delay)
 			},
          
          clearExecuteDelayedTimer: function(timerId){
