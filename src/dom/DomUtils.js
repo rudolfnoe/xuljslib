@@ -50,6 +50,11 @@ with(this){
       	return win.frames.length>0
       },
       
+      convertNodeListToArray: function(nodeList){
+         Assert.paramsNotNull(arguments)
+         return ArrayUtils.cloneArray(nodeList)
+      },
+      
       //Taken from firebug, see firebug-license.txt
       createStyleSheet : function(doc, url) {
          var link = doc.createElementNS("http://www.w3.org/1999/xhtml", "link");
@@ -78,6 +83,14 @@ with(this){
          return null
       },
       
+      getAttribute: function(element, attr, defaultValue){
+         if(element.hasAttribute(attr)){
+            return element.getAttribute(attr)
+         }else{
+            return defaultValue
+         }
+      },
+      
       //Taken from firebug and modified, see firebug-license.txt
       getBody : function(doc) {
          if (doc.body)
@@ -90,18 +103,12 @@ with(this){
          var result = new Array()
          var childNodes = element.childNodes
          for (var i = 0; i < childNodes.length; i++) {
-            if(testOnlyElementChilds && children[i].nodeType!=1)
+            if(testOnlyElementChilds && childNodes[i].nodeType!=1)
                continue
             if(testFunction(childNodes[i]))
                result.push(childNodes[i])
          }
          return result
-      },
-      
-      getChildrenByTagName: function(element, childTagName){
-         return this.getChildrenBy(element, function(childNode){
-            return childNode.nodeType==1 && childNode.tagName.toLowerCase()==childTagName.toLowerCase()
-         })
       },
       
       getElement: function(elementOrId){
@@ -160,7 +167,11 @@ with(this){
       },
       
       getElementsByAttribute: function(docOrElement, attr, value){
-         var xPathExp = "//*[@" + attr
+         var xPathExp = ""
+         if(docOrElement instanceof Element){
+            xPathExp += "."
+         }
+         xPathExp += "//*[@" + attr
          if(arguments.length>=3 && value!="*"){
             xPathExp += "='" + value + "']"
          }else{
@@ -173,7 +184,8 @@ with(this){
           var elems = root.getElementsByTagName(tagName)
           var result = new Array()
           for (var i = 0; i < elems.length; i++) {
-            if(elems[i].getAttribute(attr)==value || value=="*"){
+            if(elems[i].hasAttribute(attr) &&
+               (elems[i].getAttribute(attr)==value || value=="*")){
                result.push(elems[i])
             }
           }

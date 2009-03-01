@@ -13,15 +13,15 @@ with(this){
 			}
 		},
       
-      registerMultipleEventListener: function(element, eventTypeArray, useCapture){
+      registerMultipleEventListener: function(target, eventTypeArray, useCapture){
          for (var i = 0; i < eventTypeArray.length; i++) {
-            element.addEventListener(eventTypeArray[i], this, useCapture)
+            target.addEventListener(eventTypeArray[i], this, useCapture)
          }
       },
       
-      unRegisterMultipleEventListener: function(element, eventTypeArray, useCapture){
+      unRegisterMultipleEventListener: function(target, eventTypeArray, useCapture){
          for (var i = 0; i < eventTypeArray.length; i++) {
-            element.removeEventListener(eventTypeArray[i], this, useCapture)
+            target.removeEventListener(eventTypeArray[i], this, useCapture)
          }
       }
 	}

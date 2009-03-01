@@ -3,7 +3,7 @@ with(this){
    const EVENT_TYPE_VALUE_CHANGED = "valueChanged"
    
    function AbstractElementValueObserver(targetElement, initValue){
-      this.AbstractGenericEventSource()
+      this.GenericEventSource()
       this.targetElement = targetElement
       this.value = initValue
    }
@@ -38,7 +38,7 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(AbstractElementValueObserver, "AbstractGenericEventSource", this)
+   ObjectUtils.extend(AbstractElementValueObserver, "GenericEventSource", this)
 
    this.AbstractElementValueObserver = AbstractElementValueObserver;
 }).apply(this)

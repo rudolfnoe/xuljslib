@@ -54,7 +54,7 @@ with(this){
       },
       
       isCancel: function(){
-         return this.getResult()==DialogResult.Cancel  
+         return this.getResult()==DialogResult.CANCEL  
       },
 
       isOk: function(){

@@ -7,7 +7,11 @@ with(this){
    var StringUtils = {
    	digitRegEx: /^\d*$/,
       
-   	defaultString: function(string, defaultString){
+   	contains: function(needle, haystack){
+         return haystack && (haystack.indexOf(needle)!=-1)
+      },
+      
+      defaultString: function(string, defaultString){
          var defaultString = defaultString?defaultString:""
    		return string!=null?string:defaultString
    	},

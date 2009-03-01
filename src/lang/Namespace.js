@@ -19,9 +19,10 @@ with(this){
 		 * @param ns: ns string; ns parts are separaded by dot (".")
 		 * 		e.g. for "xxx.yyy.zzz" 
 		 */
-		createNamespace: function(ns){
+		createNamespace: function(ns, targetWin){
+         targetWin = targetWin?targetWin:window
 			var names = ns.split('.');
-			var obj = window;
+			var obj = targetWin
 			for (key in names){
 				var name = names[key];
 				if(obj[name] == undefined){
@@ -40,15 +41,12 @@ with(this){
 	     * 		firstlevelNS.Foo
 	     * @param object: object which is bound under <ns>.<name> 
 	     */
-	    bindToNamespace: function(ns, name, object){
+	    bindToNamespace: function(ns, name, object, targetWin){
 	    	if(object==null){
 	    		throw Error("ns.js: Namespace.bindToNamespace: Param object must not be null");
 	    	}
-	    	var namespaceObj = this.createNamespace(ns);
-	    	if(namespaceObj[name]==null 
-	    		|| namespaceObj[name].VERSION<object.VERSION){
-		    	namespaceObj[name] = object;
-	    	}
+	    	var namespaceObj = this.createNamespace(ns, targetWin);
+         namespaceObj[name] = object;
          if(typeof object == "function")
             object.prototype.__namespace = ns
 		}

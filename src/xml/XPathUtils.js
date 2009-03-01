@@ -143,10 +143,14 @@ with(this){
       constructor: AttributePredicateStrategy,
       
       getPredicate: function(element){
-         if(element.hasAttribute(this.attrName))
-            return "[@" + this.attrName + "=" + "'" + element.getAttribute(this.attrName) + "']"
-         else
+         if(element.hasAttribute(this.attrName)){
+            var attrValue = element.getAttribute(this.attrName)
+            //Determine which qutoation marks to use
+            var quotationMark = StringUtils.contains("'", attrValue)?'"':"'"
+            return "[@" + this.attrName + "=" + quotationMark + attrValue + quotationMark + "]"
+         }else{
             return null
+         }
       },
       
       isStopFurtherEvalutation: function(element){

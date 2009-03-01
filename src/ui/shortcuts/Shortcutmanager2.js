@@ -162,7 +162,7 @@ ShortcutManager.prototype = {
       	}
       }
       return this.createCombinedKeyCode(keyCode, modifierMask)
-   },
+   }
    
 }
 

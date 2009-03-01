@@ -17,52 +17,94 @@ with(this){
       getElement: function(){
          return this.element 
       },
-      setProperty: function(prop, value){
-         if(this.backupChanges)
+      /*
+       * Returns a memento of the changes done through the element wrapper
+       * This is necessary to enable passing this information from a dialog to its parent window
+       * as in this case the information is cloned
+       */
+      getChangeMemento: function(){
+         return {propertiesBackup: this.propertiesBackup, stylesBackup: this.stylesBackup}
+      },
+      setChangeMemento: function(changeMemento){
+         if(!this.backupChanges){
+            throw new Error("Object doesn't support restoring")
+         }
+         this.propertiesBackup = changeMemento.propertiesBackup
+         this.stylesBackup = changeMemento.stylesBackup
+      },
+      backupStyle: function(prop){
+         if(this.stylesBackup[prop]==null){
+            this.stylesBackup[prop] = this.style.getPropertyValue[prop]
+         }
+      },
+      backupProperty: function(prop){
+         if(this.propertiesBackup[prop]==null){
             this.propertiesBackup[prop] = this.element[prop]
-         this.element[prop] = value            
-      },
-      setStyle: function(prop, value, priority){
-         if(this.backupChanges)         
-            this.stylesBackup[prop] = this.style.getPropertyValue(prop)
-         this.style.setProperty(prop, value, priority?priority:"")
-      },
-      setCss: function(cssText, overwriteExisiting){
-         if(overwriteExisiting){
-            for(var m in this.style){
-               this.stylesBackup(m) = this.style.getPropertyValue(m)
-            }
-            this.style.cssText = cssText
-            return
-         }else{
-             var cssObj = CssUtils.parseCssText(cssText)
-             for(var m in cssObj){
-               this.stylesBackup[m] = this.style.getPropertyValue(m)
-               this.style.setProperty(m, cssObj[m], "")
-             }
          }
       },
       restore: function(){
          this.restoreProperties()
          this.restoreStyle() 
       },
+      restoreProperty: function(prop){
+         if(!this.propertiesBackup[prop])
+            return
+         this.element[prop] = this.propertiesBackup[prop]
+         delete this.propertiesBackup[prop]
+      },
       restoreProperties: function(){
          for (var m in this.propertiesBackup){
-            this.element[m] = this.propertiesBackup[m]
-            delete this.propertiesBackup[m]
+            this.restoreProperty(m)
          }
       },
       restoreStyle: function(){
          for (var m in this.stylesBackup){
-            var stylesBackupVal = this.stylesBackup[m]
-            if(StringUtils.isEmpty(stylesBackupVal))
-               this.style.removeProperty(m)
-            else
-               this.style[m] = this.stylesBackup[m]
-            delete this.stylesBackup[m]
+            this.restoreStyleProperty(m)
          } 
+      },
+      restoreStyleProperty: function(prop){
+         this.style.removeProperty(prop)
+         var stylesBackupVal = this.stylesBackup[prop]
+         if(!StringUtils.isEmpty(stylesBackupVal)){
+            this.style[prop] = stylesBackupVal
+         }
+         delete this.stylesBackup[prop]
+      },
+      setProperty: function(prop, value){
+         if(this.backupChanges){
+            this.backupProperty(prop)
+         }
+         this.element[prop] = value            
+      },
+      setStyle: function(prop, value, priority){
+         if(this.backupChanges){         
+            this.backupStyle(prop)
+         }
+         if(StringUtils.isEmpty(value)){
+            this.style.removeProperty(prop)
+         }else{
+            this.style.setProperty(prop, value, priority?priority:"")
+         }
+      },
+      setCss: function(cssText, overwriteExisiting){
+         if(overwriteExisiting){
+            if(this.backupChanges){
+               for(var m in this.style){
+                  this.backupStyle(m)
+               }
+            }
+            this.style.cssText = cssText
+            return
+         }else{
+             var cssObj = CssUtils.parseCssText(cssText)
+             for(var m in cssObj){
+               if(this.backupChanges){
+                  this.backupStyle(m)
+               }
+               this.style.setProperty(m, cssObj[m], "")
+             }
+         }
       }
-      
    }
 
    this.ElementWrapper = ElementWrapper;

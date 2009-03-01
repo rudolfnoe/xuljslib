@@ -1,7 +1,7 @@
 with(this){
 (function(){
    function EditListbox(richlistbox, cellEditor){
-      this.AbstractGenericEventSource()
+      this.GenericEventSource()
       this.cellEditor = cellEditor
       this.editMode = false
       this.labelBackup = null
@@ -196,7 +196,7 @@ with(this){
       
    }
    
-   ObjectUtils.extend(EditListbox, "AbstractGenericEventSource", this)
+   ObjectUtils.extend(EditListbox, "GenericEventSource", this)
 
    this.EditListbox = EditListbox;
 }).apply(this)
