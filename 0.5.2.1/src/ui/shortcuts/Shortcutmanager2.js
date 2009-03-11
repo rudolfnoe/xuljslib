@@ -228,10 +228,6 @@ ShortcutManager.prototype = {
       return this.currentEvent 
    },
    
-   hasModifier: function(event){
-      return event.altKey || event.ctrlKey || event.metaKey   
-   },
-   
    parseKeyCombination: function(keyCombination){
       var parts = keyCombination.split("+")
       var keyPart = StringUtils.trim(parts.pop()).toUpperCase()
@@ -263,6 +259,10 @@ ShortcutManager.encodeEventModifier =  function(event){
         event.metaKey * Event.META_MASK;
 }
    
+ShortcutManager.hasModifier = function(event){
+   return event.altKey || event.ctrlKey || event.metaKey   
+}
+
 ShortcutManager.isModifierCombination = function(event, modifierCombination){
    return ShortcutManager.encodeEventModifier(event)==modifierCombination
 }
