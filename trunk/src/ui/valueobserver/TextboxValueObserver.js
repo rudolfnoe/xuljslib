@@ -1,7 +1,7 @@
 with(this){
 (function(){
    function TextboxValueObserver(textbox){
-      this.AbstractElementValueObserver(textbox, textbox.value)
+      this.AbstractControlValueObserver(textbox, textbox.value)
       this.initEventListener()
    }
    
@@ -17,7 +17,7 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(TextboxValueObserver, "AbstractElementValueObserver", this)
+   ObjectUtils.extend(TextboxValueObserver, "AbstractControlValueObserver", this)
 
    this.TextboxValueObserver = TextboxValueObserver;
 }).apply(this)

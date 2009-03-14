@@ -59,9 +59,11 @@ ShortcutManager.prototype = {
       if(!element)
          throw new Error("Element for elementId does not exist");
       element.de_mouseless_shortcutmanager_id = elementId
-      this.elementsWithShortcuts.push(element)
+      if(!ArrayUtils.contains(this.elementsWithShortcuts, element)){
+         this.elementsWithShortcuts.push(element)
+         element.addEventListener(this.getEventType(), this.elementKeyEventHandler, this.useCapture);
+      }
       this.abstractAddShortcut(this.getShortcutKey(keyCombination, elementId), cmdDefinition, cmdThisObj, clientId)
-      element.addEventListener("keydown", this.elementKeyEventHandler, this.useCapture);
    },
 
    
@@ -91,6 +93,12 @@ ShortcutManager.prototype = {
       this.addShortcutForElement(elementId, shortcutKey, jsCode, null, clientId)
    },
    
+   clearAllShortcuts: function(clientId){
+      //Call to superclass method
+      this.AbstractShortcutManager_clearAllShortcuts(clientId)   
+      this.removeElementEventListener()
+   }, 
+   
    createCombinedKeyCode: function(keyCode, modifierMask){
       return keyCode << 4 | modifierMask
    },
@@ -104,16 +112,20 @@ ShortcutManager.prototype = {
 
    destroy: function(){
       this.abstractDestroy()
-      for (var i = 0; i < this.elementsWithShortcuts.length; i++) {
-         this.elementsWithShortcuts[i].removeEventListener(this.eventType, this.elementKeyEventHandler, this.useCapture);
-      }
+      this.removeElementEventListener()
    },
    
    /*
     * Encodes KeyEvent
     */
    encodeEvent: function(event){
-       return event.keyCode << 4 | ShortcutManager.encodeEventModifier(event);
+      var keyCode = null
+      if(this.eventType=="keydown" || event.charCode==0){
+         keyCode = event.keyCode
+      }else{
+         keyCode = event.charCode
+      }
+      return keyCode << 4 | ShortcutManager.encodeEventModifier(event);
    },
    //Provide also as static method
    
@@ -135,7 +147,8 @@ ShortcutManager.prototype = {
    },
    
    isStopEvent: function(commandResult){
-      return (this.suppressShortcutKeys && !(commandResult&ShortcutManager.DO_NOT_SUPPRESS_KEY)) || commandResult&ShortcutManager.SUPPRESS_KEY
+      return ( ( this.suppressShortcutKeys && (commandResult&ShortcutManager.DO_NOT_SUPPRESS_KEY)==0 ) || 
+               (commandResult&ShortcutManager.SUPPRESS_KEY) != 0)
    },
    
    isPreventFurtherCommands: function(commandResult){
@@ -162,8 +175,14 @@ ShortcutManager.prototype = {
       	}
       }
       return this.createCombinedKeyCode(keyCode, modifierMask)
-   }
+   },
    
+   removeElementEventListener: function(){
+      for (var i = 0; i < this.elementsWithShortcuts.length; i++) {
+         this.elementsWithShortcuts[i].removeEventListener(this.eventType, this.elementKeyEventHandler, this.useCapture);
+      }
+      this.elementsWithShortcuts = []
+   }
 }
 
 ObjectUtils.extend(ShortcutManager, "AbstractShortcutManager", this)

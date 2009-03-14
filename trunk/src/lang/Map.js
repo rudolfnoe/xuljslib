@@ -35,6 +35,7 @@ with(this){
 		put: function(key, value){
          this.keyList.add(key)
          this.valueList.add(value)
+         Assert.isTrue(this.keyList.size()==this.valueList.size(), "keyList and valueList out of synch")
 		},
 		
 		remove: function(key){

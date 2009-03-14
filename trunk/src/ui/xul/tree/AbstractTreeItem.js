@@ -55,6 +55,10 @@ with(this){
          this.parent = parent
       },
       
+      clone: function(){
+         throw new Error('Must be implmeneted')
+      },
+      
       isContainer : function() {
          throw new Error('Must be implmeneted')
       },
@@ -71,6 +75,10 @@ with(this){
          }
          return true
       },
+      
+      superClone: function(){
+         return ObjectUtils.deepClone(this)   
+      }
    }
 
    this["AbstractTreeItem"] = AbstractTreeItem;

@@ -8,6 +8,11 @@ with(this){
 			return window.getBrowser().selectedBrowser
 		},
       
+      getBrowserForContentWin: function(win){
+         Assert.paramsNotNull(arguments)
+         return gBrowser.getBrowserForDocument(win.top.document)
+      },
+      
       iterateAllBrowsers: function(callBackFunc, thisObj){
          var browsers = gBrowser._browsers
          if(browsers!=null){

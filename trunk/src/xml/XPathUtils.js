@@ -61,7 +61,12 @@ with(this){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
          contextNode = contextNode?contextNode:document
          var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument)?contextNode:contextNode.ownerDocument
-			var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
+			try{
+            var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
+         }catch(e){
+            e.xPath = xPath
+            throw e
+         }
 			var resultArray = []
 			while(entry = xPathResult.iterateNext()){
 				resultArray.push(entry)

@@ -36,6 +36,14 @@ with(this){
       getCurrentEvent: function(){
          return this.currentEvent 
       },
+      
+      getEventType: function(){
+         return this.eventType
+      },
+
+      setEventType: function(eventType){
+         this.eventType = eventType
+      },
    
       abstractAddShortcut: function(shortcutKey, cmdDefinition, cmdThisObj, clientId){
          if(this.destroyed)
@@ -143,6 +151,10 @@ with(this){
          if(this.suspended)
             return
          this.handleEventInternal(event)
+      },
+      
+      handleEventInternal: function(event, addParam){
+         throw new Error ('must be implemented')
       },
       
       hasModifier: function(event){

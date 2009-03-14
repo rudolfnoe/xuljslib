@@ -2,15 +2,21 @@ with(this){
 (function(){
    const EVENT_TYPE_VALUE_CHANGED = "valueChanged"
    
-   function AbstractElementValueObserver(targetElement, initValue){
+   /*
+    * Abstract superclass of all element value observers
+    * The responsibility of value observers is to notify their listeners
+    * in case the value of the observed forme element has changed
+    * Implements generic logic which is common for all value observers  
+    */
+   function AbstractControlValueObserver(targetElement, initValue){
       this.GenericEventSource()
       this.targetElement = targetElement
       this.value = initValue
    }
    
-   AbstractElementValueObserver.prototype = {
-      constructor: AbstractElementValueObserver,
-      AbstractElementValueObserver: AbstractElementValueObserver,
+   AbstractControlValueObserver.prototype = {
+      constructor: AbstractControlValueObserver,
+      AbstractControlValueObserver: AbstractControlValueObserver,
       
       getTargetElement: function(){
          return this.targetElement
@@ -28,8 +34,6 @@ with(this){
       },
 
       addValueChangedListener: function(listener){
-         if(!ObjectUtils.instanceOf(listener["handleEvent"], Function))
-            throw new Error('listener must implement handleEvent')
          this.addEventListener(EVENT_TYPE_VALUE_CHANGED, listener)
       },
 
@@ -38,8 +42,8 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(AbstractElementValueObserver, "GenericEventSource", this)
+   ObjectUtils.extend(AbstractControlValueObserver, "GenericEventSource", this)
 
-   this.AbstractElementValueObserver = AbstractElementValueObserver;
+   this.AbstractControlValueObserver = AbstractControlValueObserver;
 }).apply(this)
 }
