@@ -7,15 +7,11 @@ with(this){
       this.validState = null
    }
    
-   AbstractValidator.EVENT_TYPE_VALID_STATE_CHANGED = EVENT_TYPE_VALID_STATE_CHANGED
-   
    AbstractValidator.prototype = {
       constructor: AbstractValidator,
       AbstractValidator:AbstractValidator,
       
       addValidStateChangedListener: function(listener){
-         if(!ObjectUtils.instanceOf(listener["handleEvent"], Function))
-            throw new Error('listener must implement handleEvent')
          this.addEventListener(EVENT_TYPE_VALID_STATE_CHANGED, listener)      
       },
       

@@ -2,6 +2,10 @@ with(this){
 (function(){
    var Assert = {
       
+      fail: function(message){
+         this.isTrue(false, message)   
+      },
+      
       isFalse: function(cond, message){
          this.isTrue(!cond, message)
       },

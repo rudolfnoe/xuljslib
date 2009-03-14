@@ -8,6 +8,9 @@ with(this){
       GenericEventSource: GenericEventSource,
 
       addListener: function(type, callbackFuncOrEventHandler, thisObj){
+         var isFunction = typeof callbackFuncOrEventHandler == "function"
+         var isEventHandler = typeof callbackFuncOrEventHandler == "object" && typeof callbackFuncOrEventHandler.handleEvent == "function"
+         Assert.isTrue(isFunction || isEventHandler, "callbackFuncOrEventHandler must either be function or implementation of EventHanlder interface")
          this.removeListener(type, callbackFuncOrEventHandler, thisObj)
          this.listeners.add(this.createEvenListenerWrapper(type, callbackFuncOrEventHandler, thisObj))
       },

@@ -101,7 +101,7 @@ with(this){
       
       observeControl: function(control, callbackFunc, thisObj){
          var callBack = Utils.bind(callbackFunc, thisObj)
-         var tagName = control.tagName.toLowerCase() 
+         var tagName = control.localName.toLowerCase() 
          if(tagName=="menulist" || "colorfield"){
             control.addEventListener("select", function(){
                callBack(control, control.value)

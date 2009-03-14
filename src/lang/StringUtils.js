@@ -61,10 +61,10 @@ with(this){
          return string.replace(/\s/g, "")
       },
    	
-   	startsWith: function(string, startString){
+   	startsWith: function(string, prefix){
          if(this.isEmpty(string))
             return false
-         return string.indexOf(startString)==0   
+         return string.indexOf(prefix)==0   
       },
       
       trim: function(string){

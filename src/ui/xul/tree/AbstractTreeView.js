@@ -10,6 +10,8 @@ with(this){
             throw new Error('root item must be container')
          this.rootItem = rootItem
          this.visibleItems.add(rootItem)
+         //Set level to -1 so that children are displayed on level 0
+         this.rootItem.setLevel(0)
    		this.rowCount = 1
       }else{
          //Create Default root container but don't show it
@@ -40,16 +42,40 @@ with(this){
       addItem: function(item, parent){
          if(parent==null)
             var parent = this.getRootItem()
-         if(!parent.isContainer())
-            throw new Error('parent is no container')
+         Assert.isTrue(parent.isContainer(), 'Parent is no container')
+         //first add child to parent!
          parent.addChild(item)
          this.notifyListeners({type:"add", item:item})
-         if(parent.isVisible()){
-            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleDescendantsCount()
-   			this.visibleItems.addAtIndex(insertIndex, item)
-   			this.updateRowCount()
-   			this.rowCountChanged(this.insertIndex, 1)
+         //then ajust visible items
+         if(parent.isVisible() && parent.isContainerOpen()){
+            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleDescendantsCount() 
+            if(item.isContainer()){
+               insertIndex -= item.getVisibleDescendantsCount()
+            }
+            var itemsToAdd = new ArrayList()
+            itemsToAdd.add(item)
+            if(item.isContainer()){
+               itemsToAdd.addAll(item.getVisibleDescendants())
+            }
+   			this.visibleItems.addAllAtIndex(insertIndex, itemsToAdd)
+   			this.rowCountChanged(this.insertIndex, itemsToAdd.size())
          }
+      },
+      closeContainer: function(item, row){
+         Assert.isTrue(item.isContainer(), "closeContainer called on non-container item")
+         if(!item.isContainerOpen()){
+            return
+         }
+         if(!row){
+            row = this.getIndexForItem(item)
+         }
+         var visibleDescendantsCount = item.getVisibleDescendantsCount()
+         var startIndex = row+1
+         var endIndex = row + visibleDescendantsCount
+         this.visibleItems.removeRange(startIndex, endIndex)
+         this.rowCountChanged(row+1, -visibleDescendantsCount)
+         //Must be called last as otherwise getVisibleDescendantsCount returns wrong result
+         item.setContainerOpen(false)
       },
       filter: function(filterExp){
          this.iterateTree(function(item){
@@ -128,15 +154,12 @@ with(this){
             return this.visibleItems.get(this.tree.currentIndex)
       },
       hasNextSibling: function(row, afterIndex){
-         var searchedLevel = this.getVisibleItem(row).getLevel()
-         for (var i = afterIndex+1; i < this.visibleItems.size(); i++) {
-            var otherLevel = this.getVisibleItem(i).getLevel()
-            if(otherLevel==searchedLevel)
-               return true
-            else if(otherLevel<searchedLevel)
-               break
+         var item = this.getVisibleItem(row)
+         if(item == this.getRootItem()){
+            return false
+         }else{
+            return item.getParent().hasNextSibling(item)
          }
-         return false
       },
       invalidateRow: function(indexOrItem){
          var index = indexOrItem
@@ -183,9 +206,23 @@ with(this){
          this.notifyListeners({type:"update", item:item})
          this.invalidateRow(item)
       },
+      openContainer: function(item, row){
+         Assert.isTrue(item.isContainer(), "openContainer called on non-container item")
+         if(item.isContainerOpen()){
+            return
+         }
+         //Must be first as otherwise getVisibleDescendantsCount returns wrong result
+         item.setContainerOpen(true)
+         if(!row){
+            var row = this.getIndexForItem(item)
+         }
+         var visibleDescendants = item.getVisibleDescendants()
+         this.visibleItems.addAllAtIndex(row+1, visibleDescendants)
+         this.rowCountChanged(row+1, visibleDescendants.size()) 
+      },
       removeItem: function(item){
-         if(item.getParent()==null)
-            throw new Error('root cannot be removed')
+         Assert.paramsNotNull(arguments)
+         Assert.isTrue(item.getParent() != null, 'Root cannot be removed')
          item.getParent().removeChild(item)
          if(item.isVisible()){
             var index = this.getIndexForItem(item)
@@ -198,29 +235,49 @@ with(this){
       			this.visibleItems.removeAtIndex(index)
             }
             this.notifyListeners({type:"remove", item:item})
-   			this.updateRowCount()
    			this.rowCountChanged(index, -removedItemsCount)
          }
+         return item
       },
       removeSelected: function(selectNext){
          if(this.tree.currentIndex==-1)
             return
          var selectedIndex = this.getSelectedIndex()
-         this.removeItem(this.getSelectedItem())
+         var removedItem = this.removeItem(this.getSelectedItem())
          if(!selectNext || this.rowCount==0)
             return
          if(selectedIndex>=this.rowCount)
             selectedIndex--
-         this.selection.select(selectedIndex)
+         this.setSelected(selectedIndex)
+         return removedItem
       },
 		rowCountChanged: function(index, count){
       	if(this.treebox==null)
       	  return
+         this.updateRowCount()
       	this.treebox.rowCountChanged(index, count)
+      },
+      setSelected: function(index){
+         this.selection.select(index)
+      },
+      setSelectedItem: function(item){
+         this.selection.select(this.getIndexForItem(item))
       },
 		setTree : function(treebox) {
 			this.treebox = treebox;
 		},
+      swapItems: function(item1, item2){
+         Assert.paramsNotNull(arguments)
+         Assert.notNull(item1.getParent())
+         Assert.notNull(item2.getParent())
+         Assert.isTrue(item1.getParent()==item2.getParent())
+         item1.getParent().swapItems(item1, item2)
+         //Update view by building up completly new
+         var newVisibleItems = this.getRootItem().getVisibleDescendants()
+         newVisibleItems.addAtIndex(0, this.getRootItem())
+         this.visibleItems = newVisibleItems
+         this.getTreeBox().invalidate()
+      },
 		updateRowCount: function(){
 			this.rowCount = this.visibleItems.size()
 		},
@@ -229,17 +286,9 @@ with(this){
          if(!item.isContainer)
          	throw new Error('toggleOpenState called for non-container')
          if(item.isContainerOpen()){
-            item.setContainerOpen(false)
-            var visibleDescendantsCount = item.getVisibleDescendantsCount()
-            var startIndex = row+1
-            var endIndex = row + visibleDescendantsCount
-            this.visibleItems.removeRange(startIndex, endIndex)
-            this.rowCountChanged(row+1, -visibleDescendantsCount) 
+            this.closeContainer(item, row)
          }else{
-            item.setContainerOpen(true)
-            var visibleDescendants = item.getVisibleDescendants()
-            this.visibleItems.addAllAtIndex(row+1, visibleDescendants)
-            this.rowCountChanged(row+1, visibleDescendants.size()) 
+            this.openContainer(item, row)
          }
       }
 	}

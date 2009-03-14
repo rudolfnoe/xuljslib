@@ -3,15 +3,16 @@ with(this){
    /*
     * Used as Root element
     */
-   function DefaultContainerTreeItem(){
+   function DefaultContainerTreeItem(cellText){
       this.AbstractContainerTreeItem(true)
+      this.cellText = StringUtils.defaultString(cellText,"")
    }
    
    DefaultContainerTreeItem.prototype = {
       constructor: DefaultContainerTreeItem,
       
       getCellText: function(column){
-         return ""
+         return this.cellText
       }
    }
    

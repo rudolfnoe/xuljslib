@@ -21,7 +21,8 @@ with(this){
          
          var Type = GetTypeName(ObjectToSerialize);
          
-         if((Type=="Function" && ommitFunctions) || objectName=="prototype" || objectName.indexOf("__")==0 ||  
+         //Do not serialize if...
+         if(Type==null || (Type=="Function" && ommitFunctions) || objectName=="prototype" || objectName.indexOf("__")==0 ||  
             (prefixOfTransientMembers!=null && objectName.indexOf(prefixOfTransientMembers)==0)){
          	return ""
          }
@@ -254,7 +255,7 @@ with(this){
       	}
       	catch(e) 
       	{
-      		return "NULL";
+      		return null;
       	}
       }
        

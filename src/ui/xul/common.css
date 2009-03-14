@@ -13,6 +13,11 @@ treechildren::-moz-tree-checkbox(checked)
     list-style-image: url("./tree/checkbox_checked.ico");
 }
 
+treechildren::-moz-tree-line{
+   border: 1px dotted grey;
+   visibility: visible;
+}
+
 #For backward compatibility
 colorfield{
    -moz-binding: url("../bindings/colorfield.xml#colorfield") !important;

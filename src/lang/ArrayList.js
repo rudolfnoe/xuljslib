@@ -77,12 +77,14 @@ with(this){
          var index = this.array.indexOf(obj)
          if(index==-1)
             throw new Error('obj not in list')
-      	this.removeAtIndex(index)
+      	return this.removeAtIndex(index)
       },
       
       removeAtIndex: function(index){
          this._checkIndexInRange(index)
+         var removedObj = this.get(index)
       	this.array = this.array.slice(0,index).concat(this.array.slice(index+1))
+         return removedObj
       },
       
       //Params are inclusive bounderies
