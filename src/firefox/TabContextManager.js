@@ -21,7 +21,9 @@ with(this){
       },
       
       getTabContext : function(contentWin) {
-			var browser = gBrowser.getBrowserForDocument(contentWin.document)
+         Assert.paramsNotNull(arguments)
+         Assert.notNull(contentWin.top, "contentWin.top is null")
+			var browser = gBrowser.getBrowserForDocument(contentWin.top.document)
 			if (browser == null) {
 				return null
 			}
