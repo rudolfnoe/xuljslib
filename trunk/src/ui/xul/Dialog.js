@@ -85,6 +85,10 @@ with(this){
    }
    
    //Static methods
+   Dialog.addOkListener = function(eventHandler, capture){
+      this.getDialog().addEventListener("dialogaccept", eventHandler, capture)
+   }
+   
    Dialog.acceptDialog = function(){
       Dialog.getDialog().acceptDialog()
    }
