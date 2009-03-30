@@ -1,11 +1,24 @@
 with(this){
 (function(){
-	function AbstractGenericEventHandler(){
+	function AbstractGenericEventHandler(suspended){
+      //Constructor will not be called in any case
+      this.suspended = arguments.length>=1?suspended:undefined
 	}
 	AbstractGenericEventHandler.prototype = {
 		constructor: AbstractGenericEventHandler,
-		
+      AbstractGenericEventHandler: AbstractGenericEventHandler,
+
+      isSuspended: function(){
+         if(this.suspended==undefined){
+            this.suspended = false
+         }
+         return this.suspended
+      },
+
 		handleEvent: function(event){
+         if(this.isSuspended()){
+            return
+         }
 			var type = event.type
 			var funcName = "handle" + type.substring(0,1).toUpperCase() + type.substring(1) 
 			if(this[funcName] instanceof Function){
@@ -17,6 +30,14 @@ with(this){
          for (var i = 0; i < eventTypeArray.length; i++) {
             target.addEventListener(eventTypeArray[i], this, useCapture)
          }
+      },
+      
+      resume: function(){
+         this.suspended = false
+      },
+
+      suspend: function(){
+         this.suspended = true
       },
       
       unRegisterMultipleEventListener: function(target, eventTypeArray, useCapture){

@@ -2,7 +2,7 @@ with(this){
 (function(){
    function SuspendableEventHandler(eventHandler, suspended){
       this.eventHandler = eventHandler
-      this.suspended = suspended
+      this.suspended = arguments.length>=2?suspended:false
    }
    
    SuspendableEventHandler.prototype = {

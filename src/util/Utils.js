@@ -295,13 +295,10 @@ with (this) {
 			 * delay
 			 */
 			executeDelayedTimerMap : new Object(),
-			executeDelayed : function(timerId, delay, functionPointer, thisObj) {
+			executeDelayed : function(timerId, delay, functionPointer, thisObj, args) {
 				this.clearExecuteDelayedTimer(timerId)
 				this.executeDelayedTimerMap[timerId] = setTimeout(function() {
-					if (thisObj != null)
-						functionPointer.apply(thisObj)
-					else
-						functionPointer()
+               ObjectUtils.callFunction(functionPointer, thisObj, args)
 					Utils.executeDelayedTimerMap[timerId] = null
 				}, delay)
 			},
