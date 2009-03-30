@@ -327,7 +327,13 @@ with(this){
                                    (element.ownerDocument && element.ownerDocument.designMode=="on")
          return isEditableElement;
       },
-
+      
+      isEditableIFrame: function(element){
+         if(!element){
+            return false
+         }
+         return element.localName.toLowerCase()=="iframe" && element.contentDocument.designMode=="on"
+      },
 
       isFramesetWindow: function(win){
          if(win.document.getElementsByTagName('frameset').length>0)

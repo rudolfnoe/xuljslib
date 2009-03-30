@@ -13,7 +13,7 @@ with(this){
    EditListbox.EVENT_TYPE = {
          ITEM_CHANGED: "ITEM_CHANGED",
          ITEM_ADDED: "ITEM_ADDED",
-         ITEM_REMOVED: "ITEM_REMOVED",
+         ITEM_REMOVED: "ITEM_REMOVED"
    }
    
    EditListbox.prototype = {
@@ -50,6 +50,10 @@ with(this){
       
       getContextMenu: function(){
          return document.getElementById('de_mouseless_edit_listbox_cm')   
+      },
+      
+      getItemCount: function(){
+         return this.rlb.itemCount
       },
       
       getValues: function(){
