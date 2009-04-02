@@ -104,6 +104,10 @@ with(this){
       	this.array[index] = obj
       },
       
+      sort: function(sortFunction){
+         this.array.sort(sortFunction)
+      },
+      
       size: function(){
       	return this.array.length
       },

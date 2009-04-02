@@ -9,13 +9,14 @@ with(this){
          if(!rootItem.isContainer())
             throw new Error('root item must be container')
          this.rootItem = rootItem
+         this.showRoot = true
          this.visibleItems.add(rootItem)
-         //Set level to -1 so that children are displayed on level 0
          this.rootItem.setLevel(0)
    		this.rowCount = 1
       }else{
          //Create Default root container but don't show it
          this.rootItem = new DefaultContainerTreeItem()
+         this.showRoot = false
          //Set level to -1 so that children are displayed on level 0
          this.rootItem.setLevel(-1)
    		this.rowCount = 0
@@ -35,6 +36,9 @@ with(this){
       },
       getVisibleItems: function(){
          return this.visibleItems
+      },
+      getTree: function(){
+         return this.tree
       },
       getTreeBox: function(){
          return this.treebox
@@ -77,6 +81,22 @@ with(this){
          //Must be called last as otherwise getVisibleDescendantsCount returns wrong result
          item.setContainerOpen(false)
       },
+      cycleHeader: function(column){
+         var cyleHeaderCol = column.element
+         var currentSortDirection = cyleHeaderCol.getAttribute("sortDirection")
+         
+         var columns = this.tree.columns
+         for (var i = 0; i < columns.length; i++) {
+            var col = columns.getColumnAt(i).element 
+            col.setAttribute("sortActive", "false")
+            col.setAttribute("sortDirection", SortDirection.NONE)
+         }
+         
+         cyleHeaderCol.setAttribute("sortActive", "true")
+         var newSortDirection = currentSortDirection==SortDirection.ASCENDING?SortDirection.DESCENDING:SortDirection.ASCENDING 
+         cyleHeaderCol.setAttribute("sortDirection", newSortDirection)
+         this.sort(column, newSortDirection)
+      },
       filter: function(filterExp){
          this.iterateTree(function(item){
             var columns = this.tree.columns
@@ -89,15 +109,21 @@ with(this){
                   item.setFiltered(true)
                }
             }
-         })
+         }, true)
          var oldSize = this.visibleItems.size()
          this.visibleItems.clear()
+         if(this.showRoot){
+            this.visibleItems.add(this.getRootItem())
+         }
+         //invalidate does not work!
          this.treebox.rowCountChanged(0, -oldSize)
          this.iterateTree(function(item){
             if(!item.getFiltered()){
                this.visibleItems.add(item)
             }
-         })
+         }, true)
+         this.updateRowCount()
+         this.defaultSort()
          this.treebox.rowCountChanged(0, this.visibleItems.size())
       },
 		getCellProperties : function(row, col, props) {
@@ -266,6 +292,38 @@ with(this){
 		setTree : function(treebox) {
 			this.treebox = treebox;
 		},
+      sort: function(column, sortDirection){
+         Assert.paramsNotNull(arguments)
+         if(sortDirection==SortDirection.ASCENDING){
+            this.visibleItems.sort(function(a, b){
+               return a.compareTo(b, column)
+            })
+         }else if(sortDirection==SortDirection.DESCENDING){
+            this.visibleItems.sort(function(a, b){
+               return b.compareTo(a, column)
+            })
+         }else{
+            Assert.fail('wrong sortDirection')
+         }
+         this.getTreeBox().invalidate()
+      },
+      defaultSort: function(){
+         var columns = this.tree.columns
+         //no shortcut possible as code must also run within binding
+         var sortedColumn = null
+         for (var i = 0; i < columns.length; i++) {
+            if(columns[i].element.getAttribute('sortActive')=="true"){
+               sortedColumn = columns[i]
+               break
+            }
+         }
+         if(!sortedColumn){
+            return
+         }
+         var sortDirection = sortedColumn.element.hasAttribute('sortDirection')?
+                                 sortedColumn.element.getAttribute('sortDirection'):SortDirection.ASCENDING
+         this.sort(sortedColumn, sortDirection)
+      },
       swapItems: function(item1, item2){
          Assert.paramsNotNull(arguments)
          Assert.notNull(item1.getParent())
@@ -294,5 +352,11 @@ with(this){
 	}
    ObjectUtils.extend(AbstractTreeView, "GenericEventSource", this)
 	this["AbstractTreeView"] = AbstractTreeView;
+   
+   SortDirection = {
+      ASCENDING: "ascending",
+      DESCENDING: "descending",
+      NONE: "none"
+   }
 }).apply(this)
 }

@@ -40,7 +40,7 @@ ShortcutManager.prototype = {
    },
    
    addShortcut: function(keyCombination, cmdDefinition, cmdThisObj, clientId){
-      this.abstractAddShortcut(this.getShortcutKey(keyCombination), cmdDefinition, cmdThisObj, clientId)
+      this.abstractAddShortcut(ShortcutManager.getShortcutKey(keyCombination), cmdDefinition, cmdThisObj, clientId)
    },
    
    addShortcutForElement: function(elementOrId, keyCombination, cmdDefinition, cmdThisObj, clientId){
@@ -63,7 +63,7 @@ ShortcutManager.prototype = {
          this.elementsWithShortcuts.push(element)
          element.addEventListener(this.getEventType(), this.elementKeyEventHandler, this.useCapture);
       }
-      this.abstractAddShortcut(this.getShortcutKey(keyCombination, elementId), cmdDefinition, cmdThisObj, clientId)
+      this.abstractAddShortcut(ShortcutManager.getShortcutKey(keyCombination, elementId), cmdDefinition, cmdThisObj, clientId)
    },
 
    
@@ -73,7 +73,7 @@ ShortcutManager.prototype = {
            modifierMask = 0;
        }
        var combinedKeyCode = this.createShortcutKey(keyCode, modifierMask)       
-       this.addShortcut(this.getShortcutKey(combinedKeyCode), jsCode, null, clientId)
+       this.addShortcut(ShortcutManager.getShortcutKey(combinedKeyCode), jsCode, null, clientId)
    },
    
    /*
@@ -85,7 +85,7 @@ ShortcutManager.prototype = {
     * Only for backward compatibility 
     */
    addJsShortcutWithCombinedKeyCode: function(combinedKeyCode, jsCode, clientId){
-       this.addShortcut(this.getShortcutKey(combinedKeyCode), jsCode, null, clientId);
+       this.addShortcut(ShortcutManager.getShortcutKey(combinedKeyCode), jsCode, null, clientId);
    },
    
    addJsShortcutForElement: function(elementId, keyCode, modifierMask, jsCode, clientId){
@@ -99,12 +99,8 @@ ShortcutManager.prototype = {
       this.removeElementEventListener()
    }, 
    
-   createCombinedKeyCode: function(keyCode, modifierMask){
-      return keyCode << 4 | modifierMask
-   },
-
    createShortcutKey: function(keyCode, modifierMask, elementId){
-      var shortcutKey = this.createCombinedKeyCode(keyCode, modifierMask)
+      var shortcutKey = ShortcutManager.createCombinedKeyCode(keyCode, modifierMask)
       if(elementId)
          shortcutKey = elementId + "_" + shortcutKey;
       return shortcutKey;
@@ -127,24 +123,6 @@ ShortcutManager.prototype = {
       }
       return keyCode << 4 | ShortcutManager.encodeEventModifier(event);
    },
-   //Provide also as static method
-   
-   getShortcutKey: function(keyCombination, elementId){
-      var shortcutKey = null
-      if(!isNaN(keyCombination)){
-         shortcutKey = keyCombination
-//    }else if(COMBINED_KEY_CODE_REG_EXP.test(keyCombination)){
-//       shortcutKey = keyCombination
-      }else if(typeof keyCombination=="string"){
-         shortcutKey = this.parseKeyCombination(keyCombination)
-      }else{
-         throw new Error('Wrong key combinatin provided')
-      }
-      if(elementId){
-         shortcutKey = elementId + "_" + shortcutKey
-      }
-      return shortcutKey
-   },
    
    isStopEvent: function(commandResult){
       return ( ( this.suppressShortcutKeys && (commandResult&ShortcutManager.DO_NOT_SUPPRESS_KEY)==0 ) || 
@@ -155,28 +133,6 @@ ShortcutManager.prototype = {
       return commandResult & ShortcutManager.PREVENT_FURTHER_EVENTS
    },
 
-   parseKeyCombination: function(keyCombination){
-      var parts = keyCombination.split("+")
-      var keyPart = StringUtils.trim(parts.pop()).toUpperCase()
-      var keyCode = KeyEvent["DOM_VK_"+keyPart]
-      var modifierMask = 0
-      for (var i = 0; i < parts.length; i++) {
-      	var modifier = StringUtils.trim(parts[i]).toUpperCase()
-      	switch(modifier){
-      		case "CTRL":
-      		   modifierMask = modifierMask | ShortcutManager.CTRL
-      		   break;
-      		case "SHIFT": 
-      		   modifierMask = modifierMask | ShortcutManager.SHIFT
-      		   break;
-      		case "ALT": 
-      		   modifierMask = modifierMask | ShortcutManager.ALT
-      		   break;
-      	}
-      }
-      return this.createCombinedKeyCode(keyCode, modifierMask)
-   },
-   
    removeElementEventListener: function(){
       for (var i = 0; i < this.elementsWithShortcuts.length; i++) {
          this.elementsWithShortcuts[i].removeEventListener(this.eventType, this.elementKeyEventHandler, this.useCapture);
@@ -188,15 +144,58 @@ ShortcutManager.prototype = {
 ObjectUtils.extend(ShortcutManager, "AbstractShortcutManager", this)
 
 //"Static" methods
+ShortcutManager.createCombinedKeyCode = function(keyCode, modifierMask){
+   return keyCode << 4 | modifierMask
+}
+
 ShortcutManager.encodeEventModifier =  function(event){
     return event.altKey * Event.ALT_MASK |
         event.ctrlKey * Event.CONTROL_MASK |
         event.shiftKey * Event.SHIFT_MASK |
         event.metaKey * Event.META_MASK;
 }
-   
+
+ShortcutManager.getShortcutKey = function(keyCombination, elementId){
+   var shortcutKey = null
+   if(!isNaN(keyCombination)){
+      shortcutKey = keyCombination
+//    }else if(COMBINED_KEY_CODE_REG_EXP.test(keyCombination)){
+//       shortcutKey = keyCombination
+   }else if(typeof keyCombination=="string"){
+      shortcutKey = this.parseKeyCombination(keyCombination)
+   }else{
+      throw new Error('Wrong key combinatin provided')
+   }
+   if(elementId){
+      shortcutKey = elementId + "_" + shortcutKey
+   }
+   return shortcutKey
+}
+
 ShortcutManager.isModifierCombination = function(event, modifierCombination){
    return ShortcutManager.encodeEventModifier(event)==modifierCombination
+}
+
+ShortcutManager.parseKeyCombination = function(keyCombination){
+   var parts = keyCombination.split("+")
+   var keyPart = StringUtils.trim(parts.pop()).toUpperCase()
+   var keyCode = KeyEvent["DOM_VK_"+keyPart]
+   var modifierMask = 0
+   for (var i = 0; i < parts.length; i++) {
+      var modifier = StringUtils.trim(parts[i]).toUpperCase()
+      switch(modifier){
+         case "CTRL":
+            modifierMask = modifierMask | ShortcutManager.CTRL
+            break;
+         case "SHIFT": 
+            modifierMask = modifierMask | ShortcutManager.SHIFT
+            break;
+         case "ALT": 
+            modifierMask = modifierMask | ShortcutManager.ALT
+            break;
+      }
+   }
+   return ShortcutManager.createCombinedKeyCode(keyCode, modifierMask)
 }
 
 //Constants

@@ -55,6 +55,22 @@ with(this){
          this.parent = parent
       },
       
+      compareTo: function(other, column){
+         var thisCellText = this.getCellText(column)
+         var otherCellText = other.getCellText(column)
+         if(thisCellText==null && otherCellText==null){
+            return null
+         }else if(thisCellText!=null && otherCellText==null){
+            return 1
+         }else if (thisCellText==null && otherCellText!=null){
+            return -1
+         }else if(thisCellText == otherCellText){
+            return 0
+         }else{
+            return thisCellText > otherCellText ? 1 : 0    
+         }
+      },
+      
       clone: function(){
          throw new Error('Must be implmeneted')
       },

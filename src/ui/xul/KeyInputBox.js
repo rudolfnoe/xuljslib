@@ -21,6 +21,14 @@ with(this){
 				return keyString
 			}
 		},
+      
+      getStringForKeyCombination: function(keyCombination){
+         var combinedKeyCode = keyCombination
+         if(isNaN(keyCombination)){
+            combinedKeyCode = ShortcutManager.getShortcutKey(keyCombination)
+         }
+         return this.getStringForCombinedKeyCode(combinedKeyCode)
+      },
 		
 		getKeyCodeString : function(keyCode) {
 			if (keyCode == KeyEvent.DOM_VK_CONTROL
