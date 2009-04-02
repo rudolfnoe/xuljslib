@@ -27,7 +27,7 @@ function onCommandRestoreDefault(keyListboxId){
       Prefs.clearUserPref(prefid)
    }
    var defaultKey = Prefs.getCharPref(prefid)
-   Listbox.updateSelectedRow(keyListBox, [null, KeyInputbox.getStringForCombinedKeyCode(defaultKey)], [null, null])
+   Listbox.updateSelectedRow(keyListBox, [null, KeyInputbox.getStringForKeyCombination(defaultKey)], [null, null])
    keyListBox.selectedItem.setAttribute(COMBINED_KEY_CODE_ATTR, defaultKey)
    keyListBox.focus()
 }
@@ -39,7 +39,7 @@ function loadKeyListbox(keyListboxId){
       var keyItem = keyItems[i]
       var prefId = keyItem.getAttribute('prefid')
       var combinedKeyCode = Prefs.getCharPref(prefId)
-      var keyString = KeyInputbox.getStringForCombinedKeyCode(combinedKeyCode)
+      var keyString = KeyInputbox.getStringForKeyCombination(combinedKeyCode)
       keyItem.setAttribute(COMBINED_KEY_CODE_ATTR, combinedKeyCode)
       Listbox.updateRow(keyListBox, keyItem, [null, keyString!=null?keyString:"None"], new Array(2))
    }
