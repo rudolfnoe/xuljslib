@@ -19,8 +19,8 @@ with(this){
          throw new Error('must be implemented')
       },
 
-      notifyValidStateChanged: function(newValue){
-         this.notifyListeners({type:EVENT_TYPE_VALID_STATE_CHANGED, newValue:newValue})      
+      notifyValidStateChanged: function(isValid){
+         this.notifyListeners({type:EVENT_TYPE_VALID_STATE_CHANGED, newValue:isValid, isValid: isValid})      
       },
       
       setValidState: function(valid){

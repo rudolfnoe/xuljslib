@@ -1,7 +1,10 @@
 with(this){
 (function(){
-   function OrValidator(){
+   function OrValidator(validatorArr){
       this.AbstractContainerValidator()
+      if(validatorArr){
+         this.addValidators(validatorArr)
+      }
    }
    
    OrValidator.prototype = {

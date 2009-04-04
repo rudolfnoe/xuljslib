@@ -10,8 +10,14 @@ with(this){
       AbstractContainerValidator: AbstractContainerValidator,
       
       addValidator: function(validator){
-         this.validators.add(validator)
-         validator.addValidStateChangedListener(this)
+         this.addValidators([validator])
+      },
+      
+      addValidators: function(validatorArr){
+         this.validators.addAll(validatorArr)
+         for (var i = 0; i < validatorArr.length; i++) {
+            validatorArr[i].addValidStateChangedListener(this)
+         }
       },
       
       getValidators: function(){
