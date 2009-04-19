@@ -12,8 +12,9 @@ with(this){
       
       isValid: function(){
          for (var i = 0;i < this.getValidators().size(); i++) {
-            if(this.getValidators().get(i).isValid())
+            if(this.getValidators().get(i).isValid()){
                return true
+            }
          }
          return false
       }

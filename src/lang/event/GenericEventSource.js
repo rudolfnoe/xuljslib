@@ -5,6 +5,7 @@ with(this){
    }
    
    GenericEventSource.prototype = {
+      construtor: GenericEventSource,
       GenericEventSource: GenericEventSource,
 
       addListener: function(type, callbackFuncOrEventHandler, thisObj){

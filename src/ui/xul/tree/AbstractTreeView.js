@@ -1,11 +1,12 @@
 with(this){
 (function(){
 	
-	function AbstractTreeView(tree, rootItem) {
+	function AbstractTreeView(tree, rootItem, isSortable) {
       this.GenericEventSource()
+      this.isSortable = isSortable
 		this.tree = tree
       this.visibleItems = new ArrayList()
-      if(arguments.length>=2){
+      if(rootItem!=null){
          if(!rootItem.isContainer())
             throw new Error('root item must be container')
          this.rootItem = rootItem
@@ -82,6 +83,9 @@ with(this){
          item.setContainerOpen(false)
       },
       cycleHeader: function(column){
+         if(!this.isSortable){
+            return
+         }
          var cyleHeaderCol = column.element
          var currentSortDirection = cyleHeaderCol.getAttribute("sortDirection")
          

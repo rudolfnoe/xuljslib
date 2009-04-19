@@ -7,6 +7,7 @@
       <content>
          <xul:popupset>
             <xul:menupopup anonid="specialKeysPUP">
+               <xul:menuitem label="Enter/Return" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('RETURN')"/>
                <xul:menuitem label="Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('TAB')"/>
                <xul:menuitem label="Shif + Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('SHIFT_TAB')"/>
                <xul:menuitem label="Escape" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('ESCAPE')"/>
@@ -44,12 +45,21 @@
        
       
          <constructor>
+           this.valueChangeEventManager = new (this.getNamespaceObj().ValueChangeEventSource)()
            this.specialKeysDM = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysDM")
            this.specialKeysPUP = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysPUP")
            this.textbox = document.getAnonymousElementByAttribute(this, "anonid", "keyinputbox")
            if (this.getAttribute('keycode') != '')
              this.updateDisplay();
          </constructor>
+         
+         <method name="addValueChangeListener">
+            <parameter name="eventHandler"/>
+            <parameter name="thisObj"/>
+            <body>
+               this.valueChangeEventManager.addValueChangeListener(eventHandler, thisObj)
+            </body>
+         </method>
       
          <method name="getCombinedValue">
             <body>
@@ -84,7 +94,7 @@
          
          <method name="isSet">
             <body>
-               return this.getCombinedValue()!=0
+               return this.getCombinedValue()!= 0
             </body>
          </method>
 
@@ -101,7 +111,7 @@
             <![CDATA[
                 var keyCode = event.keyCode
                 if (!this.hasCtrlAltMeta(event)){
-                   if(keyCode==KeyEvent.DOM_VK_TAB || keyCode==KeyEvent.DOM_VK_ESCAPE){
+                   if([KeyEvent.DOM_VK_TAB, KeyEvent.DOM_VK_ESCAPE, KeyEvent.DOM_VK_RETURN].indexOf(keyCode)!=-1){
                      return;
                    }else if(keyCode==KeyEvent.DOM_VK_BACK_SPACE){
                       this.setKey(0, 0)
@@ -121,6 +131,7 @@
                this.updateAttr('keycode', keyCode);
                this.updateAttr('modifiers', modifiers);
                this.updateDisplay();
+               this.valueChangeEventManager.notifyListeners(this.getCombinedValue())
             </body>
          </method>   
 
@@ -162,7 +173,8 @@
                }else{
                    this.updateAttr('modifiers', value & 0xF);
                    this.updateAttr('keycode', value >> 4);
-               }   
+               }
+               this.valueChangeEventManager.notifyListeners(value)   
             ]]>
             </body>
          </method>
@@ -173,6 +185,9 @@
                <![CDATA[
                   var combinedValue = 0
                   switch(keyCombId){
+                     case "RETURN": 
+                        combinedValue = 13<<4
+                        break
                      case "TAB": 
                         combinedValue = 9<<4
                         break
@@ -201,21 +216,40 @@
       </implementation>
    </binding>
 
-   <binding id="shortstringinputbox" >
+   <binding id="shortstringinputbox" extends="general.xml#commonBase">
       <content>
          <xul:textbox anonid="shortstringinputbox"/>
       </content>
       <implementation>
          <constructor>
+            this.valueChangeEventManager = new (this.getNamespaceObj().ValueChangeEventSource)()
             this.textbox = document.getAnonymousElementByAttribute(this, "anonid", "shortstringinputbox")
             if(!this.hasAttribute('id'))
                this.setAttribute('id', 'shortstringinputbox')
          </constructor>
-         <property name="value" onget="return this.textbox.value" onset="this.textbox.value = val.toUpperCase(); return val"></property>
+         <property name="value" onget="return this.textbox.value">
+            <setter>
+               val = val.toUpperCase()
+               this.textbox.value = val 
+               this.valueChangeEventManager.notifyListeners(val)
+               return val
+            </setter>          
+         </property>
+
+         <method name="addValueChangeListener">
+            <parameter name="eventHandler"/>
+            <parameter name="thisObj"/>
+            <body>
+               this.valueChangeEventManager.addValueChangeListener(eventHandler, thisObj)
+            </body>
+         </method>
+         
       </implementation>
       <handlers>
          <handler event="keyup">
-            this.textbox.value = this.textbox.value.toUpperCase()
+            var newVal = this.textbox.value.toUpperCase()
+            this.textbox.value = newVal
+            this.valueChangeEventManager.notifyListeners(newVal)
          </handler>
       </handlers>
    </binding>  

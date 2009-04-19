@@ -15,6 +15,10 @@ with(this){
       	return tabContext!=null?tabContext.getContext(contextId):null
       },
       
+      hasContext: function(contentWin, contextId){
+         return this.getContext(contentWin, contextId)!=null
+      },
+      
       removeContext: function(contentWin, contextId){
          var tabContext = this.getTabContext(contentWin)
          return tabContext!=null?tabContext.removeContext(contextId):null

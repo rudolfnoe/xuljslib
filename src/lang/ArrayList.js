@@ -57,7 +57,7 @@ with(this){
       contains: function(obj, compareFunc){
       	if(compareFunc){
             return this.array.some(function(element, index, array){
-            	compareFunc(obj, element)
+            	return compareFunc(obj, element)
             })
       	}else{
          	return this.array.indexOf(obj)!=-1

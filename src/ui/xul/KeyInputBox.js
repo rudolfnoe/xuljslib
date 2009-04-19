@@ -7,7 +7,7 @@ with(this){
    var KeyInputbox = {
    	getStringForCombinedKeyCode : function(combinedKeyCode) {
 			if (combinedKeyCode == "0") {
-				return 'None'
+				return ''
 			}
 			var modifiers = combinedKeyCode & 0xF;
 			var modString = this.getModifierString(modifiers)
