@@ -7,7 +7,7 @@ with(this){
       constructor: NotEmptyCondition,
 
       isValid: function(value){
-         return !StringUtils.isEmpty(value)
+         return value != null && !StringUtils.isEmpty(StringUtils.trim(value))
       }
       
    }

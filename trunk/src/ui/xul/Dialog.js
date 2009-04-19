@@ -128,9 +128,14 @@ with(this){
       if(dialogHeader==null)
          throw new Error ('No dialogheader in dialog')
       dialogHeader.setMessage(messageText, severity)
-   },
+   }
    
-   
+   Dialog.addOkValidator = function(validator){
+      Assert.isTrue(ObjectUtils.instanceOf(validator, AbstractValidator), "validator must implement AbstractValidator")
+      validator.addValidStateChangedListener({handleEvent: function(event){
+         Dialog.getAcceptButton().disabled = !event.isValid
+      }})
+   }
    
    Dialog.setResultOjb = function(obj){
       window.arguments[0].resultObj = obj

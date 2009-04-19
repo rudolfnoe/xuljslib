@@ -89,6 +89,10 @@
             this.insertTextAtCursor(this.indentSpace)
             return false
          </handler>
+         <handler event="keydown" modifiers="control" keycode="vk_tab">
+            document.commandDispatcher.advanceFocus()
+            return false
+         </handler>
       </handlers>
    </binding>
    

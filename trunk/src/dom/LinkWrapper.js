@@ -7,7 +7,13 @@ with(this){
    LinkWrapper.prototype = {
       constructor: LinkWrapper,
       open: function(where){
-         openUILinkIn(this.link.href, where)
+         if(where == LinkTarget.CURRENT){
+            var clickEvent = new MouseEvent("click")
+            clickEvent.dispatch(this.link)
+         }else{
+            //Use FF method
+            openUILinkIn(this.link.href, where)
+         }
       }
    }
 
