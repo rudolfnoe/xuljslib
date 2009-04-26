@@ -11,8 +11,12 @@ with(this){
       },
       
       isTrue: function(cond, message){
-         if(!cond)
+         if(!cond){
+            var err = new Error()
+            message = message?message:""
+            message += "  Stack: " + err.stack
             throw new Error(message)
+         }
       },
       
       notNull: function(obj, message){
