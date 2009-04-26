@@ -34,6 +34,10 @@ with(this){
          //As edit element is not in DOM yet the property editable is not set
          if(this.menulist.getAttribute('editable')=="true")
             this.menulist.inputField.value = currentItem.value
+      },
+      
+      hasValue: function(){
+         return !StringUtils.isEmpty(this.getValue())   
       }
    }
 

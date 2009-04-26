@@ -7,6 +7,7 @@ with(this){
       this.labelBackup = null
       this.rlb = richlistbox
       this.scm = new ShortcutManager(this.rlb, "keydown")
+      this.suspendableFocusListener = SuspendableEventHandler.createHandlerFromFunction(this.handleFocus, this, false)
       this.init()
    }
    
@@ -79,9 +80,12 @@ with(this){
       handleFocus: function(){
          if(this.rlb.itemCount==0){
             this.addItem()
-         }else if(this.rlb.selectedIndex==-1){
+         }
+         
+         if(this.rlb.selectedIndex==-1){
             this.rlb.selectItem(this.rlb.getItemAtIndex(0))
          }
+         
          if(this.editMode==true && document.activeElement!=this.editingElement)
             setTimeout(Utils.bind(function(){this.editingElement.select()}, this))
       },
@@ -102,7 +106,7 @@ with(this){
       
       initEventHandlers: function(){
          this.rlb.addEventListener("dblclick", Utils.bind(function(event){this.toggleEditing(false)}, this), true)
-         this.rlb.addEventListener("focus", Utils.bind(this.handleFocus, this), true)
+         this.rlb.addEventListener("focus", this.suspendableFocusListener, true)
          this.addItemEventHandler = Utils.bind(this.addItem, this)
          this.removeItemEventHandler = Utils.bind(this.removeItem, this)
          
@@ -115,9 +119,9 @@ with(this){
       
       initShorcutsForEditMode: function(){
          this.scm.clearAllShortcuts("NON_EDIT_MODE")
-         this.scm.addShortcut("Escape", Utils.bind(function(){this.stopEditing(true)}, this), null, "EDIT_MODE") 
-         this.scm.addShortcut("TAB", Utils.bind(function(){this.stopEditing(false)}, this), null, "EDIT_MODE") 
-         this.scm.addShortcut("Shift+TAB", Utils.bind(function(){this.stopEditing(false)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("Escape", Utils.bind(function(){this.stopEditing(true, true)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("TAB", Utils.bind(function(){this.stopEditing(false, false)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("Shift+TAB", Utils.bind(function(){this.stopEditing(false, false)}, this), null, "EDIT_MODE") 
       },
       
       initShorcutsForNonEditMode: function(){
@@ -168,7 +172,7 @@ with(this){
 //         this.editingElement.addEventListener("blur", this.blurHandler, false)
       },
       
-      stopEditing: function(cancelEditing){
+      stopEditing: function(cancelEditing, keepFocus){
          if(this.editMode==false)
             return
          this.editMode=false
@@ -178,22 +182,28 @@ with(this){
          if(cancelEditing){
             value = this.rlb.selectedItem.value
             label = this.labelBackup
-         }else{
+         }else if (this.cellEditor.hasValue()){
             value = this.cellEditor.getValue()
             label = this.cellEditor.getLabel()
          }
          var currentIndex = this.rlb.currentIndex
          //Here replace child doesn't work, I don't know why
-         var changedItem = this.rlb.insertItemAt(currentIndex, label, value)
-         this.rlb.removeItemAt(currentIndex+1)
+         this.rlb.removeItemAt(currentIndex)
+         if(cancelEditing || value!=null){
+            var changedItem = this.rlb.insertItemAt(currentIndex, label, value)
+            this.notifyListeners({type:EditListbox.ITEM_CHANGED, item:changedItem})
+         }
          this.rlb.selectedIndex = currentIndex
-         this.notifyListeners({type:EditListbox.ITEM_CHANGED, item:changedItem})
-         this.rlb.focus()
+         if(keepFocus){
+            this.suspendableFocusListener.suspend()
+            this.rlb.focus()
+            this.suspendableFocusListener.resume()
+         }
       },
       
       toggleEditing: function(cancelEditing){
          if(this.editMode)
-            this.stopEditing(cancelEditing)
+            this.stopEditing(cancelEditing, true)
          else
             this.startEditing()
       }

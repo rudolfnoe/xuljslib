@@ -7,8 +7,9 @@ with(this){
       this.keybuffer = ""
       this.mainTimerId = (new Date()).getTime() 
       if(inputBlockingKeyComb){
+         this.inputBlockingKeyComb = inputBlockingKeyComb
          this.releaseInputBlockingTimerId = this.mainTimerId + "_releaseInputBlocking"
-         this.shortcutManager = new ShortcutManager(targetObjects, "keydown", false, true)
+         this.shortcutManager = new ShortcutManager(targetObjects, "keydown", true, true)
          this.shortcutManager.addShortcut(inputBlockingKeyComb, this.toogleInputBlocking, this)
       }
    }
@@ -52,7 +53,10 @@ with(this){
        */
       handleEventInternal: function(event){
          var target = event.originalTarget
-         if((!this.isInputBlockingActive && DomUtils.isEditableElement(target)) || event.charCode==0 || this.hasModifier(event)){
+         if((!this.isInputBlockingActive && DomUtils.isEditableElement(target)) || 
+               event.charCode==0 || 
+               this.hasModifier(event) ||
+               (this.isInputBlockingActive && this.inputBlockingKeyComb==ShortcutManager.encodeEvent(event))){
             this.resetVariables()
             return
          }

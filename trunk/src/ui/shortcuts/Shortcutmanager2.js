@@ -115,13 +115,7 @@ ShortcutManager.prototype = {
     * Encodes KeyEvent
     */
    encodeEvent: function(event){
-      var keyCode = null
-      if(this.eventType=="keydown" || event.charCode==0){
-         keyCode = event.keyCode
-      }else{
-         keyCode = event.charCode
-      }
-      return keyCode << 4 | ShortcutManager.encodeEventModifier(event);
+      return ShortcutManager.encodeEvent(event);
    },
    
    isStopEvent: function(commandResult){
@@ -146,6 +140,16 @@ ObjectUtils.extend(ShortcutManager, "AbstractShortcutManager", this)
 //"Static" methods
 ShortcutManager.createCombinedKeyCode = function(keyCode, modifierMask){
    return keyCode << 4 | modifierMask
+}
+
+ShortcutManager.encodeEvent =  function(event){
+   var keyCode = null
+   if(this.eventType=="keydown" || event.charCode==0){
+      keyCode = event.keyCode
+   }else{
+      keyCode = event.charCode
+   }
+   return keyCode << 4 | ShortcutManager.encodeEventModifier(event);
 }
 
 ShortcutManager.encodeEventModifier =  function(event){
