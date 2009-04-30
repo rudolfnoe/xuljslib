@@ -16,6 +16,15 @@ with(this){
    this["BasicObjectTypes"] = BasicObjectTypes;
    
    var ObjectUtils = {
+      //Map: key: SuperClass name (string), value: Array of constructor functions of the corresponding subclasses
+      waitTillSuperClassIsLoadedMap: {},
+      
+      _addToWaitTillSuperClassIsLoadedMap: function(superClassName, subClassConstructor){
+         if(this.waitTillSuperClassIsLoadedMap[superClassName]==null){
+            this.waitTillSuperClassIsLoadedMap[superClassName] = new Array()
+         }
+         this.waitTillSuperClassIsLoadedMap[superClassName].push(subClassConstructor)
+      },
       
       callFunction: function(functionPnt, thisObj, args){
          thisObj = thisObj?thisObj: this
@@ -145,75 +154,92 @@ with(this){
       
       /*
        * Only functions are inherited
+       * @param 
        */
-      _waitOnSuperClassLoadMap: {},
-      extend : function(constructorSubClass, constructorSuperclass, namespaceObj) {
-         var constructorSuperclassFunc = null 
-         if(typeof constructorSuperclass == "string"){
-            if(!namespaceObj)
-               throw new Error('When providing contstructor as string namespace obj must not be null')
-            if(typeof namespaceObj == "string")
-               throw new Error('namespaceObj must not be provided as string')
-            constructorSuperclassFunc = namespaceObj[constructorSuperclass]
+      extend : function(constructorSubClass, constructorSuperClassOrName, namespaceObj) {
+         Assert.notNull(constructorSubClass, 'Param constructorSubClass must not be null')
+         Assert.notNull(constructorSuperClassOrName, 'Param constructorSuperClass must not be null')
+         
+         var superClassName = null
+         var constructorSuperClass = null
+         if(typeof constructorSuperClassOrName == "string"){
+            Assert.notNull(namespaceObj, 'When providing contstructor as string namespace obj must not be null')
+            Assert.isTrue(typeof namespaceObj != "string", 'NamespaceObj must not be provided as string')
+            superClassName = constructorSuperClassOrName
+            constructorSuperClass = namespaceObj[superClassName]
          }else{
-            if(constructorSuperclass==null)
-               throw new Error('constructorSuperclass must not be null')
-            constructorSuperclassFunc = constructorSuperclass
+            constructorSuperClass = constructorSuperClassOrName
+            superClassName = this.getTypeFromConstructor(constructorSuperClass)
          }
-            
-         if(constructorSuperclassFunc==null){
-            //TODO remove
-//            consoleService.logStringMessage(constructorSuperclass + " not loaded yet");
-            if(this._waitOnSuperClassLoadMap[constructorSuperclass]==null){
-               this._waitOnSuperClassLoadMap[constructorSuperclass] = new Array()
-               namespaceObj.watch(constructorSuperclass, function(prop, oldval, newval){
-//                  consoleService.logStringMessage(constructorSuperclass + "just loaded");
-                  var subclasses = ObjectUtils._waitOnSuperClassLoadMap[prop]
+         
+         if(constructorSuperClass==null){
+            //Superclass is not loaded yet
+//          consoleService.logStringMessage(constructorSuperClass + " not loaded yet");
+            if(this.waitTillSuperClassIsLoadedMap[superClassName]==null){
+               //create map for storing waiting subclasses
+               this.waitTillSuperClassIsLoadedMap[superClassName] = new Array()
+               
+               //create watch for responding of binding to namespace
+               namespaceObj.watch(superClassName, function(prop, oldval, newval){
+                  var boundConstructorSuperClass = newval
+//                  consoleService.logStringMessage(superClassName + " just loaded" + " Stack: " + (new Error()).stack);
+                  var subclasses = ObjectUtils.waitTillSuperClassIsLoadedMap[superClassName]
                   while(subclasses.length>0){
-                     var subclassConstructor = subclasses.pop()
-                     ObjectUtils.extend(subclassConstructor, newval)
-//                     consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(subclassConstructor) + " extends " + constructorSuperclass);
+                     var constructorWaitingSubClass = subclasses.pop()
+                     ObjectUtils.extend(constructorWaitingSubClass, boundConstructorSuperClass)
                   }
-                  return newval
+                  return boundConstructorSuperClass
                })
             }
-            this._waitOnSuperClassLoadMap[constructorSuperclass].push(constructorSubClass)
+            this._addToWaitTillSuperClassIsLoadedMap(superClassName, constructorSubClass)
+            
+            //Temp storing superclasses to wait in subclass constr. 
+            if(constructorSubClass.__superClassesToWait==null){
+               constructorSubClass.__superClassesToWait = new Array()
+            }
+            constructorSubClass.__superClassesToWait.push(superClassName)
             return
          }
-         //Function members will be copied explicitly to support multiple inheritance
-         function copyMembers(source, target, sourceTypeName){
-            for (var member in source) {
-//               if(!target.prototype.hasOwnProperty(member) && (typeof source[member] == "function")){
-//                 target.prototype[member] = source[member]
-//               }
-               if(typeof source[member] == "function"){
-                  var propName = null
-                  if(target.prototype.hasOwnProperty(member)){
-                     var memberName = sourceTypeName + "_" + member 
-                  }else{
-                     var memberName = member
-                  }
-                  target.prototype[memberName] = source[member]
-               }
+
+         //If superclass hasn't been extended yet make sure functionality is added to subclass as well 
+         if(constructorSuperClass.__superClassesToWait!=null){
+            for (var i = 0; i < constructorSuperClass.__superClassesToWait.length; i++) {
+               var superSuperClassConstructorName = constructorSuperClass.__superClassesToWait[i]
+               ObjectUtils._addToWaitTillSuperClassIsLoadedMap(superSuperClassConstructorName, constructorSubClass)
             }
+         }         
+//         consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(constructorSubClass) + " extends " + superClassName);
+         
+         //Copy functions
+         var prototypeSuperClass = constructorSuperClass.prototype
+         var prototypeSubClass = constructorSubClass.prototype 
+
+         for (var member in prototypeSuperClass) {
+            if(typeof prototypeSuperClass[member] != "function"){
+               continue
+            }
+            var propName = null
+            if(prototypeSubClass.hasOwnProperty(member)){
+               var memberName = superClassName + "_" + member 
+            }else{
+               var memberName = member
+            }
+            prototypeSubClass[memberName] = prototypeSuperClass[member]
          }
-         var source = constructorSuperclassFunc.prototype
-         var superClassType = this.getTypeFromConstructor(constructorSuperclassFunc)
-         do{
-            copyMembers(source, constructorSubClass, superClassType)
-            source = source.prototype
-         }while(source!=null)
+         
          //fill supertype array for instanceof
-         var prototypeSubType = constructorSubClass.prototype
-         var prototypeSuperType = constructorSuperclassFunc.prototype
-         if(!prototypeSubType.__supertypes)
-            prototypeSubType.__supertypes = new Array()
-         prototypeSubType.__supertypes.push(this.getTypeFromConstructor(constructorSuperclassFunc))
-         if(prototypeSuperType.__supertypes)
-            prototypeSubType.__supertypes = prototypeSubType.__supertypes.concat(prototypeSuperType.__supertypes) 
+         if(!prototypeSubClass.__supertypes){
+            prototypeSubClass.__supertypes = new Array()
+         }
+         prototypeSubClass.__supertypes.push(superClassName)
+         if(prototypeSuperClass.__supertypes!=null){
+            prototypeSubClass.__supertypes = ArrayUtils.concatAsSet(prototypeSubClass.__supertypes, prototypeSuperClass.__supertypes)
+         }
+         
+         delete constructorSubClass.__superClassesToWait
 //         consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(constructorSubClass) + " extends " + 
-//            this.getTypeFromConstructor(constructorSuperclassFunc) +
-//            " supertypes: " + prototypeSubType.__supertypes.toString());
+//            this.getTypeFromConstructor(constructorSuperClass) +
+//            " supertypes: " + prototypeSubClass.__supertypes.toString());
             
       },
       

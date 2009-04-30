@@ -33,6 +33,8 @@ with(this){
       
       loadBaseClasses: function(chromePathIncludeCommon, ns){
          var scopeObj = this.getNamespaceObj(ns)
+         this.loadScript(chromePathIncludeCommon+"/lang/debug/Assert.js", scopeObj)
+         this.loadScript(chromePathIncludeCommon+"/lang/ArrayUtils.js", scopeObj)
          this.loadScript(chromePathIncludeCommon+"/lang/Namespace.js", scopeObj)
          this.loadScript(chromePathIncludeCommon+"/lang/ObjectUtils.js", scopeObj)
       },
