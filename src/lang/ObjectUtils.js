@@ -76,7 +76,7 @@ with(this){
                //Clone must be instantiated via eval to assure that
                //the newly created obj has the scope of the current window
                if(!clone){
-                  Assert.notNull(obj.__namespace, "__namespace must not be null")
+                  Assert.notNull(obj.__namespace, "__namespace must not be null. Obj: " + obj.toString())
                   clone = eval("new " + obj.__namespace + "." + t +"()")
                }
                objToCloneIdentityMap.put(obj, clone)
