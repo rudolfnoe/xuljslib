@@ -147,12 +147,15 @@ with(this){
       setItems: function(labelArray, valueArray){
          if(labelArray.length!=valueArray.length)
             throw new Error("uneqals lenghts of param arrays")
-         while(this.rlb.itemCount>0)
-            this.rlb.removeItemAt(0)
+         while(this.rlb.itemCount>0){
+            var removedItem = this.rlb.removeItemAt(0)
+            this.notifyListeners({type:EditListbox.ITEM_REMOVED, item:removedItem})
+         }
          for (var i = 0; i < labelArray.length; i++) {
             var label = labelArray[i]
             var value = valueArray?valueArray[i]:label
             var newItem = this.rlb.appendItem(label, value)
+            this.notifyListeners({type:EditListbox.ITEM_ADDED, item:newItem})
          }
       },
       

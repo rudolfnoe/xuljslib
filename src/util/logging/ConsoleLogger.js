@@ -40,8 +40,16 @@ with(this){
          setInterval(Utils.bind(this.updateConfig, this), this.configUpdateInterval)
       },
       
+      isDebug: function(){
+         return this.isLogLevel(LogLevel.DEBUG)
+      },
+      
+      isLogLevel: function(logLevel){
+         return this.currentLogLevel <= logLevel   
+      },
+      
       log: function(message, logLevel){
-         if(this.currentLogLevel <= logLevel ){
+         if(this.isLogLevel(logLevel)){
             if(logLevel >= LogLevel.ERROR){
                Components.utils.reportError(message)
             }else{
