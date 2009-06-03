@@ -17,6 +17,7 @@ with(this){
    
    ArrayList.prototype = {
       constructor: ArrayList,
+      ArrayList: ArrayList,
       
       _checkIndexInRange: function(index){
          if(index<0 || index>=this.array.length)
