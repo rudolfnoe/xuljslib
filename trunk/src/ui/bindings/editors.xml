@@ -15,6 +15,11 @@
             this.editorbox = byAnonid(this, "editorbox")
             this.indentSpace = "   "
          </constructor>
+         <method name="focus">
+            <body>
+               this.editorbox.focus()
+            </body>
+         </method>
          <method name="getCurrentLineContent">
             <body>
                var cursorPos = this.getCursorPos()

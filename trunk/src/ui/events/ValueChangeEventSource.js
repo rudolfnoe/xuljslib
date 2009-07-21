@@ -18,7 +18,7 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(ValueChangeEventSource, "GenericEventSource", customizeyourweb)
+   ObjectUtils.extend(ValueChangeEventSource, "GenericEventSource", this)
 
    this.ValueChangeEventSource = ValueChangeEventSource;
 }).apply(this)

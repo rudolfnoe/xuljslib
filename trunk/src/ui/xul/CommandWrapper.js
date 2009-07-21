@@ -26,9 +26,9 @@ with(this){
       
    }
    
-   ObjectUtils.extend(CommandWrapper, AbstractGenericEventHandler, this)
+   ObjectUtils.extend(CommandWrapper, "AbstractGenericEventHandler", this)
    
    this["CommandWrapper"] = CommandWrapper
    
-})()
+}).apply(this)
 }
