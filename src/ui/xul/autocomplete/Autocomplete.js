@@ -151,7 +151,7 @@ with(this){
       }
    }
    
-   ObjectUtils.extend(Autocomplete, AbstractGenericEventHandler)
+   ObjectUtils.extend(Autocomplete, "AbstractGenericEventHandler", this)
    
    this.Autocomplete = Autocomplete;
 }).apply(this)
