@@ -101,7 +101,7 @@ with(this){
 			}
 		},
 
-		unlink : function(file) {
+		remove : function(file) {
 			try {
 				file.remove(false);
 				return true;
@@ -210,15 +210,10 @@ with(this){
 		 * retruns nsIFile
 		 */
 		get    : function(type) {
-			try {
-				var dir = Components.classes[this.dirservCID]
-								.createInstance(this.propsIID)
-								.get(type, this.fileIID);
-				return dir;
-			}
-			catch(e) {
-				return false;
-			}
+			var dir = Components.classes[this.dirservCID]
+							.createInstance(this.propsIID)
+							.get(type, this.fileIID);
+			return dir;
 		},
 		
 		//returns: nsIFile of current profile dir
@@ -231,54 +226,39 @@ with(this){
 		},
 		
 		create : function(dir) {
-			try {
-				dir.create(0x01, 0664);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
+			dir.create(0x01, 0664);
+			return true;
 		},
 
 		read   : function(dir, recursive) {
 			var list = new Array();
-			try {
-				if (dir.isDirectory()) {
-					if (recursive == null) {
-						recursive = false;
-					}
-					var files = dir.directoryEntries;
-					list = this._read(files, recursive);
+			if (dir.isDirectory()) {
+				if (recursive == null) {
+					recursive = false;
 				}
-			}
-			catch(e) {
-				// foobar!
+				var files = dir.directoryEntries;
+				list = this._read(files, recursive);
 			}
 			return list;
 		},
 
 		_read  : function(dirEntry, recursive) {
 			var list = new Array();
-			try {
-				while (dirEntry.hasMoreElements()) {
-					list.push(dirEntry.getNext()
-									.QueryInterface(FileIO.localfileIID));
-				}
-				if (recursive) {
-					var list2 = new Array();
-					for (var i = 0; i < list.length; ++i) {
-						if (list[i].isDirectory()) {
-							files = list[i].directoryEntries;
-							list2 = this._read(files, recursive);
-						}
-					}
-					for (i = 0; i < list2.length; ++i) {
-						list.push(list2[i]);
-					}
-				}
+			while (dirEntry.hasMoreElements()) {
+				list.push(dirEntry.getNext()
+								.QueryInterface(FileIO.localfileIID));
 			}
-			catch(e) {
-			   // foobar!
+			if (recursive) {
+				var list2 = new Array();
+				for (var i = 0; i < list.length; ++i) {
+					if (list[i].isDirectory()) {
+						files = list[i].directoryEntries;
+						list2 = this._read(files, recursive);
+					}
+				}
+				for (i = 0; i < list2.length; ++i) {
+					list.push(list2[i]);
+				}
 			}
 			return list;
 		},

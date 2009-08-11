@@ -106,7 +106,7 @@ with(this){
             var columns = this.tree.columns
             for (var i = 0; i < columns.length; i++) {
                var cellText = item.getCellText(columns.getColumnAt(i))
-               if(StringUtils.matches(cellText, "*"+filterExp)){
+               if(StringUtils.matches(cellText, "*"+filterExp, true)){
                   item.setFiltered(false)
                   break
                }else{

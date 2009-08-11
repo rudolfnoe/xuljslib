@@ -47,12 +47,14 @@ with(this){
        * @param string string: string to test
        * @param string matchExp: expr to test agains string; * and spaces are interpreted as reg ex (.*?)  
        */
-      matches: function(string, matchExp){
+      matches: function(string, matchExp, ignoreCase){
+         var ignoreCase = arguments.length>=3?ignoreCase:false
          matchExp = this.trim(matchExp)
          matchExp = matchExp.replace(/\s+/, "*")
          matchExp = matchExp.replace(/\*/, ".*?")
          matchExp = matchExp.replace(/\?/, ".{0,1}")
-         return (new RegExp("^" + matchExp)).test(string)
+         var regExp = new RegExp("^" + matchExp, (ignoreCase?"i":""))
+         return regExp.test(string)
       },
       
       removeWhitespace: function(string){
