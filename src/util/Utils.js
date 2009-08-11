@@ -142,6 +142,15 @@ with (this) {
 						.getService(Components.interfaces.nsIClipboardHelper);
 				clipboardHelper.copyString(string);
 			},
+         
+         /*
+          * Creates GUIId via service 
+          */
+         createGUIId: function(){
+            var uuidGenerator =  Components.classes["@mozilla.org/uuid-generator;1"]
+               .getService(Components.interfaces.nsIUUIDGenerator);
+            return uuidGenerator.generateUUID().toString();
+         },
 
 			/*
 			 * Registers observerObj for the provided id as an observer @param
