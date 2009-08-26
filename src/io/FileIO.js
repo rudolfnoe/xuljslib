@@ -36,115 +36,73 @@ with(this){
 		suniconvIID   : Components.interfaces.nsIScriptableUnicodeConverter,
 
 		open   : function(path) {
-			try {
-				var file = Components.classes[this.localfileCID]
-								.createInstance(this.localfileIID);
-				file.initWithPath(path);
-				return file;
-			}
-			catch(e) {
-				return false;
-			}
+			var file = Components.classes[this.localfileCID]
+							.createInstance(this.localfileIID);
+			file.initWithPath(path);
+			return file;
 		},
 
 		read   : function(file, charset) {
-			try {
-				var data     = new String();
-				var fiStream = Components.classes[this.finstreamCID]
-									.createInstance(this.finstreamIID);
-				var siStream = Components.classes[this.sinstreamCID]
-									.createInstance(this.sinstreamIID);
-				fiStream.init(file, 1, 0, false);
-				siStream.init(fiStream);
-				data += siStream.read(-1);
-				siStream.close();
-				fiStream.close();
-				if (charset) {
-					data = this.toUnicode(charset, data);
-				}
-				return data;
-			} 
-			catch(e) {
-				return false;
-			}
-		},
-
-		write  : function(file, data, mode, charset) {
-			try {
-				var foStream = Components.classes[this.foutstreamCID]
-									.createInstance(this.foutstreamIID);
-				if (charset) {
-					data = this.fromUnicode(charset, data);
-				}
-				var flags = 0x02 | 0x08 | 0x20; // wronly | create | truncate
-				if (mode == 'a') {
-					flags = 0x02 | 0x10; // wronly | append
-				}
-				foStream.init(file, flags, 0664, 0);
-				foStream.write(data, data.length);
-				// foStream.flush();
-				foStream.close();
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		create : function(file) {
-			try {
-				file.create(0x00, 0664);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		remove : function(file) {
-			try {
-				file.remove(false);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		path   : function(file) {
-			try {
-				return 'file:///' + file.path.replace(/\\/g, '\/')
-							.replace(/^\s*\/?/, '').replace(/\ /g, '%20');
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		toUnicode   : function(charset, data) {
-			try{
-				var uniConv = Components.classes[this.suniconvCID]
-									.createInstance(this.suniconvIID);
-				uniConv.charset = charset;
-				data = uniConv.ConvertToUnicode(data);
-			} 
-			catch(e) {
-				// foobar!
+			var data     = new String();
+			var fiStream = Components.classes[this.finstreamCID]
+								.createInstance(this.finstreamIID);
+			var siStream = Components.classes[this.sinstreamCID]
+								.createInstance(this.sinstreamIID);
+			fiStream.init(file, 1, 0, false);
+			siStream.init(fiStream);
+			data += siStream.read(-1);
+			siStream.close();
+			fiStream.close();
+			if (charset) {
+				data = this.toUnicode(charset, data);
 			}
 			return data;
 		},
 
+		write  : function(file, data, mode, charset) {
+			var foStream = Components.classes[this.foutstreamCID]
+								.createInstance(this.foutstreamIID);
+			if (charset) {
+				data = this.fromUnicode(charset, data);
+			}
+			var flags = 0x02 | 0x08 | 0x20; // wronly | create | truncate
+			if (mode == 'a') {
+				flags = 0x02 | 0x10; // wronly | append
+			}
+			foStream.init(file, flags, 0664, 0);
+			foStream.write(data, data.length);
+			// foStream.flush();
+			foStream.close();
+			return true;
+		},
+
+		create : function(file) {
+			file.create(0x00, 0664);
+		},
+
+		remove : function(file) {
+			file.remove(false);
+		},
+
+		path   : function(file) {
+			return 'file:///' + file.path.replace(/\\/g, '\/')
+						.replace(/^\s*\/?/, '').replace(/\ /g, '%20');
+		},
+
+		toUnicode   : function(charset, data) {
+			var uniConv = Components.classes[this.suniconvCID]
+								.createInstance(this.suniconvIID);
+			uniConv.charset = charset;
+			data = uniConv.ConvertToUnicode(data);
+	     	return data;
+		},
+
 		fromUnicode : function(charset, data) {
-			try {
-				var uniConv = Components.classes[this.suniconvCID]
-									.createInstance(this.suniconvIID);
-				uniConv.charset = charset;
-				data = uniConv.ConvertFromUnicode(data);
-				// data += uniConv.Finish();
-			}
-			catch(e) {
-				// foobar!
-			}
+			var uniConv = Components.classes[this.suniconvCID]
+								.createInstance(this.suniconvIID);
+			uniConv.charset = charset;
+			data = uniConv.ConvertFromUnicode(data);
+			// data += uniConv.Finish();
 			return data;
 		},
 		
@@ -264,16 +222,11 @@ with(this){
 		},
 
 		unlink : function(dir, recursive) {
-			try {
-				if (recursive == null) {
-					recursive = false;
-				}
-				dir.remove(recursive);
-				return true;
+			if (recursive == null) {
+				recursive = false;
 			}
-			catch(e) {
-				return false;
-			}
+			dir.remove(recursive);
+			return true;
 		},
 
 		path   : function (dir) {
