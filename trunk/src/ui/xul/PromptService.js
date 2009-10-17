@@ -5,6 +5,7 @@ with(this){
 		NO: 1
 	}
 	this["PromptReply"] = PromptReply;
+	this["PromptResult"] = PromptReply;
 	
 	var PromptService = {
 		promptService: Components.classes["@mozilla.org/embedcomp/prompt-service;1"]

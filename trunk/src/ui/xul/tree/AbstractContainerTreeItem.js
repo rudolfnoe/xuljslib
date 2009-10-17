@@ -109,6 +109,13 @@ with(this){
          abstractTreeItem.setParent(null)
          return this.children.remove(abstractTreeItem)
       },
+      
+      replaceChild: function(newItem, oldItem){
+         this.children.replace(newItem, oldItem)
+         newItem.setParent(this)
+         oldItem.setParent(null)
+         return oldItem
+      },
 
       setContainerOpen: function(containerOpen){
          this.containerOpen = containerOpen

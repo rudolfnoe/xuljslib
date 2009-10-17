@@ -12,8 +12,9 @@ const COMBINED_KEY_CODE_REG_EXP = /^[kc]{1}\d*$/
 /*
  * Constructor
  * @param targetObject: object on which the key event listener will be installed or array of objects
- * @param eventType: type of event on which should be listened ("keydown", "keypress"
- * @param suppressKey: boolean indicating whether the the default behavior of key resulting in a shortcut should be suppressed
+ * @param eventType: type of event on which should be listened ("keydown", "keypress"); optional, Default = "keydown"
+ * @param suppressKey: boolean indicating whether the the default behavior of key resulting in a shortcut should be suppressed; Default = true
+ * @param useCapture: Default = true
  */
 //TODO different event types
 function ShortcutManager(targetObjects, eventType, suppressShortcutKeys, useCapture){
