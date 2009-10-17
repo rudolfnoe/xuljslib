@@ -99,7 +99,9 @@ with(this){
       function GetDom(strXml)
       {
       	var parser = new DOMParser();
-      	return parser.parseFromString(strXml, "text/xml");
+         var dom = parser.parseFromString(strXml, "text/xml");
+         CheckForParsingError(dom)
+      	return dom
       }
       
       // internal deserialization
@@ -275,6 +277,13 @@ with(this){
       	
       	return Type;
       }
+      
+      function CheckForParsingError(domDoc){
+         if(domDoc.getElementsByTagName('parsererror').length>0){
+            var errorDescription = domDoc.documentElement.textContent
+            throw new Error(errorDescription)
+         }
+      }
 
    JSerial = {
    	classes: {},
@@ -285,5 +294,6 @@ with(this){
    	}
    }
    this["JSerial"] = JSerial;
+   
 }).apply(this)
 }

@@ -1,18 +1,18 @@
 with(this){
 (function(){   
    function ArrayList (arg){
-   	if(arg!=null){
-   		if(arg.constructor ==Array){
-      		this.array = new Array()
-   			for (var i = 0; i < arg.length; i++) {
-   				this.add(arg[i])
-   			}
-   	   }else{
-   	   	this.array = new Array(arg)
-   	   }
-   	}else{
-   		this.array = new Array()
-   	}
+      if(arg!=null){
+         if(arg.constructor ==Array){
+            this.array = new Array()
+            for (var i = 0; i < arg.length; i++) {
+               this.add(arg[i])
+            }
+         }else{
+            this.array = new Array(arg)
+         }
+      }else{
+         this.array = new Array()
+      }
    }
    
    ArrayList.prototype = {
@@ -30,14 +30,14 @@ with(this){
       
       addAll: function(arr){
          if(arr.constructor == ArrayList){
-         	arr = arr.array
+            arr = arr.array
          }
          this.array = this.array.concat(arr)
       },
       
       addAllAtIndex: function(index, arr){
          if(arr.constructor == ArrayList){
-         	arr = arr.array
+            arr = arr.array
          }
          this.array = this.array.slice(0,index).concat(arr).concat(this.array.slice(index))
       },
@@ -48,26 +48,26 @@ with(this){
          if(index==this.array.length)
             this.array.push(obj)
          else
-      	  this.array = this.array.slice(0,index).concat(obj).concat(this.array.slice(index))
+           this.array = this.array.slice(0,index).concat(obj).concat(this.array.slice(index))
       },
       
       clear: function(){
-      	this.array = new Array()
+         this.array = new Array()
       },
       
       contains: function(obj, compareFunc){
-      	if(compareFunc){
+         if(compareFunc){
             return this.array.some(function(element, index, array){
-            	return compareFunc(obj, element)
+               return compareFunc(obj, element)
             })
-      	}else{
-         	return this.array.indexOf(obj)!=-1
-      	}
+         }else{
+            return this.array.indexOf(obj)!=-1
+         }
       },
       
       get: function(index){
          this._checkIndexInRange(index)
-      	return this.array[index]
+         return this.array[index]
       },
       
       indexOf: function(obj){
@@ -78,13 +78,13 @@ with(this){
          var index = this.array.indexOf(obj)
          if(index==-1)
             throw new Error('obj not in list')
-      	return this.removeAtIndex(index)
+         return this.removeAtIndex(index)
       },
       
       removeAtIndex: function(index){
          this._checkIndexInRange(index)
          var removedObj = this.get(index)
-      	this.array = this.array.slice(0,index).concat(this.array.slice(index+1))
+         this.array = this.array.slice(0,index).concat(this.array.slice(index+1))
          return removedObj
       },
       
@@ -100,9 +100,19 @@ with(this){
             this.array = this.array.concat(lastPart)
       },
       
+      replace: function(newObj, oldObj){
+         Assert.paramsNotNull(arguments)
+         var indexOfOldItem = this.array.indexOf(oldObj)
+         if(indexOfOldItem==-1){
+            throw new Error("oldObj not in list")
+         }
+         this.array[indexOfOldItem] = newObj
+         return oldObj
+      },
+      
       set: function(index, obj){
          this._checkIndexInRange(index)
-      	this.array[index] = obj
+         this.array[index] = obj
       },
       
       sort: function(sortFunction){
@@ -110,18 +120,18 @@ with(this){
       },
       
       size: function(){
-      	return this.array.length
+         return this.array.length
       },
       
       toArray: function(){
-      	var newArray = new Array()
-      	for (var i = 0; i < this.array.length; i++)
-      		newArray.push(this.get(i))
-      	return newArray
+         var newArray = new Array()
+         for (var i = 0; i < this.array.length; i++)
+            newArray.push(this.get(i))
+         return newArray
       },
       
       toString: function(){
-      	return "ArrayList: " + this.array.toString()
+         return "ArrayList: " + this.array.toString()
       }
       
       

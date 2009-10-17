@@ -1,9 +1,14 @@
 with(this){
 (function(){
+   /*
+    * @param targetObjects: Object or array of objects on which key listener will be attachted
+    * @param: eventType: type of event to which the shortcut manager will listen ("keydown", "keypress") Default=keydown
+    * @param: useCapture: Default = true 
+    */
    function AbstractShortcutManager(targetObjects, eventType, useCapture){
       this.destroyed = false
       this.currentEvent = null
-      this.eventType  = arguments.length>=2?eventType:"keydown"
+      this.eventType  = eventType!=null?eventType:"keydown"
       this.keyEventHandler = new KeyEventHandler(this, "handleEvent")
       //shortcut to command map
       //key shortcutkey; value command 
@@ -45,6 +50,9 @@ with(this){
          this.eventType = eventType
       },
    
+      /*
+       * 
+       */
       abstractAddShortcut: function(shortcutKey, cmdDefinition, cmdThisObj, clientId){
          if(this.destroyed)
             throw new Error('Shortcutmananger already destroyed')

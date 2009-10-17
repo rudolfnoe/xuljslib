@@ -5,6 +5,8 @@ with(this){
       this.GenericEventSource()
       this.isSortable = isSortable
 		this.tree = tree
+      //Will be automaticall set as nsITreeSelection by the tree 
+      this.selection = null 
       this.visibleItems = new ArrayList()
       if(rootItem!=null){
          if(!rootItem.isContainer())
@@ -177,11 +179,30 @@ with(this){
       getSelectedIndex: function(){
          return this.tree.currentIndex
       },
+      getSelectedIndices : function() {
+			var rangeStart = {} 
+         var rangeEnd = {}
+         var selectedIndices = [];
+         var rangeCount = this.selection.getRangeCount()
+
+			for (var i = 0; i < rangeCount; i++) {
+				this.selection.getRangeAt(i, rangeStart, rangeEnd);
+				for (var j = rangeStart.value; j <= rangeEnd.value; j++)
+					selectedIndices.push(j);
+			}
+         return selectedIndices
+		},         
       getSelectedItem: function(){
-         if(this.tree.currentIndex==-1)
-            return null
-         else
-            return this.visibleItems.get(this.tree.currentIndex)
+         var selectedItems = this.getSelectedItems()
+         return selectedItems.length>0?selectedItems[0]:null
+      },
+      getSelectedItems: function(){
+         var selectedIndices = this.getSelectedIndices()
+         var selectedItems = []
+         for(var i=0; i<selectedIndices.length; i++){
+            selectedItems.push(this.visibleItems.get(selectedIndices[i]))
+         }
+         return selectedItems
       },
       hasNextSibling: function(row, afterIndex){
          var item = this.getVisibleItem(row)
@@ -270,16 +291,32 @@ with(this){
          return item
       },
       removeSelected: function(selectNext){
-         if(this.tree.currentIndex==-1)
-            return
-         var selectedIndex = this.getSelectedIndex()
-         var removedItem = this.removeItem(this.getSelectedItem())
-         if(!selectNext || this.rowCount==0)
-            return
-         if(selectedIndex>=this.rowCount)
-            selectedIndex--
-         this.setSelected(selectedIndex)
-         return removedItem
+         var removedItems = []
+         var selectedIndex = this.getSelectedIndex() 
+         if(selectedIndex==-1)
+            return removedItems
+         var removedItems = this.getSelectedItems()
+         var newSelectedIndex = selectedIndex-removedItems.length+1
+         for (var i = 0; i < removedItems.length; i++) {
+            var removedItem = this.removeItem(removedItems[i])
+         }
+         if(selectNext && this.rowCount>0){
+            if(newSelectedIndex>=this.rowCount){
+               newSelectedIndex = this.rowCount-1
+            }
+            this.setSelected(newSelectedIndex)
+         }
+         return removedItems
+      },
+      replaceItem: function(newItem, oldItem){
+         Assert.paramsNotNull(arguments)
+         Assert.notNull(oldItem.getParent(), "Parent of old item is null")
+         oldItem.getParent().replaceChild(newItem, oldItem)
+         var indexOfOldItem = this.getIndexForItem(oldItem)
+         if(indexOfOldItem!=-1){
+            this.visibleItems.set(indexOfOldItem, newItem)
+            this.invalidateRow(indexOfOldItem)
+         }
       },
 		rowCountChanged: function(index, count){
       	if(this.treebox==null)
