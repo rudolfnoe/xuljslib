@@ -60,7 +60,8 @@ with(this){
 		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
          contextNode = contextNode?contextNode:document
-         var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument)?contextNode:contextNode.ownerDocument
+         var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
+            contextNode instanceof Components.interfaces.nsIDOMXMLDocument)?contextNode:contextNode.ownerDocument
 			try{
             var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
          }catch(e){

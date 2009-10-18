@@ -18,8 +18,14 @@ with(this){
 		 * @returns XML-object
 		 */
 		parseFromString: function(xmlString){
+         Assert.paramsNotNull(arguments)
 			var parser = new DOMParser()
-			return parser.parseFromString(xmlString, "text/xml")
+			var domDoc = parser.parseFromString(xmlString, "text/xml")
+         if(domDoc.getElementsByTagName('parsererror').length>0){
+            var errorDescription = domDoc.documentElement.textContent
+            throw new Error(errorDescription)
+         }
+         return domDoc
 		},
 		
 		/*
