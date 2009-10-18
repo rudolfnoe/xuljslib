@@ -91,17 +91,8 @@ with(this){
       // XML string as an input
       function JDeserialize(XmlText)
       {
-      	var _doc = GetDom(XmlText); 
+      	var _doc = XMLUtils.parseFromString(XmlText); 
       	return Deserial(_doc.childNodes[0]);
-      }
-      
-      // get dom object . IE or Mozilla
-      function GetDom(strXml)
-      {
-      	var parser = new DOMParser();
-         var dom = parser.parseFromString(strXml, "text/xml");
-         CheckForParsingError(dom)
-      	return dom
       }
       
       // internal deserialization
@@ -278,13 +269,6 @@ with(this){
       	return Type;
       }
       
-      function CheckForParsingError(domDoc){
-         if(domDoc.getElementsByTagName('parsererror').length>0){
-            var errorDescription = domDoc.documentElement.textContent
-            throw new Error(errorDescription)
-         }
-      }
-
    JSerial = {
    	classes: {},
    	serialize: JSerialize,
