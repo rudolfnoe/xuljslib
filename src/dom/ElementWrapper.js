@@ -1,10 +1,5 @@
 with(this){
 (function(){
-   /*
-    * Wraps an DOM element for doing and undoing any kind of modifications ot it
-    * @param DOMElement element: element which will be wrapped
-    * @param optional boolean backupChanges: if true changes will be backup for later undoing, default=true
-    */
    function ElementWrapper(element, backupChanges){
       if(!element || element.nodeType!=1 || !element.style)
          throw Error ("element null or no element type or element.style is null")
