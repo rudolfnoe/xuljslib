@@ -29,11 +29,17 @@ with(this){
 		foutstreamCID : '@mozilla.org/network/file-output-stream;1',
 		foutstreamIID : Components.interfaces.nsIFileOutputStream,
 
-		sinstreamCID  : '@mozilla.org/scriptableinputstream;1',
+      foutstreamconvCID: "@mozilla.org/intl/converter-output-stream;1",
+      foutstreamconvIID: Components.interfaces.nsIConverterOutputStream,
+
+      sinstreamCID  : '@mozilla.org/scriptableinputstream;1',
 		sinstreamIID  : Components.interfaces.nsIScriptableInputStream,
 
 		suniconvCID   : '@mozilla.org/intl/scriptableunicodeconverter',
 		suniconvIID   : Components.interfaces.nsIScriptableUnicodeConverter,
+      
+
+      
 
 		open   : function(path) {
 			var file = Components.classes[this.localfileCID]
@@ -43,36 +49,52 @@ with(this){
 		},
 
 		read   : function(file, charset) {
-			var data     = new String();
+         
 			var fiStream = Components.classes[this.finstreamCID]
 								.createInstance(this.finstreamIID);
-			var siStream = Components.classes[this.sinstreamCID]
-								.createInstance(this.sinstreamIID);
-			fiStream.init(file, 1, 0, false);
-			siStream.init(fiStream);
-			data += siStream.read(-1);
-			siStream.close();
+         fiStream.init(file, 1, 0, false);
+         
+         const replacementChar = Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
+         var ciStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+                            .createInstance(Components.interfaces.nsIConverterInputStream);
+         ciStream.init(fiStream, charset, 1024, replacementChar);
+
+			var data = "";
+			var temp = {}
+         while (ciStream.readString(4096, temp) != 0) {
+            data += temp.value;
+         }
+
+			ciStream.close()
 			fiStream.close();
-			if (charset) {
-				data = this.toUnicode(charset, data);
-			}
-			return data;
+
+         return data;
 		},
 
-		write  : function(file, data, mode, charset) {
+		/**
+       * Writes string data to local file
+       * @param nsIFile file: Defines the target
+       * @param String data: String to write to the file
+       * @param mode
+       * @param String charset: Charset like "UTF-8" in which data will be written to disk  
+       */
+      write  : function(file, data, mode, charset) {
 			var foStream = Components.classes[this.foutstreamCID]
 								.createInstance(this.foutstreamIID);
-			if (charset) {
-				data = this.fromUnicode(charset, data);
-			}
 			var flags = 0x02 | 0x08 | 0x20; // wronly | create | truncate
 			if (mode == 'a') {
 				flags = 0x02 | 0x10; // wronly | append
 			}
 			foStream.init(file, flags, 0664, 0);
-			foStream.write(data, data.length);
-			// foStream.flush();
-			foStream.close();
+         
+         var converterOS = Components.classes[this.foutstreamconvCID]
+                            .createInstance(this.foutstreamconvIID);
+         
+         converterOS.init(foStream, charset, 4096, 0x0000);
+         converterOS.writeString(data);
+         converterOS.close()
+         foStream.close();
+         
 			return true;
 		},
 
