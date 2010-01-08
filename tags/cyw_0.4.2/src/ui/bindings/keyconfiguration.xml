@@ -1,0 +1,257 @@
+<?xml version="1.0"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:xbl="http://www.mozilla.org/xbl">
+  
+   <binding id="keyinputbox" extends="general.xml#commonBase">
+      <content>
+         <xul:popupset>
+            <xul:menupopup anonid="specialKeysPUP">
+               <xul:menuitem label="Enter/Return" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('RETURN')"/>
+               <xul:menuitem label="Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('TAB')"/>
+               <xul:menuitem label="Shif + Tab" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('SHIFT_TAB')"/>
+               <xul:menuitem label="Escape" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('ESCAPE')"/>
+               <xul:menuitem label="Backspace" oncommand="document.getBindingParent(this).setKeyboxFromDropmarkerMenu('BACKSPACE')"/>
+            </xul:menupopup>
+         </xul:popupset>
+         <xul:hbox>
+            <xul:textbox anonid="keyinputbox" 
+               xbl:inherits="size, context, flex" 
+               readonly="true" 
+               class="keyinputbox" 
+               onkeydown="document.getBindingParent(this).onKeyDown(event);"
+               onfocus="style.background='#faa';"
+               onblur="style.background='#fff';"
+               />
+            <xul:dropmarker anonid="specialKeysDM" tabindex="0" oncommand="document.getBindingParent(this).showSpecialKeysPUP()">
+               
+            </xul:dropmarker>
+         </xul:hbox>
+      </content>
+      <implementation>
+         <!-- Stores the keyCode and modifiers in a single value -->
+         <property name="combinedValue"
+            onset="return this.setCombinedValue(val);"
+            onget="return this.getCombinedValue();"/>           
+         <property name="allowModifiers"
+            onset="return this.setAttribute('allowmodifiers',val);"
+            onget="return this.getAttribute('allowmodifiers');"/>
+         <!-- onset="return this.updateAttr('modifiers',val);" -->
+         <property name="modifiers"
+            onget="return this.getAttribute('modifiers');"/>
+         <!-- onset="return this.updateAttr('keycode',val);" -->
+         <property name="keyCode"
+            onget="return this.getAttribute('keycode');"/>
+       
+      
+         <constructor>
+           this.valueChangeEventManager = new (this.getNamespaceObj().ValueChangeEventSource)()
+           this.specialKeysDM = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysDM")
+           this.specialKeysPUP = document.getAnonymousElementByAttribute(this, "anonid", "specialKeysPUP")
+           this.textbox = document.getAnonymousElementByAttribute(this, "anonid", "keyinputbox")
+           if (this.getAttribute('keycode') != '')
+             this.updateDisplay();
+         </constructor>
+         
+         <method name="addValueChangeListener">
+            <parameter name="eventHandler"/>
+            <parameter name="thisObj"/>
+            <body>
+               this.valueChangeEventManager.addValueChangeListener(eventHandler, thisObj)
+            </body>
+         </method>
+      
+         <method name="getCombinedValue">
+            <body>
+            <![CDATA[
+               return this.keyCode << 4 | this.modifiers;
+            ]]>
+            </body>
+         </method>
+      
+         <method name="getKeyString">
+            <body>
+               return this.getStringForCombinedKeyCode(this.getCombinedValue())
+            </body>
+         </method>
+      
+         <method name="getModifiers">
+            <parameter name="event"/>
+            <body>
+                return event.altKey * Event.ALT_MASK |
+                       event.ctrlKey * Event.CONTROL_MASK |
+                       event.shiftKey * Event.SHIFT_MASK |
+                       event.metaKey * Event.META_MASK;
+            </body>
+         </method> 
+         
+         <method name="getStringForCombinedKeyCode">
+            <parameter name="combinedKeyCode"/>
+            <body>
+                return this.getNamespaceObj().KeyInputbox.getStringForCombinedKeyCode(combinedKeyCode)
+            </body>
+         </method>
+         
+         <method name="isSet">
+            <body>
+               return this.getCombinedValue()!= 0
+            </body>
+         </method>
+
+         <method name="hasCtrlAltMeta">
+            <parameter name="event"/>
+            <body>
+               return event.altKey || event.ctrlKey || event.metaKey
+            </body>
+         </method>
+      
+         <method name="onKeyDown">
+            <parameter name="event"/>
+            <body>
+            <![CDATA[
+                var keyCode = event.keyCode
+                if (!this.hasCtrlAltMeta(event)){
+                   if([KeyEvent.DOM_VK_TAB, KeyEvent.DOM_VK_ESCAPE, KeyEvent.DOM_VK_RETURN].indexOf(keyCode)!=-1){
+                     return;
+                   }else if(keyCode==KeyEvent.DOM_VK_BACK_SPACE){
+                      this.setKey(0, 0)
+                      return 
+                   }
+                }
+                this.setKey(event.keyCode, this.getModifiers(event));
+                this.stopEvent(event);
+            ]]>
+            </body>
+         </method> 
+    
+         <method name="setKey">
+            <parameter name="keyCode"/>
+            <parameter name="modifiers"/>
+            <body>
+               this.updateAttr('keycode', keyCode);
+               this.updateAttr('modifiers', modifiers);
+               this.updateDisplay();
+               this.valueChangeEventManager.notifyListeners(this.getCombinedValue())
+            </body>
+         </method>   
+
+         <method name="stopEvent">
+            <parameter name="event"/>
+            <body>
+                event.preventDefault();
+                event.stopPropagation();
+            </body>
+         </method>
+      
+         <method name="updateAttr">
+            <parameter name="attr"/>
+            <parameter name="value"/>
+            <body>
+            <![CDATA[
+               if (attr == 'modifiers' && this.getAttribute('allowmodifiers') == 'false')
+                 return false;
+               this.setAttribute(attr, value);
+               this.updateDisplay();
+               return true;
+            ]]>
+            </body>
+         </method>
+
+         <method name="updateDisplay">
+            <body>
+               this.textbox.value = this.getKeyString();
+            </body>
+         </method>
+
+         <method name="setCombinedValue">
+            <parameter name="value"/>
+            <body>
+            <![CDATA[
+               if(value==null || value=="0"){
+                   this.updateAttr('modifiers', 0);
+                   this.updateAttr('keycode', "");
+               }else{
+                   this.updateAttr('modifiers', value & 0xF);
+                   this.updateAttr('keycode', value >> 4);
+               }
+               this.valueChangeEventManager.notifyListeners(value)   
+            ]]>
+            </body>
+         </method>
+         
+         <method name="setKeyboxFromDropmarkerMenu">
+            <parameter name="keyCombId"/>
+            <body>
+               <![CDATA[
+                  var combinedValue = 0
+                  switch(keyCombId){
+                     case "RETURN": 
+                        combinedValue = 13<<4
+                        break
+                     case "TAB": 
+                        combinedValue = 9<<4
+                        break
+                     case "SHIFT_TAB": 
+                        combinedValue = 9<<4|Event.SHIFT_MASK
+                        break
+                     case "ESCAPE": 
+                        combinedValue = 27<<4
+                        break
+                     case "BACKSPACE": 
+                        combinedValue = 8<<4
+                        break
+                     default:
+                        throw new Error('unknown key combination')
+                  }
+                  this.setCombinedValue(combinedValue)
+               ]]>
+            </body>
+         </method>
+         
+         <method name="showSpecialKeysPUP">
+            <body>
+               this.specialKeysPUP.openPopup(this.specialKeysDM, "after_start")
+            </body>
+         </method>
+      </implementation>
+   </binding>
+
+   <binding id="shortstringinputbox" extends="general.xml#commonBase">
+      <content>
+         <xul:textbox anonid="shortstringinputbox"/>
+      </content>
+      <implementation>
+         <constructor>
+            this.valueChangeEventManager = new (this.getNamespaceObj().ValueChangeEventSource)()
+            this.textbox = document.getAnonymousElementByAttribute(this, "anonid", "shortstringinputbox")
+            if(!this.hasAttribute('id'))
+               this.setAttribute('id', 'shortstringinputbox')
+         </constructor>
+         <property name="value" onget="return this.textbox.value">
+            <setter>
+               val = val.toUpperCase()
+               this.textbox.value = val 
+               this.valueChangeEventManager.notifyListeners(val)
+               return val
+            </setter>          
+         </property>
+
+         <method name="addValueChangeListener">
+            <parameter name="eventHandler"/>
+            <parameter name="thisObj"/>
+            <body>
+               this.valueChangeEventManager.addValueChangeListener(eventHandler, thisObj)
+            </body>
+         </method>
+         
+      </implementation>
+      <handlers>
+         <handler event="keyup">
+            var newVal = this.textbox.value.toUpperCase()
+            this.textbox.value = newVal
+            this.valueChangeEventManager.notifyListeners(newVal)
+         </handler>
+      </handlers>
+   </binding>  
+</bindings>
+

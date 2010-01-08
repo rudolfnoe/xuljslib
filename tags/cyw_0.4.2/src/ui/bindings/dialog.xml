@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bindings xmlns="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   xmlns:xbl="http://www.mozilla.org/xbl">
+          
+   <binding id="dialogheader">
+      <resources>
+         <stylesheet src="dialog.css"/>
+      </resources>
+      <content>
+         <xul:vbox xbl:inherits="height" flex="1">
+            <xul:label class="dialogheader-title" xbl:inherits="value=title"/>
+            <xul:hbox flex="1">
+               <xul:spacer width="10px"/>
+               <xul:label anonid="icon" collapsed="true" flex="0" width="16px"/>
+               <xul:textbox anonid="messageField" class="dialogheader-message" xbl:inherits="value=message, rows" multiline="true" rows="1" flex="1" 
+                            readonly="true" style="background-color:transparent !important" tabindex="-1"/>
+            </xul:hbox>
+         </xul:vbox>
+      </content>
+      <implementation>
+         <constructor>
+            this.messageField = document.getAnonymousElementByAttribute(this, "anonid", "messageField")
+            this.icon = document.getAnonymousElementByAttribute(this, "anonid", "icon")
+            if(!this.hasAttribute("id"))
+               this.setAttribute("id", "dialogheader")
+         </constructor>
+         <method name="clearMessage">
+            <body>
+               this.messageField.value = ""
+               this.icon.collapsed = true
+            </body>
+         </method>
+         <method name="restoreDefaultMessage">
+            <body>
+               this.setMessage(this.getAttribute('message'))
+            </body>
+         </method>
+         <method name="setErrorMessage">
+            <parameter name="messageText"/>
+            <body>
+               this.setMessage(messageText, "ERROR")
+            </body>
+         </method>
+         <method name="setMessage">
+            <parameter name="messageText"/>
+            <parameter name="severity"/>
+            <body>
+               <![CDATA[
+                  this.messageField.value = messageText
+                  severity = severity?severity:"INFO"
+                  if(severity.toUpperCase()=="INFO"){
+                     this.icon.collapsed = true
+                  }else{
+                     this.icon.collapsed = false
+                     if(severity.toUpperCase()=="ERROR") 
+                        this.icon.className="error-icon"
+                     else if (severity.toUpperCase()=="WARNING")
+                        this.icon.className="warning-icon"
+                     else
+                        throw new Error ('unknown severity')
+                  }
+               ]]>
+            </body>
+         </method>
+         <method name="setWarningMessage">
+            <parameter name="messageText"/>
+            <body>
+               this.setMessage(messageText, "WARNING")
+            </body>
+         </method>
+      </implementation>
+   </binding>
+</bindings>
