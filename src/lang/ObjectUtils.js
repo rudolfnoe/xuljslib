@@ -82,11 +82,14 @@ with(this){
                clone = {}
                //no break for further copying of members
             default:
-               //Clone must be instantiated via eval to assure that
+               //Clone must be instantiated anew to assure that
                //the newly created obj has the scope of the current window
                if(!clone){
                   Assert.notNull(obj.__namespace, "__namespace must not be null. Obj: " + obj.toString())
-                  clone = eval("new " + obj.__namespace + "." + t +"()")
+                  Assert.notNull(window[obj.__namespace], "Namespace object named '" + obj.__namespace + "' is null")
+                  Assert.notNull(window[obj.__namespace][t], "Constructor for object '" + t + "' is null")
+                  Assert.isTrue(window[obj.__namespace][t] instanceof Function, "Constructor for object '" + t + "' is not a function")
+                  clone = new window[obj.__namespace][t]()
                }
                objToCloneIdentityMap.put(obj, clone)
                for(var m in obj){
@@ -226,8 +229,6 @@ with(this){
             }
             prototypeSubClass[memberName] = prototypeSuperClass[member]
          }
-         //set reference to superclass constructor in subclass
-         prototypeSubClass[superClassName] = constructorSuperClass
          
          //fill supertype array for instanceof
          if(!prototypeSubClass.__supertypes){
