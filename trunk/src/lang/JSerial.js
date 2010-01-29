@@ -144,7 +144,8 @@ with(this){
       		
       		default:
       		{
-      			RetObj = eval("new "+ NodeType + "()");
+               var typeConstructor = getConstructorFromNodeType(NodeType)
+      			RetObj = new typeConstructor()
       		}
       		break;
       	}
@@ -159,6 +160,21 @@ with(this){
       	}
       
       	return RetObj;
+      }
+      
+      function getConstructorFromNodeType(type){
+         var namespaceParts = type.split(".")
+         var constructor = window
+         for (var i = 0; i < namespaceParts.length; i++) {
+            constructor = constructor[namespaceParts[i]]
+            if(constructor==null){
+               throw new Error('Class not found exception during deserialzation for type: ' + type)
+            }
+         }
+         if(!(constructor instanceof Function)){
+            throw new Error('Class not found exception during deserialzation for type: ' + type)
+         }
+         return constructor
       }
       
       function IsSimpleVar(type)
