@@ -1,7 +1,7 @@
 with(this){
 (function(){
-   function AndValidator(validatorsArr){
-      this.AbstractContainerValidator(validatorsArr)
+   function AndValidator(){
+      this.AbstractContainerValidator()
    }
    
    AndValidator.prototype = {

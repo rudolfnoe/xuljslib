@@ -226,8 +226,6 @@ with(this){
             }
             prototypeSubClass[memberName] = prototypeSuperClass[member]
          }
-         //set reference to superclass constructor in subclass
-         prototypeSubClass[superClassName] = constructorSuperClass
          
          //fill supertype array for instanceof
          if(!prototypeSubClass.__supertypes){
