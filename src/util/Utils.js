@@ -376,7 +376,28 @@ with (this) {
 			stopEvent : function(event) {
 				event.stopPropagation()
 				event.preventDefault()
-			}
+			},
+         
+         /*
+          * Retrieve an JS property according to the provided string. 
+          * The property could be a nested in which case the differnt parts must 
+          * be seperated with dots ('.').
+          * E.g.: srcObj = window, propertyId=xyz.abc then the object window[xyz][abc] would be given back
+          * @param: Object srcObj: The object from which the property should given back
+          * @param: String propertyId: name or path of the property 
+          */
+         getNestedProperty: function(srcObj, propertyId){
+            var parts = propertyId.split(".")
+            var result = srcObj
+            for (var i = 0; i < parts.length; i++) {
+               result = result[parts[i]]
+               if(i < parts.length-1){
+                  Assert.notNull(result, parts[i] + " does not exists in srcObj or nested object. SrcObj: " + srcObj + " propertyId: " + propertyId)
+               }
+            }
+            return result
+         }
+
 		}
 
 		this["Utils"] = Utils;
