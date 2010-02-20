@@ -6,7 +6,7 @@ with(this){
                      getService(Components.interfaces.nsIChromeRegistry)
 	const IO_SERVICE = Components.classes["@mozilla.org/network/io-service;1"].
                      getService(Components.interfaces.nsIIOService)
-
+   
 	var ScriptLoader = {
       
       _getNamespaceObj: function(scopeObjOrNS){
@@ -37,6 +37,20 @@ with(this){
          this.loadScript(chromePathIncludeCommon+"/lang/ArrayUtils.js", scopeObj)
          this.loadScript(chromePathIncludeCommon+"/lang/Namespace.js", scopeObj)
          this.loadScript(chromePathIncludeCommon+"/lang/ObjectUtils.js", scopeObj)
+      },
+      
+      /*
+       * Loads jQuery 
+       * @param String chromePath: chrome path to jquery.js 
+       * @param String ns: scopeObj or name of the namespace in global window
+       */
+      loadJQuery: function(chromePath, scopeObjOrNS){
+         var scopeObj = this._getNamespaceObj(scopeObjOrNS)
+         this.loadScript(chromePath)
+         //Removes jQuery from global window object
+         var jQuery = window.jQuery.noConflict(true)
+         //and set it for the scope obj
+         scopeObj.jQuery = scopeObj.$ = jQuery
       },
 		
 		/*
