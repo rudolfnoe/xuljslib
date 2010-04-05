@@ -46,6 +46,9 @@ with(this){
        */
       loadJQuery: function(chromePath, scopeObjOrNS){
          var scopeObj = this._getNamespaceObj(scopeObjOrNS)
+         if(scopeObj.$ != null){
+            return
+         }
          this.loadScript(chromePath)
          //Removes jQuery from global window object
          var jQuery = window.jQuery.noConflict(true)
