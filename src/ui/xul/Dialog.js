@@ -5,7 +5,7 @@ with(this){
       MODAL:"MODAL",
       NON_MODAL:"NON_MONDAL"
    }
-   this.DialogMode = DialogMode
+   this.DialogMode = Dialog;DialogMode
    
    //Dialog results
    DialogResult={

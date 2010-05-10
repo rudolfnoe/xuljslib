@@ -26,18 +26,17 @@ function ShortcutManager(targetObjects, eventType, suppressShortcutKeys, useCapt
 
 ShortcutManager.prototype = {
    handleElementEvent: function(event){
-      if(this.isSuspended()) {
+      if(this.isSuspended())
          return
-      }
-      var srcElement = event.currentTarget
-      this.handleEventInternal(event, srcElement.de_mouseless_shortcutmanager_id)
+      var srcElement = event.currentTarget;
+      this.handleEventInternal(event, srcElement.de_mouseless_shortcutmanager_id);
    },
 
    //main event handling method
    handleEventInternal: function(event, elementId){
-      var shortcutKey = this.encodeEvent(event, elementId)
+      var shortcutKey = this.encodeEvent(event, elementId);
       if (elementId)
-         shortcutKey = elementId + "_" + shortcutKey
+         shortcutKey = elementId + "_" + shortcutKey;
       var result = this.executeCommands(shortcutKey, event)
    },
    
@@ -50,7 +49,7 @@ ShortcutManager.prototype = {
       var elementId = null
       if(typeof elementOrId == "string"){
          elementId = elementOrId
-         element = document.getElementById(elementOrId)
+         element = document.getElementById(elementOrId);
       }else{
          element = elementOrId
          elementId = element.getAttribute('id')
@@ -59,11 +58,11 @@ ShortcutManager.prototype = {
          }
       }
       if(!element)
-         throw new Error("Element for elementId does not exist")
+         throw new Error("Element for elementId does not exist");
       element.de_mouseless_shortcutmanager_id = elementId
       if(!ArrayUtils.contains(this.elementsWithShortcuts, element)){
          this.elementsWithShortcuts.push(element)
-         element.addEventListener(this.getEventType(), this.elementKeyEventHandler, this.useCapture)
+         element.addEventListener(this.getEventType(), this.elementKeyEventHandler, this.useCapture);
       }
       this.abstractAddShortcut(ShortcutManager.getShortcutKey(keyCombination, elementId), cmdDefinition, cmdThisObj, clientId)
    },
@@ -72,7 +71,7 @@ ShortcutManager.prototype = {
    //Only for backward compatibility
    addJsShortcut: function(keyCode, modifierMask, jsCode, clientId){
        if(modifierMask==null){
-           modifierMask = 0
+           modifierMask = 0;
        }
        var combinedKeyCode = this.createShortcutKey(keyCode, modifierMask)       
        this.addShortcut(ShortcutManager.getShortcutKey(combinedKeyCode), jsCode, null, clientId)
@@ -87,7 +86,7 @@ ShortcutManager.prototype = {
     * Only for backward compatibility 
     */
    addJsShortcutWithCombinedKeyCode: function(combinedKeyCode, jsCode, clientId){
-       this.addShortcut(ShortcutManager.getShortcutKey(combinedKeyCode), jsCode, null, clientId)
+       this.addShortcut(ShortcutManager.getShortcutKey(combinedKeyCode), jsCode, null, clientId);
    },
    
    addJsShortcutForElement: function(elementId, keyCode, modifierMask, jsCode, clientId){
@@ -104,8 +103,8 @@ ShortcutManager.prototype = {
    createShortcutKey: function(keyCode, modifierMask, elementId){
       var shortcutKey = ShortcutManager.createCombinedKeyCode(keyCode, modifierMask)
       if(elementId)
-         shortcutKey = elementId + "_" + shortcutKey
-      return shortcutKey
+         shortcutKey = elementId + "_" + shortcutKey;
+      return shortcutKey;
    },
 
    destroy: function(){
@@ -117,7 +116,7 @@ ShortcutManager.prototype = {
     * Encodes KeyEvent
     */
    encodeEvent: function(event){
-      return ShortcutManager.encodeEvent(event)
+      return ShortcutManager.encodeEvent(event);
    },
    
    isStopEvent: function(commandResult){
@@ -131,7 +130,7 @@ ShortcutManager.prototype = {
 
    removeElementEventListener: function(){
       for (var i = 0; i < this.elementsWithShortcuts.length; i++) {
-         this.elementsWithShortcuts[i].removeEventListener(this.eventType, this.elementKeyEventHandler, this.useCapture)
+         this.elementsWithShortcuts[i].removeEventListener(this.eventType, this.elementKeyEventHandler, this.useCapture);
       }
       this.elementsWithShortcuts = []
    }
@@ -151,14 +150,14 @@ ShortcutManager.encodeEvent =  function(event){
    }else{
       keyCode = event.charCode
    }
-   return keyCode << 4 | ShortcutManager.encodeEventModifier(event)
+   return keyCode << 4 | ShortcutManager.encodeEventModifier(event);
 }
 
 ShortcutManager.encodeEventModifier =  function(event){
     return event.altKey * Event.ALT_MASK |
         event.ctrlKey * Event.CONTROL_MASK |
         event.shiftKey * Event.SHIFT_MASK |
-        event.metaKey * Event.META_MASK
+        event.metaKey * Event.META_MASK;
 }
 
 ShortcutManager.getShortcutKey = function(keyCombination, elementId){
@@ -192,31 +191,31 @@ ShortcutManager.parseKeyCombination = function(keyCombination){
       switch(modifier){
          case "CTRL":
             modifierMask = modifierMask | ShortcutManager.CTRL
-            break
+            break;
          case "SHIFT": 
             modifierMask = modifierMask | ShortcutManager.SHIFT
-            break
+            break;
          case "ALT": 
             modifierMask = modifierMask | ShortcutManager.ALT
-            break
+            break;
       }
    }
    return ShortcutManager.createCombinedKeyCode(keyCode, modifierMask)
 }
 
 //Constants
-ShortcutManager.ALT = Event.ALT_MASK
-ShortcutManager.CTRL = Event.CONTROL_MASK
-ShortcutManager.SHIFT = Event.SHIFT_MASK
-ShortcutManager.CTRL_SHIFT = Event.CONTROL_MASK | Event.SHIFT_MASK
-ShortcutManager.ALT_SHIFT = Event.ALT_MASK | Event.SHIFT_MASK
-ShortcutManager.CTRL_ALT = Event.ALT_MASK | Event.CONTROL_MASK
-ShortcutManager.SUPPRESS_KEY = 1
+ShortcutManager.ALT = Event.ALT_MASK;
+ShortcutManager.CTRL = Event.CONTROL_MASK;
+ShortcutManager.SHIFT = Event.SHIFT_MASK;
+ShortcutManager.CTRL_SHIFT = Event.CONTROL_MASK | Event.SHIFT_MASK;
+ShortcutManager.ALT_SHIFT = Event.ALT_MASK | Event.SHIFT_MASK;
+ShortcutManager.CTRL_ALT = Event.ALT_MASK | Event.CONTROL_MASK;
+ShortcutManager.SUPPRESS_KEY = 1;
 ShortcutManager.PREVENT_FURTHER_EVENTS = 2
-ShortcutManager.DO_NOT_SUPPRESS_KEY = 4
+ShortcutManager.DO_NOT_SUPPRESS_KEY = 4;
 
 
-this["ShortcutManager"] = ShortcutManager
+this["ShortcutManager"] = ShortcutManager;
 
 }).apply(this)
 }
