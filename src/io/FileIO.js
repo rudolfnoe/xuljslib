@@ -206,7 +206,7 @@ with(this){
 		},
 		
 		create : function(dir) {
-			dir.create(0x01, 0664);
+			dir.create(0x01, 0755);
 			return true;
 		},
 
