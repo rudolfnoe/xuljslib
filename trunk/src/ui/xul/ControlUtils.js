@@ -128,24 +128,12 @@ with(this){
 		 * Selects item of menulist by its value and returns the item 
 		 */
 		selectMenulistByValue : function(menulist, value) {
-			this.selectChoiceElementByValue(menulist, "menuitem", value)
+			PresentationMapper.setUiElementValue(menulist, value)
 		},
 		
 		selectRadiogroupByValue: function(radiogroup, value){
-			this.selectChoiceElementByValue(radiogroup, "radio", value)
-		},
-		
-		selectChoiceElementByValue: function(choiceElement, childrenTagName, value){
-			var items = choiceElement.getElementsByTagName(childrenTagName);
-			for (var i = 0; i < items.length; i++) {
-				if (items[i].value == value) {
-					choiceElement.selectedItem = items[i]
-					choiceElement.value = value
-					return items[i]
-				}
-			}
-		},
-		
+			PresentationMapper.setUiElementValue(radiogroup, value)
+		}
 	}
 	this["ControlUtils"]= ControlUtils;
 }).apply(this)
