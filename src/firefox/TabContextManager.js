@@ -4,7 +4,7 @@ with(this){
       setContext: function(contentWin, contextId, context){
       	var tabContext = this.getTabContext(contentWin)
       	if(tabContext==null){
-      		throw new Error("TabContext could not be set as content win doesn't match to browser")
+      		throw new Error("TabContext could not be set as content win doesn't match to browser (URL: " + contentWin.location.href)
       	}
       	tabContext.setContext(contextId, context)
          return context

@@ -5,7 +5,24 @@ with(this){
     */
    var PresentationMapper = {
       
-      /*
+		/**
+		 * Determines the property from the model according the provided property string
+		 * The property could be nested. Nested objects are delimited by a dot (e.g. attr1.attr2)
+		 * Arrays are not supported right now.
+		 * @param {Object} model
+		 * @param {String} propertyString
+		 * @return {Object} property represented by the property string
+		 */
+		getPropertyFromModel: function(model, propertyString){
+			var props = propertyString.split(".")
+         var property = model
+			for (var i = 0; i < props.length; i++) {
+			   var property = property[props[i]]
+			}
+         return property
+		},
+		
+		/*
        * Returns the value of an uiElement
        * @param DOMElement uiElement,
        * @param String defaultProperty (optional): defines defaultProperty which value is given back if UiElement is not known
@@ -41,8 +58,9 @@ with(this){
          var uiElements = doc.getElementsByAttribute("model", "*")
          for (var i = 0; i < uiElements.length; i++) {
             var uiElement = uiElements.item(i)
-            var property = uiElement.getAttribute('model')
-            this.setUiElementValue(uiElement, model[property], defaultProperty)
+            var propertyString = uiElement.getAttribute('model')
+				var property = this.getPropertyFromModel(model, propertyString)
+            this.setUiElementValue(uiElement, property, defaultProperty)
          }
       },
 
@@ -59,8 +77,9 @@ with(this){
          var uiElements = doc.getElementsByAttribute("model", "*")
          for (var i = 0; i < uiElements.length; i++) {
             var uiElement = uiElements.item(i)
-            var property = uiElement.getAttribute('model')
-            model[property] = this.getUiElementValue(uiElement, defaultProperty)
+            var propertyString = uiElement.getAttribute('model')
+            var value = this.getUiElementValue(uiElement, defaultProperty) 
+            this.setPropertyInModel(model, propertyString, value)
          }
       },
       
@@ -80,7 +99,16 @@ with(this){
                return items[i]
             }
          }
-      },      
+      }, 
+      
+      setPropertyInModel: function(model, propertyString, value){
+         var props = propertyString.split(".")
+         var modelObj = model
+         for (var i = 0; i < props.length-1; i++) {
+            var modelObj= modelObj[props[i]]
+         }
+         modelObj[props[props.length-1]] = value
+      },
 
       /*
        * Sets the value of an UI Element

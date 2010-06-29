@@ -109,7 +109,7 @@ with(this){
    }
    
    Dialog.getNamedArgument = function(key, clone){
-      clone = clone?clone : false
+      clone = clone!=null?clone : false
       if(!window.arguments || !window.arguments[0] || !window.arguments[0].argObj)
          throw new Error('No argument set')
       var result = window.arguments[0].argObj[key] 

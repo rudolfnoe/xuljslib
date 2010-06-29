@@ -264,7 +264,7 @@ with(this){
       
       /*
        * @param element: element for which offset should be computed @param
-       * leftOrTop: values offsetLeft/offsetTop
+       * @returns Object: values y x
        */
       getOffsetToBody : function(element) {
          var offset = {}
@@ -275,6 +275,18 @@ with(this){
             offset.y += element.offsetTop
             offset.x += element.offsetLeft
          }
+         return offset
+      },
+      
+      /*
+       * Returns
+       */
+      getOffsetToViewport: function(element){
+         var offsetToBody = this.getOffsetToBody(element)
+         var win = element.ownerDocument.defaultView
+         offset = {}
+         offset.y = offsetToBody.y - win.scrollY
+         offset.x = offsetToBody.x - win.scrollX
          return offset
       },
       
