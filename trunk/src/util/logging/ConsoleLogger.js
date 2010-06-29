@@ -24,11 +24,20 @@ with(this){
          this.currentLogLevel = currentLogLevel
       },
       
-      createErrorMessage: function(err, message){
+      /*
+       * @param Error err
+       * @param String message
+       * @param Boolean printStackTrace: Boolean indicating whether the stacktrace should be included
+       */
+      createErrorMessage: function(err, message, printStackTrace){
+            var printStackTrace = printStackTrace!=null?printStackTrace:true
             var errorMessage = message?message+": ":"";
             errorMessage += err.message + "\n"
             if(err){
                for (m in err) {
+                  if(!printStackTrace && m=="stack"){
+                     continue
+                  }
                   errorMessage = errorMessage + m + ": " + err[m] + "\n";
                }
             }
@@ -62,12 +71,12 @@ with(this){
          this.log(message, LogLevel.DEBUG)
       },
       
-      logError: function(err, message){
-         this.log(this.createErrorMessage(err, message), LogLevel.ERROR)
+      logError: function(err, message, printStackTrace){
+         this.log(this.createErrorMessage(err, message, printStackTrace), LogLevel.ERROR)
       },
 
-      logFatal: function(err, message){
-         this.log(this.createErrorMessage(err, message), LogLevel.FATAL)
+      logFatal: function(err, message, printStackTrace){
+         this.log(this.createErrorMessage(err, message, printStackTrace), LogLevel.FATAL)
       },
 
       logInfo: function(message){

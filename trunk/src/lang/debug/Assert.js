@@ -10,6 +10,10 @@ with(this){
          this.isTrue(!cond, message)
       },
       
+      isNumeric: function(value, message){
+         this.isTrue(typeof value == "number", "Value must be numeric")   
+      },
+      
       isTrue: function(cond, message){
          if(!cond){
             var err = new Error()

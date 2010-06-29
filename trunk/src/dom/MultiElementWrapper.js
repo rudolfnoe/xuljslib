@@ -5,6 +5,7 @@ with(this){
     * @param DOMElements[] elementArray: array of elements which will be wrapped
     */
    function MultiElementWrapper(elementArray){
+      this.elementWrappers = []
       if(elementArray!=null){
          for (var i = 0; i < elementArray.length; i++) {
             this.elementWrappers.push(new ElementWrapper(elementArray[i], true))
@@ -13,7 +14,6 @@ with(this){
    }
    
    MultiElementWrapper.prototype = {
-      elementWrappers: [],
       constructor: MultiElementWrapper,
       
       doForEachWrapper: function(functionName, arg1, arg2, arg3){
@@ -30,6 +30,7 @@ with(this){
          return changeMemento
       },
       setChangeMemento: function(changeMemento){
+			Assert.isTrue(ObjectUtils.instanceOf(changeMemento, Array), "Param changeMenento must be of type 'Array'")
          this.elementWrappers.forEach(function(wrapper, i){
             wrapper.setChangeMemento(changeMemento[i])
          }) 
