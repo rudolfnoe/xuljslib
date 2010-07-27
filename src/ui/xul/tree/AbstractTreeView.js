@@ -46,26 +46,31 @@ with(this){
       getTreeBox: function(){
          return this.treebox
       },
-      addItem: function(item, parent){
+      addItem: function(item, parent, index){
          if(parent==null)
             var parent = this.getRootItem()
          Assert.isTrue(parent.isContainer(), 'Parent is no container')
          //first add child to parent!
-         parent.addChild(item)
+         if(arguments.length>=3){
+            parent.addChildAtIndex(item, index)
+         }else{
+            parent.addChild(item)
+         }
          this.notifyListeners({type:"add", item:item})
          //then ajust visible items
          if(parent.isVisible() && parent.isContainerOpen()){
-            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleDescendantsCount() 
-            if(item.isContainer()){
-               insertIndex -= item.getVisibleDescendantsCount()
-            }
+            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleIndexOfChild(item) + 1 
+//TODO Remove
+            //            if(item.isContainer()){
+//               insertIndex -= item.getVisibleDescendantsCount()
+//            }
             var itemsToAdd = new ArrayList()
             itemsToAdd.add(item)
             if(item.isContainer()){
                itemsToAdd.addAll(item.getVisibleDescendants())
             }
    			this.visibleItems.addAllAtIndex(insertIndex, itemsToAdd)
-   			this.rowCountChanged(this.insertIndex, itemsToAdd.size())
+   			this.rowCountChanged(insertIndex, itemsToAdd.size())
          }
       },
       closeContainer: function(item, row){
