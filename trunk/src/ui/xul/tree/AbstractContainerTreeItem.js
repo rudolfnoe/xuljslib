@@ -14,9 +14,13 @@ with(this){
       AbstractContainerTreeItem: AbstractContainerTreeItem,
 
       addChild: function(abstractTreeItem){
+         this.addChildAtIndex(abstractTreeItem, this.children.size())
+      },
+      
+      addChildAtIndex: function(abstractTreeItem, index){
          abstractTreeItem.setParent(this)
          abstractTreeItem.setLevel(this.getLevel()+1)
-         this.children.add(abstractTreeItem)         
+         this.children.addAtIndex(index, abstractTreeItem)         
       },
       
       getCellText : function(column) {
@@ -45,6 +49,10 @@ with(this){
          var result = new ArrayList()
          addChildren(this, result)
          return result            
+      },
+      
+      getIndexOfChild: function(child){
+         return this.children.indexOf(child)
       },
       
       getNextSibling: function(item){
@@ -86,8 +94,13 @@ with(this){
       },
       
       getVisibleDescendantsCount: function(){
-         return this.getVisibleDescendants().size()
+         return this.getVisibleDescendants().size()   
       },
+
+      getVisibleIndexOfChild: function(child){
+         return this.getVisibleDescendants().indexOf(child)
+      },
+      
       
       hasNextSibling: function(item){
          return this.getNextSibling(item)!=null
