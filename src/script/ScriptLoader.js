@@ -6,69 +6,16 @@ with(this){
                      getService(Components.interfaces.nsIChromeRegistry)
 	const IO_SERVICE = Components.classes["@mozilla.org/network/io-service;1"].
                      getService(Components.interfaces.nsIIOService)
-   
+
 	var ScriptLoader = {
-      
-      _getNamespaceObj: function(scopeObjOrNS){
-         scopeObjOrNS = scopeObjOrNS?scopeObjOrNS:window
-         if(typeof scopeObjOrNS == "string")
-            return this.getNamespaceObj(scopeObjOrNS)
-         else
-            return scopeObjOrNS
-      },
-      
-      getNamespaceObj: function(ns, scopeObj){
-         scopeObj = scopeObj?scopeObj:window
-         var names = ns.split('.');
-         var obj = scopeObj;
-         for (key in names){
-            var name = names[key];
-            if(obj[name] == undefined){
-               obj[name] = new Object();
-            }
-            obj = obj[name];
-         }
-         return obj;
-      },
-      
-      loadBaseClasses: function(chromePathIncludeCommon, ns){
-         var scopeObj = this.getNamespaceObj(ns)
-         this.loadScript(chromePathIncludeCommon+"/lang/debug/Assert.js", scopeObj)
-         this.loadScript(chromePathIncludeCommon+"/lang/ArrayUtils.js", scopeObj)
-         this.loadScript(chromePathIncludeCommon+"/lang/Namespace.js", scopeObj)
-         this.loadScript(chromePathIncludeCommon+"/lang/ObjectUtils.js", scopeObj)
-      },
-      
-      /*
-       * Loads jQuery 
-       * @param String chromePath: chrome path to jquery.js 
-       * @param String ns: scopeObj or name of the namespace in global window
-       */
-      loadJQuery: function(chromePath, scopeObjOrNS){
-         var scopeObj = this._getNamespaceObj(scopeObjOrNS)
-         if(scopeObj.$ != null){
-            return
-         }
-         this.loadScript(chromePath)
-         //Removes jQuery from global window object
-         var jQuery = window.jQuery.noConflict(true)
-         //and set it for the scope obj
-         scopeObj.jQuery = scopeObj.$ = jQuery
-      },
 		
 		/*
 		 * Load all scripts from a directory 
 		 * @param in String chromePath: chrome path to directory which scripts should be loaded
 		 * @param in Object scopeObj: Object in which context the scripts are loaded
-		 * @param in Array excludeArray: Array with String or RegExp defining the files to exclude (only include or exclude could be provided)
-		 * @param in Array includeArray: Array with String or RegExp defining the files to include (only include or exclude could be provided)
+		 * @param in Array excludeArray: Array with String or RegExp defining the files to exclude
 		 */
-		loadScripts: function(chromePath, scopeObjOrNS, includeArray, excludeArray, recursive){
-         if(includeArray && excludeArray)
-            throw new Error('either includeArray or excludeArray could be provided but not both')
-         if(!Namespace)
-            throw new Error('loadBaseClasses must be called first')
-         var scopeObj = this._getNamespaceObj(scopeObjOrNS)
+		loadScripts: function(chromePath, scopeObj, excludeArray, recursive){
 			chromePath = chromePath.lastIndexOf("/")==chromePath.length-1?chromePath:chromePath+"/"
          var chromeBaseUri = IO_SERVICE.newURI(chromePath, null, null)
          var chromeBaseFullUri = CHROME_REGISTRY.convertChromeURL(chromeBaseUri)
@@ -78,16 +25,18 @@ with(this){
          for (var i = 0; i < files.length; i++) {
          	var fullPath = files[i].path
          	if((fullPath.lastIndexOf(".js")!=fullPath.length-3) ||
-         	     this.shouldBeExcluded(files[i].leafName, includeArray, excludeArray))
+         	     this.shouldBeExcluded(files[i].leafName, excludeArray))
          	   continue
          	this.loadScript(chromeBaseUri.resolve(fullPath.substring(startIndexSubPath+1)), scopeObj) 
          }
-         if(typeof scopeObjOrNS == "string")
-            this.setNamespaceString(scopeObj, scopeObjOrNS)
 		},
 		
-		loadScript: function(chromeUrl, scopeObjOrNS){
-         JS_SCRIPT_LOADER.loadSubScript(chromeUrl, this._getNamespaceObj(scopeObjOrNS));
+		loadScript: function(url, scopeObj){
+         JS_SCRIPT_LOADER.loadSubScript(url, scopeObj);
+      },
+      
+      loadSingleScript: function(chromePath, scopeObj){
+      	this.loadScript(chromePath, scopeObj)
       },
       
       path : function(file) {
@@ -114,32 +63,18 @@ with(this){
 			}
 			return resultArray
 		},
-      
-      setNamespaceString: function(scopeObj, ns){
-         for(var className in scopeObj){
-            var clazz = scopeObj[className]
-            if(typeof clazz == "function")
-               clazz.prototype.__namespace = ns
-         }
-      },
 		
-		shouldBeExcluded: function(fileName, includeArray, excludeArray){
-			if(!excludeArray && !includeArray)
+		shouldBeExcluded: function(fileName, excludeArray){
+			if(excludeArray==null)
 			   return false
-         var patternArray = includeArray?includeArray:excludeArray
-         var includeMode = includeArray!=null
-      	for (var i = 0; i < patternArray.length; i++) {
-      		var pattern  = patternArray[i]
-            var patternMatch = (pattern.constructor==String && pattern==fileName) ||
-      		                      (pattern.constructor==RegExp && pattern.test(fileName))
-            if(patternMatch){
-               if(includeMode)
-                  return false
-               else
-                  return true
-            }
-         }
-      	return includeMode?true:false
+      	for (var i = 0; i < excludeArray.length; i++) {
+      		var exclude = excludeArray[i]
+      		if((exclude.constructor==String && exclude==fileName) ||
+      		    (exclude.constructor==RegExp && excludeArray[i].test(fileName))){
+      		   return true
+      		}
+      	}
+      	return false
 	  }
 		
 	}

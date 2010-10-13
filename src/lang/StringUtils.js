@@ -7,11 +7,7 @@ with(this){
    var StringUtils = {
    	digitRegEx: /^\d*$/,
       
-   	contains: function(needle, haystack){
-         return haystack && (haystack.indexOf(needle)!=-1)
-      },
-      
-      defaultString: function(string, defaultString){
+   	defaultString: function(string, defaultString){
          var defaultString = defaultString?defaultString:""
    		return string!=null?string:defaultString
    	},
@@ -47,14 +43,12 @@ with(this){
        * @param string string: string to test
        * @param string matchExp: expr to test agains string; * and spaces are interpreted as reg ex (.*?)  
        */
-      matches: function(string, matchExp, ignoreCase){
-         var ignoreCase = arguments.length>=3?ignoreCase:false
+      matches: function(string, matchExp){
          matchExp = this.trim(matchExp)
          matchExp = matchExp.replace(/\s+/, "*")
          matchExp = matchExp.replace(/\*/, ".*?")
          matchExp = matchExp.replace(/\?/, ".{0,1}")
-         var regExp = new RegExp("^" + matchExp, (ignoreCase?"i":""))
-         return regExp.test(string)
+         return (new RegExp("^" + matchExp)).test(string)
       },
       
       removeWhitespace: function(string){
@@ -63,13 +57,7 @@ with(this){
          return string.replace(/\s/g, "")
       },
    	
-   	startsWith: function(string, prefix){
-         if(this.isEmpty(string))
-            return false
-         return string.indexOf(prefix)==0   
-      },
-      
-      trim: function(string){
+   	trim: function(string){
    		return string.replace(/^\s*/, "").replace(/\s*$/, "")
    	}
    }

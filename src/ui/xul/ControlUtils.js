@@ -1,7 +1,7 @@
 with(this){
 /*
  * 
- * Common-Prefs Version 0.1 Created by Rudolf Noé 28.12.2007
+ * Common-Prefs Version 0.1 Created by Rudolf Noe 28.12.2007
  * 
  * Partly copied from pref-tabprefs.js (c) Bradley Chapman (THANKS!)
  */
@@ -78,30 +78,9 @@ with(this){
          }
       },
       
-      insertTextAt : function(element, textToInsert, insertAt, after) {
-			var newSelectionEnd = element.selectionEnd
-			var newSelectionStart = element.selectionStart
-         if(!after){
-   			newSelectionEnd += textToInsert.length;
-   			newSelectionStart += textToInsert.length;
-         }
-			var currentValue = element.value;
-
-			var beforeText = currentValue.substring(0, insertAt);
-			var afterText = currentValue.substring(insertAt);
-
-			element.value = beforeText + textToInsert + afterText;
-
-			element.setSelectionRange(newSelectionStart, newSelectionEnd);
-		},  
-      
-      insertTextAtCursorPos: function(element, textToInsert, after){
-         this.insertTextAt(element, textToInsert, element.selectionEnd, after)
-      },
-      
       observeControl: function(control, callbackFunc, thisObj){
          var callBack = Utils.bind(callbackFunc, thisObj)
-         var tagName = control.localName.toLowerCase() 
+         var tagName = control.tagName.toLowerCase() 
          if(tagName=="menulist" || "colorfield"){
             control.addEventListener("select", function(){
                callBack(control, control.value)
@@ -114,13 +93,6 @@ with(this){
             Utils.observeObject(control, "value", function(newValue){
                callBack(control, newValue)
             })
-         }else if(tagName=="checkbox"){
-            control.addEventListener("command", function(){
-               callBack(control, control.checked)
-            }, true)
-            Utils.observeObject(control, "checked", function(newValue){
-               callBack(control, newValue)
-            })
          }
       },
 		
@@ -128,12 +100,24 @@ with(this){
 		 * Selects item of menulist by its value and returns the item 
 		 */
 		selectMenulistByValue : function(menulist, value) {
-			PresentationMapper.setUiElementValue(menulist, value)
+			this.selectChoiceElementByValue(menulist, "menuitem", value)
 		},
 		
 		selectRadiogroupByValue: function(radiogroup, value){
-			PresentationMapper.setUiElementValue(radiogroup, value)
-		}
+			this.selectChoiceElementByValue(radiogroup, "radio", value)
+		},
+		
+		selectChoiceElementByValue: function(choiceElement, childrenTagName, value){
+			var items = choiceElement.getElementsByTagName(childrenTagName);
+			for (var i = 0; i < items.length; i++) {
+				if (items[i].value == value) {
+					choiceElement.selectedItem = items[i]
+					choiceElement.value = value
+					return items[i]
+				}
+			}
+		},
+		
 	}
 	this["ControlUtils"]= ControlUtils;
 }).apply(this)

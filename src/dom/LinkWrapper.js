@@ -7,13 +7,7 @@ with(this){
    LinkWrapper.prototype = {
       constructor: LinkWrapper,
       open: function(where){
-         if(where == LinkTarget.CURRENT){
-            var clickEvent = new MouseEvent("click")
-            clickEvent.dispatch(this.link)
-         }else{
-            //Use FF method
-            openUILinkIn(this.link.href, where)
-         }
+         openUILinkIn(this.link.href, where)
       }
    }
 
@@ -24,6 +18,5 @@ with(this){
       TAB:"tab",
       WINDOW:"window"
    }
-   this.LinkTarget = LinkTarget;
 }).apply(this)
 }

@@ -12,7 +12,7 @@ with(this){
 
       isContainer: function(){
          return false
-      }
+      },
       
    }
    

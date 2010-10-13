@@ -8,13 +8,8 @@ with(this){
 			return window.getBrowser().selectedBrowser
 		},
       
-      getBrowser: function(){
-         return window.getBrowser()
-      },
-      
-      getBrowserForContentWin: function(win){
-         Assert.paramsNotNull(arguments)
-         return gBrowser.getBrowserForDocument(win.top.document)
+      getTabContainer: function(){
+         return getBrowser().tabContainer;   
       },
       
       iterateAllBrowsers: function(callBackFunc, thisObj){
@@ -24,8 +19,8 @@ with(this){
                ObjectUtils.callFunction(callBackFunc, thisObj, [browsers[i]])
             }
          }
+         
       }
-      
 	}
 
 	this.Firefox = Firefox;

@@ -41,15 +41,6 @@ with(this){
 			return this.prefs.getIntPref(key)
 		},
       
-      getPrefAsArray : function(key, delimiter){
-         var pref = this.getCharPref(key)
-         var result = pref.split(delimiter)
-         for (var i = 0; i < result.length; i++) {
-            result[i] = StringUtils.trim(result[i])
-         }
-         return result
-      },
-      
       getPref : function(key, defaultValue){
          var defaultValue = defaultValue?defaultValue:"" 
          return Application.prefs.getValue(key, defaultValue) 
@@ -67,21 +58,7 @@ with(this){
 			this.prefs.setBoolPref(key, value);
 		},
 
-		/*
-       * Calls the pref-functions defined in the XUL to load and save special preferences
-       * @param String functionAttr: On of PREF_FUNCT_LOAD_ATTR PREF_FUNCT_SAVE_ATTR
-       */
-      callPrefFunctions: function(functionAttr){
-         var prefFuncItems = document.getElementsByAttribute(functionAttr, "*")
-         for (var i = 0; i < prefFuncItems.length; i++) {
-            var prefFunction = prefFuncItems.item(i).getAttribute(functionAttr)
-            var prefFunctionPtr = Utils.getNestedProperty(window, prefFunction)
-            Assert.isTrue(prefFunctionPtr!=null && prefFunctionPtr instanceof Function)
-            prefFunctionPtr()
-         }
-      },
-      
-      clearUserPref : function(key) {
+		clearUserPref : function(key) {
 			this.prefs.clearUserPref(key)
 		},
 		
@@ -126,14 +103,22 @@ with(this){
 			}
 			return result
 		},
-      
+
 		/*
 		 * Loads all Prefs for the controls of a document The controls to
 		 * restored must be identified with the prefid-Attribute
 		 */
 		loadPrefs : function(document) {
 			//Items with pref function
-         this.callPrefFunctions(PREF_FUNCT_LOAD_ATTR)
+			var prefFuncItems = document.getElementsByAttribute(PREF_FUNCT_LOAD_ATTR, "*")
+			for (var i = 0; i < prefFuncItems.length; i++) {
+				var prefFunction = prefFuncItems.item(i).getAttribute(PREF_FUNCT_LOAD_ATTR)
+				if(window[prefFunction] instanceof Function){
+					window[prefFunction]()
+				}else{
+					window.eval(prefFunction)
+				}
+			}
 			
 			// Checkboxes
 			this.loadPrefsForTagName("checkbox", PrefTypes.BOOL, "checked")
@@ -205,7 +190,15 @@ with(this){
 		savePrefs : function(document) {
 			try {
             //Items with pref function
-            this.callPrefFunctions(PREF_FUNCT_SAVE_ATTR)
+            var prefFuncItems = document.getElementsByAttribute(PREF_FUNCT_SAVE_ATTR, "*")
+            for (var i = 0; i < prefFuncItems.length; i++) {
+               var prefFunction = prefFuncItems.item(i).getAttribute(PREF_FUNCT_SAVE_ATTR)
+               if(window[prefFunction] instanceof Function){
+                  window[prefFunction]()
+               }else{
+               	window.eval(prefFunction)
+               }
+            }
 
 				// Checkboxes
 				this.setPrefForTagName("checkbox", PrefTypes.BOOL, "checked");

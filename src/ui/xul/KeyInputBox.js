@@ -7,7 +7,7 @@ with(this){
    var KeyInputbox = {
    	getStringForCombinedKeyCode : function(combinedKeyCode) {
 			if (combinedKeyCode == "0") {
-				return ''
+				return 'None'
 			}
 			var modifiers = combinedKeyCode & 0xF;
 			var modString = this.getModifierString(modifiers)
@@ -21,14 +21,6 @@ with(this){
 				return keyString
 			}
 		},
-      
-      getStringForKeyCombination: function(keyCombination){
-         var combinedKeyCode = keyCombination
-         if(isNaN(keyCombination)){
-            combinedKeyCode = ShortcutManager.getShortcutKey(keyCombination)
-         }
-         return this.getStringForCombinedKeyCode(combinedKeyCode)
-      },
 		
 		getKeyCodeString : function(keyCode) {
 			if (keyCode == KeyEvent.DOM_VK_CONTROL

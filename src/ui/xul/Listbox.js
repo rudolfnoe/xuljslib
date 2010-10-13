@@ -1,7 +1,7 @@
 with(this){
 /*
  * Version 0.1
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 28.12.2007
  *
  * Helper functions related to Listboxes
@@ -17,18 +17,15 @@ with(this){
 		 * @returns NodeList of listitem-objects
 		 */
 		getItems: function(listbox){
-         Assert.paramsNotNull(arguments)
 			return listbox.getElementsByTagName("listitem");
 		},
       
       getItemByValue: function(listbox, value){
-         Assert.paramsNotNull(arguments)
          var items = this.getItems(listbox)
          for (var i = 0; i < items.length; i++) {
             if(items[i].value==value)
                return items[i]
          }
-         return null
       }, 
 		
 		getSelectedListCells: function(listbox){
