@@ -1,7 +1,7 @@
 with(this){
 /*
  * ShortcutManager
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 18.06.2005
  */
 
@@ -104,7 +104,7 @@ ShortcutManager.prototype = {
    	}else if(shortcutTarget instanceof XULElement && shortcutTarget.tagName.toLowerCase()=="command"){
          shortcut = new CommandShortcut(shortcutTarget, clientId)   
       }else{
-   	  throw new Error('shortcutTarget is neither String nor Function or EventHandler')	
+   	  throw new Error('shortcutTarget (' + shortcutTarget + ') is neither String nor Function or EventHandler')	
    	}
    	
       var shortcutArray = this.shortcuts[shortcutKey];
@@ -172,7 +172,7 @@ ShortcutManager.prototype = {
    },
    
    /*
-    * Löscht alle Shortcuts mit einer bestimmten
+    * Loescht alle Shortcuts mit einer bestimmten
     * ClientId
     */
    clearAllShortcuts: function(clientId){

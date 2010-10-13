@@ -1,7 +1,7 @@
 with(this){
 /*
  * Version 0.1
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 28.12.2007
  * 
  * XML Utilities
@@ -18,7 +18,9 @@ with(this){
 		 * @returns XML-object
 		 */
 		parseFromString: function(xmlString){
-			var parser = new DOMParser()
+         //new DOMParser sometimes fails if used within oberser call
+			var parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]  
+             .createInstance(Components.interfaces.nsIDOMParser);  
 			return parser.parseFromString(xmlString, "text/xml")
 		},
 		
