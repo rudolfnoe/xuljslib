@@ -4,7 +4,7 @@ with(this){
 /*
  * ShortCutManager
  * Version 0.1
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 18.06.2005
  *
  * Licence Statement

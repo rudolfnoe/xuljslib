@@ -8,6 +8,10 @@ with(this){
 			return window.getBrowser().selectedBrowser
 		},
       
+      getTabContainer: function(){
+         return getBrowser().tabContainer;   
+      },
+      
       iterateAllBrowsers: function(callBackFunc, thisObj){
          var browsers = gBrowser._browsers
          if(browsers!=null){
