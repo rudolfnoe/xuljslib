@@ -45,21 +45,28 @@
          <method name="setMessage">
             <parameter name="messageText"/>
             <parameter name="severity"/>
+            <parameter name="append"/>
             <body>
                <![CDATA[
-                  this.messageField.value = messageText
-                  severity = severity?severity:"INFO"
-                  if(severity.toUpperCase()=="INFO"){
-                     this.icon.collapsed = true
-                  }else{
-                     this.icon.collapsed = false
-                     if(severity.toUpperCase()=="ERROR") 
-                        this.icon.className="error-icon"
-                     else if (severity.toUpperCase()=="WARNING")
-                        this.icon.className="warning-icon"
-                     else
-                        throw new Error ('unknown severity')
-                  }
+                  if(append){					
+                     this.messageField.value = this.messageField.value + "\n" + messageText 
+					   }else{
+						   this.messageField.value = messageText
+						}
+						if(!append){
+	                  severity = severity?severity:"INFO"
+	                  if(severity.toUpperCase()=="INFO"){
+	                     this.icon.collapsed = true
+	                  }else{
+	                     this.icon.collapsed = false
+	                     if(severity.toUpperCase()=="ERROR") 
+	                        this.icon.className="error-icon"
+	                     else if (severity.toUpperCase()=="WARNING")
+	                        this.icon.className="warning-icon"
+	                     else
+	                        throw new Error ('unknown severity')
+	                  }
+					   }
                ]]>
             </body>
          </method>

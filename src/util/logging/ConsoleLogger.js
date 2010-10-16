@@ -36,7 +36,7 @@ with(this){
             if(err){
                for (m in err) {
                   if(!printStackTrace && m=="stack"){
-                     continue
+                     continue;
                   }
                   errorMessage = errorMessage + m + ": " + err[m] + "\n";
                }
@@ -45,7 +45,7 @@ with(this){
       },
 
       init: function(){
-         this.updateConfig()
+         this.updateConfig();
          setInterval(Utils.bind(this.updateConfig, this), this.configUpdateInterval)
       },
       
@@ -88,7 +88,7 @@ with(this){
       },
       
       updateConfig: function(){
-         this.currentLogLevel = Application.prefs.getValue(this.prefKeyLogLevel, LogLevel.ERROR)
+         this.currentLogLevel = Application.prefs.getValue(this.prefKeyLogLevel, LogLevel.ERROR);
       }
       
    }

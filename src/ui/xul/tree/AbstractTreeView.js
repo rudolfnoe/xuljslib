@@ -178,6 +178,9 @@ with(this){
          }
          return -1
       },
+      getVisibleRowCount: function(){
+         return this.rowCount
+      },
 		getRowProperties : function(row, props) {
          //TODO
 		},

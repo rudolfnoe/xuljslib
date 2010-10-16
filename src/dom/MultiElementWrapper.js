@@ -23,7 +23,7 @@ with(this){
       },
       
       getChangeMemento: function(){
-         var changeMemento = new Array(this.elementsWrappers.length)
+         var changeMemento = new Array(this.elementWrappers.length)
          for (var i = 0; i < this.elementWrappers.length; i++) {
             changeMemento[i] = this.elementWrappers[i].getChangeMemento()
          }
