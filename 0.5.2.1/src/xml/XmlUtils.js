@@ -18,13 +18,20 @@ with(this){
 		 * @returns XML-object
 		 */
 		parseFromString: function(xmlString){
-         //new DOMParser sometimes fails if used within oberser call
-			var parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]  
-             .createInstance(Components.interfaces.nsIDOMParser);  
-			return parser.parseFromString(xmlString, "text/xml")
-		},
-		
-		/*
+         var parser = new DOMParser()
+         var dom = parser.parseFromString(xmlString, "text/xml");
+         if(dom.documentElement.nodeName == "parsererror"){
+            var em = "Error while parsing string";
+            if(dom.documentElement.firstChild &&
+               dom.documentElement.firstChild.nodeType==Node.TEXT_NODE){
+                  em += ": " + dom.documentElement.firstChild.nodeValue
+            }
+            throw new Error(em)
+         }
+         return dom
+      },
+
+      /*
 		 * Serialize a Node-object to a string
 		 * @param node: DOM-Node-obj
 		 * @returns: String containing the xml
