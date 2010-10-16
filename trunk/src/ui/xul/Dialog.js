@@ -122,32 +122,32 @@ with(this){
       Dialog.setMessageInHeader(messageText, Severity.ERROR) 
    },
 
-   Dialog.setMessageInHeader = function(messageText, severity){
+   Dialog.setMessageInHeader = function(messageText, severity, append){
       severity = severity?severity:Severity.INFO 
       var dialogHeader = DomUtils.getFirstDescendantByTagName(null, 'dialogheader')
       if(dialogHeader==null)
          throw new Error ('No dialogheader in dialog')
-      dialogHeader.setMessage(messageText, severity)
-   }
+      dialogHeader.setMessage(messageText, severity, append)
+   };
    
    Dialog.addOkValidator = function(validator){
       Assert.isTrue(ObjectUtils.instanceOf(validator, AbstractValidator), "validator must implement AbstractValidator")
       validator.addValidStateChangedListener({handleEvent: function(event){
          Dialog.getAcceptButton().disabled = !event.isValid
       }})
-   }
+   };
    
    Dialog.setResultOjb = function(obj){
       window.arguments[0].resultObj = obj
-   }
+   };
    
    Dialog.setNamedResult = function(key, value){
       window.arguments[0].resultObj[key]=value
-   }
+   };
    
    Dialog.setResult = function(result){
       window.arguments[0].result = result
-   }
+   };
    
    function DialogContext(argObj){
       this.argObj = argObj

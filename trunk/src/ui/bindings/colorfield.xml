@@ -176,6 +176,22 @@
                this.colorpicker = hbox.firstChild.nextSibling
             ]]>
          </constructor>
+         <method name="insertColorAt">
+         	<parameter name="index"/>
+         	<parameter name="color"/>
+            <body>
+            <![CDATA[
+               this.colorML.insertItemAt(index, color)
+            ]]>
+            </body>
+         </method>
+         <method name="onMenulistChange">
+            <body>
+            <![CDATA[
+               this.value = this.colorML.value
+            ]]>
+            </body>
+         </method>
          <method name="onMenulistChange">
             <body>
             <![CDATA[

@@ -1,14 +1,17 @@
 with(this){
 /*
  * 
- * Common-Prefs Version 0.1 Created by Rudolf Noé 28.12.2007
+ * Common-Prefs Version 0.1 Created by Rudolf Noe 28.12.2007
  * 
  * Partly copied from pref-tabprefs.js (c) Bradley Chapman (THANKS!)
  */
 (function() {
+   const CONTROL_LISTENER_BACKUP_VALUE = "CONTROL_LISTENER_BACKUP_VALUE"
    
 	// Attribute of a control under which key the preference should be stored
 	var ControlUtils = {
+      EventType: {VALUE_CHANGED:"VALUE_CHANGED"},
+      
 		/*
 		 * Appends menuitem to menulist
 		 */
@@ -18,7 +21,7 @@ with(this){
 			}
 		   var newItem = document.createElementNS(Constants.XUL_NS, "menuitem");
          newItem.setAttribute('label', label)
-         newItem.setAttribute('value', value)
+         newItem.setAttribute('value', value);
          menulist.menupopup.appendChild(newItem)
 		},
 		
@@ -38,8 +41,8 @@ with(this){
 		   for (var i = 0; i < labelArray.length; i++) {
 		   	var value = valueArray[i]
 		   	if(itemsMap.containsKey(value))
-		   	   continue
-		   	menulist.appendItem(labelArray[i], value, null)
+		   	   continue;
+		   	menulist.appendItem(labelArray[i], value, null);
 		   }
 		},
 		
@@ -65,14 +68,14 @@ with(this){
                startindex = menuItemValue.indexOf(parts[j], startindex)
                if(startindex==-1){
                   fit = false
-                  break
+                  break;
                }
                startindex += parts[j].length
             }
             if(!fit)
                menuitem.style.display = "none"
             else{
-               menuitem.style.display = "block"
+               menuitem.style.display = "block";
                menuitemsFit.push(menuitem)
             }
          }
@@ -99,27 +102,48 @@ with(this){
          this.insertTextAt(element, textToInsert, element.selectionEnd, after)
       },
       
-      observeControl: function(control, callbackFunc, thisObj){
-         var callBack = Utils.bind(callbackFunc, thisObj)
+      
+      observeControl: function(control, /*function | EventHandler*/ callbackFuncOrEventHandler, /*Object (optional)*/ thisObj){
+         //Defintion of callback function
+         var notifyCallback = function(control, newValue){
+            if(newValue!=control.getAttribute(CONTROL_LISTENER_BACKUP_VALUE)){
+               control.setAttribute(CONTROL_LISTENER_BACKUP_VALUE, control.value)
+            }else{
+               //No change
+               return
+            }
+               
+            if(callbackFuncOrEventHandler.handleEvent){
+               //EventHandler   
+               var event = {type:ControlUtils.EventType.VALUE_CHANGED, target:control, value:newValue};
+               callbackFuncOrEventHandler.handleEvent(event)
+            }else{
+               var callBack = thisObj?Utils.bind(callbackFuncOrEventHandler, thisObj):callbackFuncOrEventHandler;
+               callBack(control, newValue);
+            }
+         }
+         //Adding event listener
          var tagName = control.localName.toLowerCase() 
+         control.setAttribute(CONTROL_LISTENER_BACKUP_VALUE, control.value)
          if(tagName=="menulist" || "colorfield"){
             control.addEventListener("select", function(){
-               callBack(control, control.value)
+              notifyCallback(control, control.value)
             }, true)
          }
          if(tagName=="textbox" || tagName=="menulist" || tagName=="colorfield"){
-            control.addEventListener("input", function(){
-               callBack(control, control.value)
+            control.addEventListener("input", function(event){
+               var tagName = event.target.tagName;
+               notifyCallback(control, control.value)
             }, true)
             Utils.observeObject(control, "value", function(newValue){
-               callBack(control, newValue)
+               notifyCallback(control, newValue)
             })
          }else if(tagName=="checkbox"){
             control.addEventListener("command", function(){
-               callBack(control, control.checked)
+               notifyCallback(control, control.checked)
             }, true)
             Utils.observeObject(control, "checked", function(newValue){
-               callBack(control, newValue)
+               notifyCallback(control, newValue)
             })
          }
       },
@@ -128,11 +152,11 @@ with(this){
 		 * Selects item of menulist by its value and returns the item 
 		 */
 		selectMenulistByValue : function(menulist, value) {
-			PresentationMapper.setUiElementValue(menulist, value)
+			PresentationMapper.setUiElementValue(menulist, value);
 		},
 		
 		selectRadiogroupByValue: function(radiogroup, value){
-			PresentationMapper.setUiElementValue(radiogroup, value)
+			PresentationMapper.setUiElementValue(radiogroup, value);
 		}
 	}
 	this["ControlUtils"]= ControlUtils;

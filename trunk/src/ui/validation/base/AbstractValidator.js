@@ -1,43 +1,44 @@
 with(this){
+   
 (function(){
-   const EVENT_TYPE_VALID_STATE_CHANGED = "validStateChanged"
+   const EVENT_TYPE_VALID_STATE_CHANGED = "validStateChanged";
    
    function AbstractValidator(){
-      this.GenericEventSource()
-      this.validState = null
-   }
+      this.GenericEventSource();
+      this.validState = null;
+   };
    
    AbstractValidator.prototype = {
       constructor: AbstractValidator,
       AbstractValidator:AbstractValidator,
       
       addValidStateChangedListener: function(listener){
-         this.addEventListener(EVENT_TYPE_VALID_STATE_CHANGED, listener)      
+         this.addEventListener(EVENT_TYPE_VALID_STATE_CHANGED, listener);      
       },
       
       isValid: function(){
-         throw new Error('must be implemented')
+         throw new Error('must be implemented');
       },
 
       notifyValidStateChanged: function(isValid){
-         this.notifyListeners({type:EVENT_TYPE_VALID_STATE_CHANGED, newValue:isValid, isValid: isValid})      
+         this.notifyListeners({type:EVENT_TYPE_VALID_STATE_CHANGED, newValue:isValid, isValid: isValid});      
       },
       
       setValidState: function(valid){
          if(this.validState!=valid){
-            this.validState = valid
-            this.notifyValidStateChanged(valid)
+            this.validState = valid;
+            this.notifyValidStateChanged(valid);
          }
       },
       
       validate: function(){
-         this.setValidState(this.isValid())
+         this.setValidState(this.isValid());
       }
       
-   }
+   };
    
-   ObjectUtils.extend(AbstractValidator, "GenericEventSource", this)
-
+   ObjectUtils.extend(AbstractValidator, "GenericEventSource", this);
    this.AbstractValidator = AbstractValidator;
-}).apply(this)
-}
+}).apply(this);
+
+};

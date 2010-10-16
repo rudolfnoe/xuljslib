@@ -1,11 +1,11 @@
 with(this){
 (function(){
    const JS_SCRIPT_LOADER = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].
-                     getService(Components.interfaces.mozIJSSubScriptLoader)
+                     getService(Components.interfaces.mozIJSSubScriptLoader);
 	const CHROME_REGISTRY = Components.classes["@mozilla.org/chrome/chrome-registry;1"].
-                     getService(Components.interfaces.nsIChromeRegistry)
+                     getService(Components.interfaces.nsIChromeRegistry);
 	const IO_SERVICE = Components.classes["@mozilla.org/network/io-service;1"].
-                     getService(Components.interfaces.nsIIOService)
+                     getService(Components.interfaces.nsIIOService);
    
 	var ScriptLoader = {
       
@@ -35,7 +35,7 @@ with(this){
          var scopeObj = this.getNamespaceObj(ns)
          this.loadScript(chromePathIncludeCommon+"/lang/debug/Assert.js", scopeObj)
          this.loadScript(chromePathIncludeCommon+"/lang/ArrayUtils.js", scopeObj)
-         this.loadScript(chromePathIncludeCommon+"/lang/Namespace.js", scopeObj)
+         this.loadScript(chromePathIncludeCommon+"/lang/Namespace.js", scopeObj);
          this.loadScript(chromePathIncludeCommon+"/lang/ObjectUtils.js", scopeObj)
       },
       
@@ -51,7 +51,7 @@ with(this){
          }
          this.loadScript(chromePath)
          //Removes jQuery from global window object
-         var jQuery = window.jQuery.noConflict(true)
+         var jQuery = window.jQuery.noConflict(true);
          //and set it for the scope obj
          scopeObj.jQuery = scopeObj.$ = jQuery
       },
@@ -79,7 +79,7 @@ with(this){
          	var fullPath = files[i].path
          	if((fullPath.lastIndexOf(".js")!=fullPath.length-3) ||
          	     this.shouldBeExcluded(files[i].leafName, includeArray, excludeArray))
-         	   continue
+         	   continue;
          	this.loadScript(chromeBaseUri.resolve(fullPath.substring(startIndexSubPath+1)), scopeObj) 
          }
          if(typeof scopeObjOrNS == "string")
@@ -139,7 +139,7 @@ with(this){
                   return true
             }
          }
-      	return includeMode?true:false
+      	return includeMode?true:false;
 	  }
 		
 	}
