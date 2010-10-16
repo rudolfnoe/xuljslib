@@ -113,11 +113,7 @@ with(this){
 			var prefFuncItems = document.getElementsByAttribute(PREF_FUNCT_LOAD_ATTR, "*")
 			for (var i = 0; i < prefFuncItems.length; i++) {
 				var prefFunction = prefFuncItems.item(i).getAttribute(PREF_FUNCT_LOAD_ATTR)
-				if(window[prefFunction] instanceof Function){
-					window[prefFunction]()
-				}else{
-					window.eval(prefFunction)
-				}
+				window[prefFunction]()
 			}
 			
 			// Checkboxes
@@ -193,11 +189,7 @@ with(this){
             var prefFuncItems = document.getElementsByAttribute(PREF_FUNCT_SAVE_ATTR, "*")
             for (var i = 0; i < prefFuncItems.length; i++) {
                var prefFunction = prefFuncItems.item(i).getAttribute(PREF_FUNCT_SAVE_ATTR)
-               if(window[prefFunction] instanceof Function){
-                  window[prefFunction]()
-               }else{
-               	window.eval(prefFunction)
-               }
+               window[prefFunction]()
             }
 
 				// Checkboxes
