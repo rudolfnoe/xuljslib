@@ -1,7 +1,7 @@
 with(this){
 /*
  * Version 0.1
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 28.12.2007
  *
  * Helper functions related to Listboxes

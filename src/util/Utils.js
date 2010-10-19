@@ -79,6 +79,7 @@ with (this) {
 			},
 
 			getInstallLocation : function(chromeUrl) {
+            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.getInstallLocation can only be called up to FF version 3.6")
 				var extManager = this.getService(
 						"@mozilla.org/extensions/manager;1",
 						"nsIExtensionManager");
@@ -105,8 +106,11 @@ with (this) {
 			/*
 			 * Checks wether a certain extension is installed and enabled @param
 			 * guiId: GUI-Id of extension
+          * Only up to FF 3.6
 			 */
 			isExtensionInstalledAndEnabled : function(guiId) {
+            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.isExtensionInstalledAndEnabled can only be called up to FF version 3.6")
+            //Up to FF 3.6
 				if (!Application.extensions.has(guiId)) {
 					return false
 				}
@@ -218,6 +222,7 @@ with (this) {
 			 * extension @return: nsIUpdateItem
 			 */
 			getExtension : function(guiId) {
+            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.getExtension can only be called up to FF version 3.6")
 				var em = Components.classes["@mozilla.org/extensions/manager;1"]
 						.getService(Components.interfaces.nsIExtensionManager)
 				return em.getItemForID(guiId)
