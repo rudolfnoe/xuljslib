@@ -1,7 +1,7 @@
 with(this){
 /*
  * 
- * Common-Prefs Version 0.1 Created by Rudolf Noé 28.12.2007
+ * Common-Prefs Version 0.1 Created by Rudolf Noe 28.12.2007
  * 
  * Partly copied from pref-tabprefs.js (c) Bradley Chapman (THANKS!)
  */
