@@ -5,7 +5,7 @@ with(this){
       MODAL:"MODAL",
       NON_MODAL:"NON_MONDAL"
    }
-   this.DialogMode = DialogMode
+   this.DialogMode = Dialog;DialogMode
    
    //Dialog results
    DialogResult={
@@ -109,7 +109,7 @@ with(this){
    }
    
    Dialog.getNamedArgument = function(key, clone){
-      clone = clone!=null?clone : false
+      clone = clone?clone : false
       if(!window.arguments || !window.arguments[0] || !window.arguments[0].argObj)
          throw new Error('No argument set')
       var result = window.arguments[0].argObj[key] 
@@ -122,32 +122,32 @@ with(this){
       Dialog.setMessageInHeader(messageText, Severity.ERROR) 
    },
 
-   Dialog.setMessageInHeader = function(messageText, severity, append){
+   Dialog.setMessageInHeader = function(messageText, severity){
       severity = severity?severity:Severity.INFO 
       var dialogHeader = DomUtils.getFirstDescendantByTagName(null, 'dialogheader')
       if(dialogHeader==null)
          throw new Error ('No dialogheader in dialog')
-      dialogHeader.setMessage(messageText, severity, append)
-   };
+      dialogHeader.setMessage(messageText, severity)
+   }
    
    Dialog.addOkValidator = function(validator){
       Assert.isTrue(ObjectUtils.instanceOf(validator, AbstractValidator), "validator must implement AbstractValidator")
       validator.addValidStateChangedListener({handleEvent: function(event){
          Dialog.getAcceptButton().disabled = !event.isValid
       }})
-   };
+   }
    
    Dialog.setResultOjb = function(obj){
       window.arguments[0].resultObj = obj
-   };
+   }
    
    Dialog.setNamedResult = function(key, value){
       window.arguments[0].resultObj[key]=value
-   };
+   }
    
    Dialog.setResult = function(result){
       window.arguments[0].result = result
-   };
+   }
    
    function DialogContext(argObj){
       this.argObj = argObj

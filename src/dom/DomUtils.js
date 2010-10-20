@@ -27,10 +27,10 @@ with(this){
             }
          }
          if(included){
-            return;
+            return
          }
-         var link = this.createStyleSheet(doc, url);
-         this.addStyleSheet(doc, link);
+         var link = this.createStyleSheet(doc, url)
+         this.addStyleSheet(doc, link)
       },
       
       blurActiveElement: function(win){
@@ -104,7 +104,7 @@ with(this){
          var childNodes = element.childNodes
          for (var i = 0; i < childNodes.length; i++) {
             if(testOnlyElementChilds && childNodes[i].nodeType!=1)
-               continue;
+               continue
             if(testFunction(childNodes[i]))
                result.push(childNodes[i])
          }
@@ -198,7 +198,7 @@ with(this){
          var children = element.childNodes
          for (var i = 0; i < children.length; i++) {
             if(testOnlyElementChilds && children[i].nodeType!=1)
-               continue;
+               continue
             if(testFunction(children[i]))
                return children[i]
          }
@@ -209,9 +209,9 @@ with(this){
          element = element?element:document.documentElement
          var testFunction = null
          if(!tagName || tagName=="*")
-            testFunction = function(){return true;}
+            testFunction = function(){return true}
          else
-            testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase();
+            testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase()
          }
          return this.getFirstChildBy(element, testFunction, true)
       },
@@ -256,15 +256,15 @@ with(this){
          var node = element.nextSibling 
          while(node){
             if(node.nodeType==1)
-               break;
-            node = node.nextSibling;
+               break
+            node = node.nextSibling
          }
          return (node && node.nodeType==1)?node:null
       },
       
       /*
        * @param element: element for which offset should be computed @param
-       * @returns Object: values y x
+       * leftOrTop: values offsetLeft/offsetTop
        */
       getOffsetToBody : function(element) {
          var offset = {}
@@ -272,21 +272,9 @@ with(this){
          offset.x = element.offsetLeft
          while (element.offsetParent != null) {
             element = element.offsetParent
-            offset.y += element.offsetTop;
+            offset.y += element.offsetTop
             offset.x += element.offsetLeft
          }
-         return offset
-      },
-      
-      /*
-       * Returns
-       */
-      getOffsetToViewport: function(element){
-         var offsetToBody = this.getOffsetToBody(element)
-         var win = element.ownerDocument.defaultView
-         offset = {}
-         offset.y = offsetToBody.y - win.scrollY
-         offset.x = offsetToBody.x - win.scrollX
          return offset
       },
       
@@ -298,8 +286,8 @@ with(this){
          var node = element.previousSibling 
          while(node){
             if(node.nodeType==1)
-               break;
-            node = node.previousSibling;
+               break
+            node = node.previousSibling
          }
          return node
       },
@@ -324,7 +312,7 @@ with(this){
       },
       
       insertBefore: function(newElement, refElement){
-         Assert.paramsNotNull(arguments);
+         Assert.paramsNotNull(arguments)
          refElement.parentNode.insertBefore(newElement, refElement)
       },
       
@@ -387,8 +375,8 @@ with(this){
       },
       
       moveTo: function(elt, x, y){
-         elt.style.left = x + "px";
-         elt.style.top = y + "px";
+         elt.style.left = x + "px"
+         elt.style.top = y + "px"
       },
       
       //Taken from firebug, see firebug-license.txt
@@ -407,10 +395,10 @@ with(this){
       },
       
       resizeTo: function(elt, w, h){
-         elt.style.width = w + "px";
-         elt.style.height = h + "px";
+         elt.style.width = w + "px"
+         elt.style.height = h + "px"
       }
-   };
+   }
    this["DomUtils"] = DomUtils;
    
    HtmlElementType = {
@@ -425,7 +413,7 @@ with(this){
       SELECT: "SELECT",
       TEXT: "TEXT",
       TEXTAREA: "TEXTAREA"
-   };
+   }
    this["HtmlElementType"] = HtmlElementType
       
 }).apply(this)

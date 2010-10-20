@@ -8,7 +8,7 @@ with(this){
       constructor: RegExpCondition,
 
       isValid: function(value){
-         return this.regExp.test(value)
+         return regExp.test(value)
       }
       
    }

@@ -1,11 +1,8 @@
 with(this){
 (function(){
-   function AbstractContainerValidator(validatorArr){
+   function AbstractContainerValidator(){
       this.AbstractValidator()
       this.validators = new ArrayList()
-      if(validatorArr){
-         this.addValidators(validatorArr)
-      }
    }
    
    AbstractContainerValidator.prototype = {

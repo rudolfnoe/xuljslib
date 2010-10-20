@@ -14,14 +14,14 @@ with(this){
                predicateStrategy = predicateStrategies[i]
                var predicate = predicateStrategy.getPredicate(loopElem)
                if(predicate==null)
-                  continue;
+                  continue
                locationStep += predicate
-               break;
+               break
             }
 				result = locationStep + result
             if(predicateStrategy.isStopFurtherEvalutation(loopElem))
-               break;
-				loopElem = loopElem.parentNode;
+               break
+				loopElem = loopElem.parentNode
 			}while((loopElem.nodeName!='HTML') && !(loopElem instanceof HTMLDocument))
          
          result = "/" + result
@@ -32,8 +32,8 @@ with(this){
             var found = false
             for (var i = 0; i < elements.length; i++) {
                if(element==elements[i]){
-                  result = "(" + result + ")[" + (i+1) + "]";
-                  found = true;
+                  result = "(" + result + ")[" + (i+1) + "]"
+                  found = true
                }
             }
             if(!found)

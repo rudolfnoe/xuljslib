@@ -24,20 +24,11 @@ with(this){
          this.currentLogLevel = currentLogLevel
       },
       
-      /*
-       * @param Error err
-       * @param String message
-       * @param Boolean printStackTrace: Boolean indicating whether the stacktrace should be included
-       */
-      createErrorMessage: function(err, message, printStackTrace){
-            var printStackTrace = printStackTrace!=null?printStackTrace:true
+      createErrorMessage: function(err, message){
             var errorMessage = message?message+": ":"";
             errorMessage += err.message + "\n"
             if(err){
                for (m in err) {
-                  if(!printStackTrace && m=="stack"){
-                     continue;
-                  }
                   errorMessage = errorMessage + m + ": " + err[m] + "\n";
                }
             }
@@ -45,7 +36,7 @@ with(this){
       },
 
       init: function(){
-         this.updateConfig();
+         this.updateConfig()
          setInterval(Utils.bind(this.updateConfig, this), this.configUpdateInterval)
       },
       
@@ -71,12 +62,12 @@ with(this){
          this.log(message, LogLevel.DEBUG)
       },
       
-      logError: function(err, message, printStackTrace){
-         this.log(this.createErrorMessage(err, message, printStackTrace), LogLevel.ERROR)
+      logError: function(err, message){
+         this.log(this.createErrorMessage(err, message), LogLevel.ERROR)
       },
 
-      logFatal: function(err, message, printStackTrace){
-         this.log(this.createErrorMessage(err, message, printStackTrace), LogLevel.FATAL)
+      logFatal: function(err, message){
+         this.log(this.createErrorMessage(err, message), LogLevel.FATAL)
       },
 
       logInfo: function(message){
@@ -88,7 +79,7 @@ with(this){
       },
       
       updateConfig: function(){
-         this.currentLogLevel = Application.prefs.getValue(this.prefKeyLogLevel, LogLevel.ERROR);
+         this.currentLogLevel = Application.prefs.getValue(this.prefKeyLogLevel, LogLevel.ERROR)
       }
       
    }
