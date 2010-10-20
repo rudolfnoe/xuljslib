@@ -1,7 +1,7 @@
 with(this){
 /*
  * ShortcutManager
- * Created by Rudolf Noé
+ * Created by Rudolf Noe
  * 18.06.2005
  */
 
