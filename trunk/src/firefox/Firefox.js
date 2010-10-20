@@ -17,6 +17,10 @@ with(this){
          return gBrowser.getBrowserForDocument(win.top.document)
       },
       
+      getTabContainer: function(){
+         return getBrowser().tabContainer;   
+      },
+      
       iterateAllBrowsers: function(callBackFunc, thisObj){
          var browsers = gBrowser._browsers
          if(browsers!=null){
