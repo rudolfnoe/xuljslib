@@ -32,8 +32,8 @@ with(this){
       createErrorMessage: function(err, message, printStackTrace){
             var printStackTrace = printStackTrace!=null?printStackTrace:true
             var errorMessage = message?message+": ":"";
-            errorMessage += err.message + "\n"
             if(err){
+               errorMessage += err.message + "\n"
                for (m in err) {
                   if(!printStackTrace && m=="stack"){
                      continue;

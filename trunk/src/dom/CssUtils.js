@@ -28,6 +28,17 @@ with(this){
          this._showHideElement(element, false)
       },
       
+      /*
+       * Determines if the provided property name is a style property
+       */
+      isStyleProperty: function(cssPropName){
+         var pseudoStyle = window.getComputedStyle(document.documentElement, null)
+         if(StringUtils.contains("-", cssPropName)){
+            cssPropName = this.convertCssPropNameToCamelCase(cssPropName)
+         }
+         return pseudoStyle[cssPropName]!=undefined
+      },
+      
       parseCssText: function(cssText){
          var result = new Object()
          if(StringUtils.isEmpty(cssText))

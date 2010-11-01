@@ -94,7 +94,7 @@ with(this){
       },
       
       /*
-       * Löscht alle Shortcuts mit einer bestimmten
+       * Loescht alle Shortcuts mit einer bestimmten
        * ClientId
        */
       clearAllShortcuts: function(clientId){

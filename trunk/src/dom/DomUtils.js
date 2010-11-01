@@ -68,6 +68,9 @@ with(this){
       
       getActiveElement: function(win){
          var activeElement = win.document.activeElement
+         if(!activeElement){
+            return null
+         }
          while(activeElement.tagName && (activeElement.tagName =="FRAME" || activeElement.tagName=="IFRAME")){
             activeElement = activeElement.contentDocument.activeElement
          }
