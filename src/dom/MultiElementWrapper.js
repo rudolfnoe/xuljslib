@@ -29,6 +29,7 @@ with(this){
          }
          return changeMemento
       },
+      
       setChangeMemento: function(changeMemento){
 			Assert.isTrue(ObjectUtils.instanceOf(changeMemento, Array), "Param changeMenento must be of type 'Array'")
          this.elementWrappers.forEach(function(wrapper, i){
