@@ -165,7 +165,7 @@ with (this) {
 			registerObserver : function(observerKey, observerObj) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.addObserver(observerObj, observerKey, true);
+				observerService.addObserver(observerObj, observerKey, false);
 			},
 
 			/*
@@ -188,7 +188,7 @@ with (this) {
 				return observer;
 			},
 
-			createObserverForInterface : function(nsIObserver) {
+			createObserverForInterface : function(nsIObserver, funcPtr) {
 				var observer = {
 					QueryInterface : function(iid) {
 						if (!iid.equals(Components.interfaces.nsISupports)
@@ -200,8 +200,12 @@ with (this) {
 						}
 						return this;
 					},
-					observe : function() {
-						nsIObserver.observe();
+					observe : function(subject, topic, data) {
+                  if(funcPtr){
+                     funcPtr.apply(nsIObserver, [subject, topic, data]);
+                  }else{
+						   nsIObserver.observe(subject, topic, data);
+                  }
 					}
 				}
 				return observer;
@@ -211,10 +215,10 @@ with (this) {
 			 * Notifies all observers listen to the provided observerId @param
 			 * observerId
 			 */
-			notifyObservers : function(observerId) {
+			notifyObservers : function(topic, subject, data) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.notifyObservers(null, observerId, null);
+				observerService.notifyObservers(subject, topic, data);
 			},
 
 			/*
