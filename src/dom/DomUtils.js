@@ -255,14 +255,15 @@ with(this){
          return result
       },
 
-      getNextElementSibling: function(element){
+      getNextElementSibling: function(element, onlyVisible){
          var node = element.nextSibling 
          while(node){
-            if(node.nodeType==1)
-               break;
+            if(node.nodeType==1 && (!onlyVisible || DomUtils.isVisible(node))){
+               return node
+            }
             node = node.nextSibling;
          }
-         return (node && node.nodeType==1)?node:null
+         return null
       },
       
       /*
@@ -297,14 +298,15 @@ with(this){
       	return element.ownerDocument.defaultView
       },
       
-      getPreviousElementSibling: function(element){
+      getPreviousElementSibling: function(element, onlyVisible){
          var node = element.previousSibling 
          while(node){
-            if(node.nodeType==1)
-               break;
+            if(node.nodeType==1 && (!onlyVisible || DomUtils.isVisible(node))){
+               return node
+            }
             node = node.previousSibling;
          }
-         return node
+         return null
       },
       
       insertAsFirstChild: function(newElement, parent){
@@ -341,6 +343,19 @@ with(this){
                                    tagName == "SELECT") && !element.readonly) ||
                                    (element.ownerDocument && element.ownerDocument.designMode=="on")
          return isEditableElement;
+      },
+      
+      isChildOf: function(parentElem, childElem){
+         if(parentElem == null || childElem == null){
+            return false
+         }
+         var childNodes = parentElem.childNodes
+         for (var i = 0; i < childNodes.length; i++) {
+            if(childNodes.item(i)==childElem){
+               return true
+            }
+         }
+         return false
       },
       
       isEditableIFrame: function(element){

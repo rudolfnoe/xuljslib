@@ -51,6 +51,17 @@ with(this){
             }
          }
          return true
+      }, 
+      
+      swap: function(array, element1, element2){
+         Assert.paramsNotNull(arguments)
+         Assert.isTrue(array.indexOf(element1)>=0)
+         Assert.isTrue(array.indexOf(element2)>=0)
+         var index1 = array.indexOf(element1)
+         var index2 = array.indexOf(element2)
+         var temp = array[index1]
+         array[index1] = array[index2]
+         array[index2] = array[temp]
       }
    }
 
