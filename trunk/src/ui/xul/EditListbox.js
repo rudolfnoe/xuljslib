@@ -186,9 +186,9 @@ with(this){
          this.rlb.selectedItem.replaceChild(this.editingElement, labelElem)
          this.cellEditor.initEditingElement(this.rlb.selectedItem)
          this.editingElement.select()
-//TODO
-         //         this.blurHandler = Utils.bind(function(event){this.stopEditing()}, this)
-//         this.editingElement.addEventListener("blur", this.blurHandler, false)
+         //TODO If editlistbox looses focus e.g. via mouse list box stays in editmode
+         //this.blurHandler = Utils.bind(function(event){this.stopEditing()}, this)
+         //this.editingElement.addEventListener("blur", this.blurHandler, false)
       },
       
       stopEditing: function(cancelEditing, keepFocus){

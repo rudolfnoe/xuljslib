@@ -17,6 +17,7 @@ const COMBINED_KEY_CODE_REG_EXP = /^[kc]{1}\d*$/;
  * @param useCapture: Default = true
  */
 //TODO different event types
+//TODO Doesn't work on www.freemail.de (Shortstring for logout)
 function ShortcutManager(targetObjects, eventType, suppressShortcutKeys, useCapture){
    this.AbstractShortcutManager(targetObjects, eventType, useCapture)
    this.suppressShortcutKeys = arguments.length>=3?suppressShortcutKeys:true

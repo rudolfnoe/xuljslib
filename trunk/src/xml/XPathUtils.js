@@ -3,7 +3,10 @@ with(this){
 	var XPathUtils = {
       defaultPredicateStrategies: null,
       
-		createXPath: function(element, predicateStrategies){
+	  /*
+      * FIXME throws error on pages with multiple namespaces e.g. http://www.html-5.com/tutorial/namespaces.html
+      */
+      createXPath: function(element, predicateStrategies){
          predicateStrategies= predicateStrategies?predicateStrategies:this.getDefaultPredicateStrategies()
 			var result = ""
          var loopElem = element
@@ -60,13 +63,25 @@ with(this){
 		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
          contextNode = contextNode?contextNode:document
-         var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
-            contextNode instanceof Components.interfaces.nsIDOMXMLDocument)?contextNode:contextNode.ownerDocument
+         //FIXME Remove nsContextNode or implement it correctly
+//         var nsContextNode = contextNode
+         var doc = null
+         if(contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
+            contextNode instanceof Components.interfaces.nsIDOMXMLDocument){
+            doc = contextNode
+//            nsContextNode = doc.documentElement
+         }else{
+            doc = contextNode.ownerDocument
+         }
+//         var nsResolver = doc.createNSResolver(nsContextNode);
 			try{
             var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
          }catch(e){
-            e.xPath = xPath
-            throw e
+            //New error must be created as stack on old one is vanished
+            var newError = new Error()
+            ObjectUtils.copyMembers(e, newError, true)
+            newError.xPath = xPath
+            throw newError
          }
 			var resultArray = []
 			while(entry = xPathResult.iterateNext()){
@@ -152,8 +167,10 @@ with(this){
          if(element.hasAttribute(this.attrName)){
             var attrValue = element.getAttribute(this.attrName)
             //Determine which qutoation marks to use
-            var quotationMark = StringUtils.contains("'", attrValue)?'"':"'"
-            return "[@" + this.attrName + "=" + quotationMark + attrValue + quotationMark + "]"
+//            var quotationMark = StringUtils.contains("'", attrValue)?'"':"'"
+//            return "[@" + this.attrName + "=" + quotationMark + attrValue + quotationMark + "]"
+            attrValue = attrValue.replace(/["]/g, "&quot;")
+            return "[@" + this.attrName + '="' + attrValue + '"]'
          }else{
             return null
          }

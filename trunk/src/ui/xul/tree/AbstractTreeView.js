@@ -60,10 +60,6 @@ with(this){
          //then ajust visible items
          if(parent.isVisible() && parent.isContainerOpen()){
             var insertIndex = this.getIndexForItem(parent) + parent.getVisibleIndexOfChild(item) + 1 
-//TODO Remove
-            //            if(item.isContainer()){
-//               insertIndex -= item.getVisibleDescendantsCount()
-//            }
             var itemsToAdd = new ArrayList()
             itemsToAdd.add(item)
             if(item.isContainer()){
@@ -138,7 +134,7 @@ with(this){
          this.treebox.rowCountChanged(0, this.visibleItems.size())
       },
 		getCellProperties : function(row, col, props) {
-         //TODO
+         //ENHANCEMENT Not implemented
 		},
 		getCellText : function(row, column) {
          return this.visibleItems.get(row).getCellText(column)
@@ -150,7 +146,7 @@ with(this){
          return this.visibleItems.get(row).setCellValue(column, value)
 		},
 		getColumnProperties : function(colid, col, props) {
-         //TODO
+         //ENHANCEMENT Not implemented
 		},
 		getImageSrc : function(row, col) {
          return this.visibleItems.get(row).getImageSrc(col)
@@ -182,7 +178,7 @@ with(this){
          return this.rowCount
       },
 		getRowProperties : function(row, props) {
-         //TODO
+         //ENHANCEMENT Not implemented
 		},
       getSelectedIndex: function(){
          return this.tree.currentIndex
@@ -245,7 +241,7 @@ with(this){
          return this.visibleItems.get(row).isSeparator()
 		},
 		isSorted : function() {
-         //TODO
+         //ENHANCEMENT Not implemented
 			return false;
 		},
       iterateTree: function(callBackFunction, skipRoot){

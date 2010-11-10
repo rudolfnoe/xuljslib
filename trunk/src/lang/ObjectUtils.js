@@ -60,6 +60,24 @@ with(this){
       },
       
       /*
+       * Copys the members from source to target
+       * Copies no functions
+       * @param Object source
+       * @param Object target
+       * @param boolean overwrite 
+       * @retun void
+       */
+      copyMembers: function(source, target, overwrite){ 
+         for(var m in source){
+            if(!(typeof source[m] == "function")){
+               if(overwrite || !target[m]){
+                  target[m] = source[m]
+               }
+            }
+         }
+      },
+      
+      /*
        * Creates a deep clone of the provided obj
        */
       deepClone: function(obj){
