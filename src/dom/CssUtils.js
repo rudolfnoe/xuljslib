@@ -16,27 +16,15 @@ with(this){
          }
       },
       convertCssPropNameToCamelCase: function(cssPropName){
+         var result = null
          var parts = cssPropName.split("-")
-         var result = parts[0]=="moz"?"Moz":parts[0] 
-         for (var i = 1; i < parts.length; i++) {
+         for (var i = 0; i < parts.length; i++) {
             result += StringUtils.firstUpper(parts[i])
          }
-         return result
       },
       
       hideElement: function(element){
          this._showHideElement(element, false)
-      },
-      
-      /*
-       * Determines if the provided property name is a style property
-       */
-      isStyleProperty: function(cssPropName){
-         var pseudoStyle = window.getComputedStyle(document.documentElement, null)
-         if(StringUtils.contains("-", cssPropName)){
-            cssPropName = this.convertCssPropNameToCamelCase(cssPropName)
-         }
-         return pseudoStyle[cssPropName]!=undefined
       },
       
       parseCssText: function(cssText){

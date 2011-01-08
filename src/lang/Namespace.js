@@ -15,14 +15,13 @@ with(this){
 		DEFAULT_COMMON_NS: "rno_common",
 		 
 		/*
-		 * Creates the neccessary ns objects
-		 * @param ns: ns string; ns parts are separaded by dot (".")
+		 * Creates the neccessary namespace objects
+		 * @param namespace: namespace string; namespace parts are separaded by dot (".")
 		 * 		e.g. for "xxx.yyy.zzz" 
 		 */
-		createNamespace: function(ns, targetWin){
-         targetWin = targetWin?targetWin:window
-			var names = ns.split('.');
-			var obj = targetWin
+		createNamespace: function(namespace){
+			var names = namespace.split('.');
+			var obj = window;
 			for (key in names){
 				var name = names[key];
 				if(obj[name] == undefined){
@@ -34,21 +33,22 @@ with(this){
 		},
 	    
 	    /*
-	     * Binds an object to a ns
-	     * @param ns: ns string e.g. "firstLevelNS.secondLevelNS"
-	     * @param name: Name under which the object is bound within the provided ns
-	     * 		e.g. ns="firstlevelNS", name="Foo" --> Object will be available via
+	     * Binds an object to a namespace
+	     * @param namespace: namespace string e.g. "firstLevelNS.secondLevelNS"
+	     * @param name: Name under which the object is bound within the provided namespace
+	     * 		e.g. namespace="firstlevelNS", name="Foo" --> Object will be available via
 	     * 		firstlevelNS.Foo
-	     * @param object: object which is bound under <ns>.<name> 
+	     * @param object: object which is bound under <namespace>.<name> 
 	     */
-	    bindToNamespace: function(ns, name, object, targetWin){
+	    bindToNamespace: function(namespace, name, object){
 	    	if(object==null){
-	    		throw Error("ns.js: Namespace.bindToNamespace: Param object must not be null");
+	    		throw Error("namespace.js: Namespace.bindToNamespace: Param object must not be null");
 	    	}
-	    	var namespaceObj = this.createNamespace(ns, targetWin);
-         namespaceObj[name] = object;
-         if(typeof object == "function")
-            object.prototype.__namespace = ns
+	    	var namespaceObj = this.createNamespace(namespace);
+	    	if(namespaceObj[name]==null 
+	    		|| namespaceObj[name].VERSION<object.VERSION){
+		    	namespaceObj[name] = object;
+	    	}
 		}
 	}
 	this["Namespace"] = Namespace;	

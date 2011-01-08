@@ -4,7 +4,7 @@ with(this){
       setContext: function(contentWin, contextId, context){
       	var tabContext = this.getTabContext(contentWin)
       	if(tabContext==null){
-      		throw new Error("TabContext could not be set as content win doesn't match to browser (URL: " + contentWin.location.href)
+      		throw new Error("TabContext could not be set as content win doesn't match to browser")
       	}
       	tabContext.setContext(contextId, context)
          return context
@@ -15,19 +15,13 @@ with(this){
       	return tabContext!=null?tabContext.getContext(contextId):null
       },
       
-      hasContext: function(contentWin, contextId){
-         return this.getContext(contentWin, contextId)!=null
-      },
-      
       removeContext: function(contentWin, contextId){
          var tabContext = this.getTabContext(contentWin)
          return tabContext!=null?tabContext.removeContext(contextId):null
       },
       
       getTabContext : function(contentWin) {
-         Assert.paramsNotNull(arguments)
-         Assert.notNull(contentWin.top, "contentWin.top is null")
-			var browser = gBrowser.getBrowserForDocument(contentWin.top.document)
+			var browser = gBrowser.getBrowserForDocument(contentWin.document)
 			if (browser == null) {
 				return null
 			}

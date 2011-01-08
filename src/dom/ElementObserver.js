@@ -12,9 +12,6 @@ with(this){
       },
 
       injectStyleListener: function(element){
-         //Hack: if wrappedJSObject is available use this, as otherwise in some cases (not all)
-         //"Too much recursion" error occurs
-         element = element.wrappedJSObject?element.wrappedJSObject:element
          var style = element.style
          style.setPropertyOriginal = style.setProperty
          style.setProperty = function(style, value, priority){
@@ -31,7 +28,7 @@ with(this){
       },
       
       registerStyleObserver: function(element, observedAttrs, callbackFunc, thisObj){
-         var observer = new Observer(this.id++, observedAttrs, callbackFunc, thisObj)
+         var observer = new Observer(id++, observedAttrs, callbackFunc, thisObj)
          if(!this.getElementToStyleObserverMap().containsKey(element)){
             this.injectStyleListener(element)
             this.getElementToStyleObserverMap().put(element, new ArrayList(observer))
@@ -44,8 +41,8 @@ with(this){
       unregisterObserver: function(observerId){
          var observersList = this.getElementToStyleObserverMap().values()
          outerList:
-         for (var i = 0; i < observersList.length; i++) {
-            var observerList = observersList[i]
+         for (var i = 0; i < observersList.size(); i++) {
+            var observerList = observersList.get(i)
             for (var j = 0; j < observerList.size; j++) {
                if(observerList.get(j).id==observerId)
                   observerList.removeAtIndex(j)

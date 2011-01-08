@@ -9,23 +9,23 @@ with(this){
       /* main entry for serialization
        * JavaScript object as an input
        * usage: JSerialize(MyObject);
-       * @ObjectToSerialize: Object which should be serialized
+       * @ObjectToSerilize: Object which should be serialized
        * @objectName: Name of the root object
        * @indentSpace: String with spaces which is used to indent output
        * @ommitFunction: Boolean indicating whether functions should be serialized or not
        * @prefixOfTransientMembers: If attribute of object has this prefix it will not be serialized 
        */
-      function JSerialize(ObjectToSerialize, objectName, indentSpace, ommitFunctions, prefixOfTransientMembers)
+      function JSerialize(ObjectToSerilize, objectName, indentSpace, ommitFunctions, prefixOfTransientMembers)
       {
          indentSpace = indentSpace?indentSpace:'';
          
-         var Type = GetTypeName(ObjectToSerialize);
+         var Type = GetTypeName(ObjectToSerilize);
          
-         //Do not serialize if...
-         if(Type==null || (Type=="Function" && ommitFunctions) || objectName=="prototype" || objectName.indexOf("__")==0 ||  
+         if((Type=="Function" && ommitFunctions) || objectName=="prototype" || 
             (prefixOfTransientMembers!=null && objectName.indexOf(prefixOfTransientMembers)==0)){
          	return ""
          }
+          
          var s = indentSpace  + '<' + objectName +  ' type="' + Type + '">';
          
          switch(Type)
@@ -33,14 +33,14 @@ with(this){
       		case "number":
       		case "boolean":		
       		{
-      			s += ObjectToSerialize; 
+      			s += ObjectToSerilize; 
       		} 
          
       		break;
       	   
       		case "string":
       		{
-      			s += "<![CDATA[" + ObjectToSerialize +"]]>"
+      			s += "<![CDATA[" + ObjectToSerilize +"]]>"
 ;
       		}
       		
@@ -48,7 +48,7 @@ with(this){
 
       		case "date":
       	   {
-      			s += ObjectToSerialize.toLocaleString(); 
+      			s += ObjectToSerilize.toLocaleString(); 
       	   }
       	   break;
       	   
@@ -56,9 +56,9 @@ with(this){
       		{
       			s += "\n";
       				
-      				for(var name in ObjectToSerialize)
+      				for(var name in ObjectToSerilize)
       				{
-      					s += JSerialize(ObjectToSerialize[name], ('index' + name ), indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
+      					s += JSerialize(ObjectToSerilize[name], ('index' + name ), indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       				};
       				
       				s += indentSpace;
@@ -69,11 +69,11 @@ with(this){
       		{
       			s += "\n";
       			
-      			for(var name in ObjectToSerialize)
+      			for(var name in ObjectToSerilize)
       			{
-                  if(!ObjectToSerialize.hasOwnProperty(name))
-                     continue;
-      				s += JSerialize(ObjectToSerialize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
+                  if(!ObjectToSerilize.hasOwnProperty(name))
+                     continue
+      				s += JSerialize(ObjectToSerilize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       			};
       			
       			s += indentSpace;
@@ -89,14 +89,21 @@ with(this){
       
       // main entry for deserialization
       // XML string as an input
-      function JDeserialize(XmlText)
+      function JDeserialize(XmlText, namespaceArray)
       {
-      	var _doc = XMLUtils.parseFromString(XmlText); 
-      	return Deserial(_doc.childNodes[0]);
+      	var _doc = GetDom(XmlText); 
+      	return Deserial(_doc.childNodes[0], namespaceArray);
+      }
+      
+      // get dom object . IE or Mozilla
+      function GetDom(strXml)
+      {
+      	var parser = new DOMParser();
+      	return parser.parseFromString(strXml, "text/xml");
       }
       
       // internal deserialization
-      function Deserial(xn)
+      function Deserial(xn, namespaceArray)
       {
       	var RetObj; 
       	 
@@ -118,11 +125,7 @@ with(this){
       	
       	switch(NodeType)
       	{
-      		case "NULL":
-            {
-               return null
-            }               
-            case "Array":
+      		case "Array":
       		{
       			RetObj = new Array();
       			var arrayIndex = 0
@@ -132,7 +135,7 @@ with(this){
       				if(node.nodeType!=1){
       					continue
       				}
-      				RetObj[arrayIndex++] = Deserial(node);
+      				RetObj[arrayIndex++] = Deserial(node, namespaceArray);
       			}
       			
       			return RetObj;
@@ -144,8 +147,16 @@ with(this){
       		
       		default:
       		{
-               var typeConstructor = getConstructorFromNodeType(NodeType)
-      			RetObj = new typeConstructor()
+   				var ns = ""
+      			if(namespaceArray){
+      				for (var i = 0; i < namespaceArray.length; i++) {
+      					if(window[namespaceArray[i]][NodeType]!=null){
+      						ns = namespaceArray[i]
+      						break;
+      					}
+      				}
+      			}
+      			RetObj = eval("new "+ (ns.length>0?ns+".":"") + NodeType + "()");
       		}
       		break;
       	}
@@ -156,25 +167,10 @@ with(this){
       		if(node.nodeType!=1){
       			continue
       		}
-      		RetObj[node.nodeName] = Deserial(node);
+      		RetObj[node.nodeName] = Deserial(node, namespaceArray);
       	}
       
       	return RetObj;
-      }
-      
-      function getConstructorFromNodeType(type){
-         var namespaceParts = type.split(".")
-         var constructor = window
-         for (var i = 0; i < namespaceParts.length; i++) {
-            constructor = constructor[namespaceParts[i]]
-            if(constructor==null){
-               throw new Error('Class not found exception during deserialzation for type: ' + type)
-            }
-         }
-         if(!(constructor instanceof Function)){
-            throw new Error('Class not found exception during deserialzation for type: ' + type)
-         }
-         return constructor
       }
       
       function IsSimpleVar(type)
@@ -258,33 +254,31 @@ with(this){
       	{
       		var ClassName = obj.constructor.toString();
       		ClassName = ClassName.substring(ClassName.indexOf("function") + 8, ClassName.indexOf('(')).replace(/ /g,'');
-            if(obj.__namespace)
-               ClassName = obj.__namespace + "." + ClassName
       		return ClassName;
       	}
       	catch(e) 
       	{
-      		return null;
+      		return "NULL";
       	}
       }
        
-      function GetTypeName(ObjectToSerialize)
+      function GetTypeName(ObjectToSerilize)
       {
-      	if (ObjectToSerialize instanceof Date)
+      	if (ObjectToSerilize instanceof Date)
       		return "date";	
       		
-      	var Type  = typeof(ObjectToSerialize);
+      	var Type  = typeof(ObjectToSerilize);
       
       	if (IsSimpleVar(Type))
       	{
       		return Type;
       	}
       	
-      	Type = GetClassName(ObjectToSerialize); 
+      	Type = GetClassName(ObjectToSerilize); 
       	
       	return Type;
       }
-      
+
    JSerial = {
    	classes: {},
    	serialize: JSerialize,
@@ -294,6 +288,5 @@ with(this){
    	}
    }
    this["JSerial"] = JSerial;
-   
 }).apply(this)
 }

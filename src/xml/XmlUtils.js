@@ -18,17 +18,20 @@ with(this){
 		 * @returns XML-object
 		 */
 		parseFromString: function(xmlString){
-         Assert.paramsNotNull(arguments)
-			var parser = new DOMParser()
-			var domDoc = parser.parseFromString(xmlString, "text/xml")
-         if(domDoc.getElementsByTagName('parsererror').length>0){
-            var errorDescription = domDoc.documentElement.textContent
-            throw new Error(errorDescription)
+         var parser = new DOMParser()
+         var dom = parser.parseFromString(xmlString, "text/xml");
+         if(dom.documentElement.nodeName == "parsererror"){
+            var em = "Error while parsing string";
+            if(dom.documentElement.firstChild &&
+               dom.documentElement.firstChild.nodeType==Node.TEXT_NODE){
+                  em += ": " + dom.documentElement.firstChild.nodeValue
+            }
+            throw new Error(em)
          }
-         return domDoc
-		},
-		
-		/*
+         return dom
+      },
+
+      /*
 		 * Serialize a Node-object to a string
 		 * @param node: DOM-Node-obj
 		 * @returns: String containing the xml

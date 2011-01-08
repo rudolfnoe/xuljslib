@@ -1,23 +1,19 @@
 with(this){
 (function(){
    function EditListbox(richlistbox, cellEditor){
-      this.GenericEventSource()
+      this.AbstractGenericEventTarget()
       this.cellEditor = cellEditor
       this.editMode = false
       this.labelBackup = null
       this.rlb = richlistbox
       this.scm = new ShortcutManager(this.rlb, "keydown")
-      this.suspendableFocusListener = SuspendableEventHandler.createHandlerFromFunction(this.handleFocus, this, false)
-      this.editItemEventHandler = Utils.bind(this.startEditing, this)      
-      this.addItemEventHandler = Utils.bind(this.addItem, this)
-      this.removeItemEventHandler = Utils.bind(this.removeItem, this)
       this.init()
    }
    
    EditListbox.EVENT_TYPE = {
          ITEM_CHANGED: "ITEM_CHANGED",
          ITEM_ADDED: "ITEM_ADDED",
-         ITEM_REMOVED: "ITEM_REMOVED"
+         ITEM_REMOVED: "ITEM_REMOVED",
    }
    
    EditListbox.prototype = {
@@ -35,42 +31,25 @@ with(this){
          this.startEditing()
       },
       
-      /*
-       * TODO Create Context item for editing entry
-       */
       createContextMenu: function(){
          var popupset = document.createElement('popupset')
          document.documentElement.appendChild(popupset)
          var contextPopup = document.createElement('menupopup')
          contextPopup.setAttribute("id", "de_mouseless_edit_listbox_cm")
          popupset.appendChild(contextPopup)
-         //Edit item
          var mi = document.createElement('menuitem')
-         mi.id = "de_mouseless_edit_listbox_edit_mi"
-         mi.setAttribute("label", "Edit Item")
-         mi.setAttribute("acceltext", "Enter")
-         contextPopup.appendChild(mi)
-         //Add item
-         mi = document.createElement('menuitem')
          mi.id = "de_mouseless_edit_listbox_add_mi"
          mi.setAttribute("label", "Add Item")
-         mi.setAttribute("acceltext", "Ins")
          contextPopup.appendChild(mi)
-         //Remove item
          mi = document.createElement('menuitem')
          mi.id = "de_mouseless_edit_listbox_remove_mi"
          mi.setAttribute("label", "Remove Item")
-         mi.setAttribute("acceltext", "Del")
          contextPopup.appendChild(mi)
          return contextPopup
       },
       
       getContextMenu: function(){
          return document.getElementById('de_mouseless_edit_listbox_cm')   
-      },
-      
-      getItemCount: function(){
-         return this.rlb.itemCount
       },
       
       getValues: function(){
@@ -82,15 +61,13 @@ with(this){
       },
       
       handleContextShowing: function(event){
+         var addMI = document.getElementById("de_mouseless_edit_listbox_add_mi")
+         var removeMI = document.getElementById("de_mouseless_edit_listbox_remove_mi")
          if(event.currentTarget!=this.rlb){
             var listenerFunc = "removeEventListener"
          }else{
             var listenerFunc = "addEventListener"
          }
-         var editMI = document.getElementById("de_mouseless_edit_listbox_edit_mi")
-         var addMI = document.getElementById("de_mouseless_edit_listbox_add_mi")
-         var removeMI = document.getElementById("de_mouseless_edit_listbox_remove_mi")
-         editMI[listenerFunc]("command", this.editItemEventHandler, true)
          addMI[listenerFunc]("command", this.addItemEventHandler, true)
          removeMI[listenerFunc]("command", this.removeItemEventHandler, true)
       },
@@ -98,12 +75,9 @@ with(this){
       handleFocus: function(){
          if(this.rlb.itemCount==0){
             this.addItem()
-         }
-         
-         if(this.rlb.selectedIndex==-1){
+         }else if(this.rlb.selectedIndex==-1){
             this.rlb.selectItem(this.rlb.getItemAtIndex(0))
          }
-         
          if(this.editMode==true && document.activeElement!=this.editingElement)
             setTimeout(Utils.bind(function(){this.editingElement.select()}, this))
       },
@@ -124,7 +98,9 @@ with(this){
       
       initEventHandlers: function(){
          this.rlb.addEventListener("dblclick", Utils.bind(function(event){this.toggleEditing(false)}, this), true)
-         this.rlb.addEventListener("focus", this.suspendableFocusListener, true)
+         this.rlb.addEventListener("focus", Utils.bind(this.handleFocus, this), true)
+         this.addItemEventHandler = Utils.bind(this.addItem, this)
+         this.removeItemEventHandler = Utils.bind(this.removeItem, this)
          
       },
       
@@ -135,9 +111,9 @@ with(this){
       
       initShorcutsForEditMode: function(){
          this.scm.clearAllShortcuts("NON_EDIT_MODE")
-         this.scm.addShortcut("ESCAPE", Utils.bind(function(){alert('');this.stopEditing(true, true)}, this), null, "EDIT_MODE") 
-         this.scm.addShortcut("TAB", Utils.bind(function(){this.stopEditing(false, false)}, this), null, "EDIT_MODE") 
-         this.scm.addShortcut("Shift+TAB", Utils.bind(function(){this.stopEditing(false, false)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("Escape", Utils.bind(function(){this.stopEditing(true)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("TAB", Utils.bind(function(){this.stopEditing(false)}, this), null, "EDIT_MODE") 
+         this.scm.addShortcut("Shift+TAB", Utils.bind(function(){this.stopEditing(false)}, this), null, "EDIT_MODE") 
       },
       
       initShorcutsForNonEditMode: function(){
@@ -163,15 +139,12 @@ with(this){
       setItems: function(labelArray, valueArray){
          if(labelArray.length!=valueArray.length)
             throw new Error("uneqals lenghts of param arrays")
-         while(this.rlb.itemCount>0){
-            var removedItem = this.rlb.removeItemAt(0)
-            this.notifyListeners({type:EditListbox.ITEM_REMOVED, item:removedItem})
-         }
+         while(this.rlb.itemCount>0)
+            this.rlb.removeItemAt(0)
          for (var i = 0; i < labelArray.length; i++) {
             var label = labelArray[i]
             var value = valueArray?valueArray[i]:label
             var newItem = this.rlb.appendItem(label, value)
-            this.notifyListeners({type:EditListbox.ITEM_ADDED, item:newItem})
          }
       },
       
@@ -186,12 +159,12 @@ with(this){
          this.rlb.selectedItem.replaceChild(this.editingElement, labelElem)
          this.cellEditor.initEditingElement(this.rlb.selectedItem)
          this.editingElement.select()
-         //TODO If editlistbox looses focus e.g. via mouse list box stays in editmode
-         //this.blurHandler = Utils.bind(function(event){this.stopEditing()}, this)
-         //this.editingElement.addEventListener("blur", this.blurHandler, false)
+//TODO
+         //         this.blurHandler = Utils.bind(function(event){this.stopEditing()}, this)
+//         this.editingElement.addEventListener("blur", this.blurHandler, false)
       },
       
-      stopEditing: function(cancelEditing, keepFocus){
+      stopEditing: function(cancelEditing){
          if(this.editMode==false)
             return
          this.editMode=false
@@ -201,35 +174,29 @@ with(this){
          if(cancelEditing){
             value = this.rlb.selectedItem.value
             label = this.labelBackup
-         }else if (this.cellEditor.hasValue()){
+         }else{
             value = this.cellEditor.getValue()
             label = this.cellEditor.getLabel()
          }
          var currentIndex = this.rlb.currentIndex
          //Here replace child doesn't work, I don't know why
-         this.rlb.removeItemAt(currentIndex)
-         if(cancelEditing || value!=null){
-            var changedItem = this.rlb.insertItemAt(currentIndex, label, value)
-            this.notifyListeners({type:EditListbox.ITEM_CHANGED, item:changedItem})
-         }
+         var changedItem = this.rlb.insertItemAt(currentIndex, label, value)
+         this.rlb.removeItemAt(currentIndex+1)
          this.rlb.selectedIndex = currentIndex
-         if(keepFocus){
-            this.suspendableFocusListener.suspend()
-            this.rlb.focus()
-            this.suspendableFocusListener.resume()
-         }
+         this.notifyListeners({type:EditListbox.ITEM_CHANGED, item:changedItem})
+         this.rlb.focus()
       },
       
       toggleEditing: function(cancelEditing){
          if(this.editMode)
-            this.stopEditing(cancelEditing, true)
+            this.stopEditing(cancelEditing)
          else
             this.startEditing()
       }
       
    }
    
-   ObjectUtils.extend(EditListbox, "GenericEventSource", this)
+   ObjectUtils.extend(EditListbox, "AbstractGenericEventTarget", this)
 
    this.EditListbox = EditListbox;
 }).apply(this)

@@ -50,12 +50,12 @@ with (this) {
 			/*
 			 * Log error to Console services @param error: error-obj to log
 			 */
-			logError : function(error, message) {
-				var errorMessage = message?message+"\n":"";
+			logError : function(error) {
+				var errorMessage = "";
 				for (e in error) {
 					errorMessage = errorMessage + e + ": " + error[e] + "\n";
 				}
-				Components.utils.reportError(errorMessage);
+				this.logMessage(errorMessage);
 			},
 
 			logDebugMessage : function(messageString, debugPrefId) {
@@ -79,7 +79,6 @@ with (this) {
 			},
 
 			getInstallLocation : function(chromeUrl) {
-            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.getInstallLocation can only be called up to FF version 3.6")
 				var extManager = this.getService(
 						"@mozilla.org/extensions/manager;1",
 						"nsIExtensionManager");
@@ -106,11 +105,8 @@ with (this) {
 			/*
 			 * Checks wether a certain extension is installed and enabled @param
 			 * guiId: GUI-Id of extension
-          * Only up to FF 3.6
 			 */
 			isExtensionInstalledAndEnabled : function(guiId) {
-            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.isExtensionInstalledAndEnabled can only be called up to FF version 3.6")
-            //Up to FF 3.6
 				if (!Application.extensions.has(guiId)) {
 					return false
 				}
@@ -146,15 +142,6 @@ with (this) {
 						.getService(Components.interfaces.nsIClipboardHelper);
 				clipboardHelper.copyString(string);
 			},
-         
-         /*
-          * Creates GUIId via service 
-          */
-         createGUIId: function(){
-            var uuidGenerator =  Components.classes["@mozilla.org/uuid-generator;1"]
-               .getService(Components.interfaces.nsIUUIDGenerator);
-            return uuidGenerator.generateUUID().toString();
-         },
 
 			/*
 			 * Registers observerObj for the provided id as an observer @param
@@ -165,7 +152,7 @@ with (this) {
 			registerObserver : function(observerKey, observerObj) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.addObserver(observerObj, observerKey, false);
+				observerService.addObserver(observerObj, observerKey, true);
 			},
 
 			/*
@@ -188,7 +175,7 @@ with (this) {
 				return observer;
 			},
 
-			createObserverForInterface : function(nsIObserver, funcPtr) {
+			createObserverForInterface : function(nsIObserver) {
 				var observer = {
 					QueryInterface : function(iid) {
 						if (!iid.equals(Components.interfaces.nsISupports)
@@ -200,12 +187,8 @@ with (this) {
 						}
 						return this;
 					},
-					observe : function(subject, topic, data) {
-                  if(funcPtr){
-                     funcPtr.apply(nsIObserver, [subject, topic, data]);
-                  }else{
-						   nsIObserver.observe(subject, topic, data);
-                  }
+					observe : function() {
+						nsIObserver.observe();
 					}
 				}
 				return observer;
@@ -215,10 +198,10 @@ with (this) {
 			 * Notifies all observers listen to the provided observerId @param
 			 * observerId
 			 */
-			notifyObservers : function(topic, subject, data) {
+			notifyObservers : function(observerId) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.notifyObservers(subject, topic, data);
+				observerService.notifyObservers(null, observerId, null);
 			},
 
 			/*
@@ -226,7 +209,6 @@ with (this) {
 			 * extension @return: nsIUpdateItem
 			 */
 			getExtension : function(guiId) {
-            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.getExtension can only be called up to FF version 3.6")
 				var em = Components.classes["@mozilla.org/extensions/manager;1"]
 						.getService(Components.interfaces.nsIExtensionManager)
 				return em.getItemForID(guiId)
@@ -254,8 +236,9 @@ with (this) {
 				var uri = this.createURI(urlString)
 				var newTab = Application.activeWindow.open(uri);
 				if (focus) {
-					this.getMostRecentBrowserWin().focus()
 					newTab.focus()
+               //Bugfix #101 MLB
+               newTab.document.defaultView.focus()
 				}
 				return newTab
 			},
@@ -280,7 +263,6 @@ with (this) {
 								replaceParamArray)
 					}
 				} catch (e) {
-               Utils.logError(e)
 					return null
 				}
 			},
@@ -313,12 +295,15 @@ with (this) {
 			 * delay
 			 */
 			executeDelayedTimerMap : new Object(),
-			executeDelayed : function(timerId, delay, functionPointer, thisObj, args) {
+			executeDelayed : function(timerId, delay, functionPointer, thisObj) {
 				this.clearExecuteDelayedTimer(timerId)
 				this.executeDelayedTimerMap[timerId] = setTimeout(function() {
-               ObjectUtils.callFunction(functionPointer, thisObj, args)
+					if (thisObj != null)
+						functionPointer.apply(thisObj)
+					else
+						functionPointer()
 					Utils.executeDelayedTimerMap[timerId] = null
-				}, delay)
+				}, delay, this)
 			},
          
          clearExecuteDelayedTimer: function(timerId){
@@ -385,28 +370,7 @@ with (this) {
 			stopEvent : function(event) {
 				event.stopPropagation()
 				event.preventDefault()
-			},
-         
-         /*
-          * Retrieve an JS property according to the provided string. 
-          * The property could be a nested in which case the differnt parts must 
-          * be seperated with dots ('.').
-          * E.g.: srcObj = window, propertyId=xyz.abc then the object window[xyz][abc] would be given back
-          * @param: Object srcObj: The object from which the property should given back
-          * @param: String propertyId: name or path of the property 
-          */
-         getNestedProperty: function(srcObj, propertyId){
-            var parts = propertyId.split(".")
-            var result = srcObj
-            for (var i = 0; i < parts.length; i++) {
-               result = result[parts[i]]
-               if(i < parts.length-1){
-                  Assert.notNull(result, parts[i] + " does not exists in srcObj or nested object. SrcObj: " + srcObj + " propertyId: " + propertyId)
-               }
-            }
-            return result
-         }
-
+			}
 		}
 
 		this["Utils"] = Utils;

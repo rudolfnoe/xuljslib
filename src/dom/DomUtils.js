@@ -11,12 +11,6 @@ with(this){
             doc.documentElement.appendChild(link);
       },
       
-      appendElement: function(parent, tagName){
-         var doc = parent.ownerDocument
-         var newElement = doc.createElement(tagName)
-         return parent.appendChild(newElement)
-      },
-      
       assureStyleSheet: function(doc, url){
          var styleSheets = doc.styleSheets
          var included = false
@@ -27,32 +21,14 @@ with(this){
             }
          }
          if(included){
-            return;
-         }
-         var link = this.createStyleSheet(doc, url);
-         this.addStyleSheet(doc, link);
-      },
-      
-      blurActiveElement: function(win){
-         Assert.paramsNotNull(arguments)
-         var activeElement = this.getActiveElement(win)
-         if(!activeElement)
             return
-         if(activeElement.blur){       
-            activeElement.blur()
          }
-         if(activeElement.ownerDocument.designMode=="on"){
-            activeElement.ownerDocument.defaultView.top.focus()
-         }
+         var link = this.createStyleSheet(doc, url)
+         this.addStyleSheet(doc, link)
       },
       
       containsFrames: function(win){
       	return win.frames.length>0
-      },
-      
-      convertNodeListToArray: function(nodeList){
-         Assert.paramsNotNull(arguments)
-         return ArrayUtils.cloneArray(nodeList)
       },
       
       //Taken from firebug, see firebug-license.txt
@@ -68,9 +44,6 @@ with(this){
       
       getActiveElement: function(win){
          var activeElement = win.document.activeElement
-         if(!activeElement){
-            return null
-         }
          while(activeElement.tagName && (activeElement.tagName =="FRAME" || activeElement.tagName=="IFRAME")){
             activeElement = activeElement.contentDocument.activeElement
          }
@@ -86,14 +59,6 @@ with(this){
          return null
       },
       
-      getAttribute: function(element, attr, defaultValue){
-         if(element.hasAttribute(attr)){
-            return element.getAttribute(attr)
-         }else{
-            return defaultValue
-         }
-      },
-      
       //Taken from firebug and modified, see firebug-license.txt
       getBody : function(doc) {
          if (doc.body)
@@ -106,39 +71,23 @@ with(this){
          var result = new Array()
          var childNodes = element.childNodes
          for (var i = 0; i < childNodes.length; i++) {
-            if(testOnlyElementChilds && childNodes[i].nodeType!=1)
-               continue;
+            if(testOnlyElementChilds && children[i].nodeType!=1)
+               continue
             if(testFunction(childNodes[i]))
                result.push(childNodes[i])
          }
          return result
       },
       
-      getElement: function(elementOrId){
-         if(typeof elementOrId == "string"){
-            return document.getElementById(elementOrId)
-         }else{
-            return elementOrId
-         }
-      },
-      
-      getElements: function(elementOrIdArray){
-         var resultArray = []
-         if(elementOrIdArray){
-            for (var i = 0; i < elementOrIdArray.length; i++) {
-               resultArray.push(this.getElement(elementOrIdArray[i]))
-            }
-         }
-         return resultArray
+      getChildrenByTagName: function(element, childTagName){
+         return this.getChildrenBy(element, function(childNode){
+            return childNode.nodeType==1 && childNode.tagName.toLowerCase()==childTagName.toLowerCase()
+         })
       },
       
       getElementChildren: function(element){
          return this.getChildrenBy(element, function(){return true}, true)
       }, 
-      
-      getElementByAnonId: function(xblElement, anonid){
-         return document.getAnonymousElementByAttribute(xblElement, "anonid", anonid)
-      },
       
       getElementType: function(element){
          if(!element || !element.tagName)
@@ -170,11 +119,7 @@ with(this){
       },
       
       getElementsByAttribute: function(docOrElement, attr, value){
-         var xPathExp = ""
-         if(docOrElement instanceof Element){
-            xPathExp += "."
-         }
-         xPathExp += "//*[@" + attr
+         var xPathExp = "//*[@" + attr
          if(arguments.length>=3 && value!="*"){
             xPathExp += "='" + value + "']"
          }else{
@@ -187,10 +132,8 @@ with(this){
           var elems = root.getElementsByTagName(tagName)
           var result = new Array()
           for (var i = 0; i < elems.length; i++) {
-            if(elems[i].hasAttribute(attr) &&
-               (elems[i].getAttribute(attr)==value || value=="*")){
+            if(elems[i].getAttribute(attr)==value)
                result.push(elems[i])
-            }
           }
           return result
       },
@@ -201,7 +144,7 @@ with(this){
          var children = element.childNodes
          for (var i = 0; i < children.length; i++) {
             if(testOnlyElementChilds && children[i].nodeType!=1)
-               continue;
+               continue
             if(testFunction(children[i]))
                return children[i]
          }
@@ -209,23 +152,13 @@ with(this){
       },
       
       getFirstChildByTagName: function(element, tagName){
-         element = element?element:document.documentElement
          var testFunction = null
          if(!tagName || tagName=="*")
-            testFunction = function(){return true;}
+            testFunction = function(){return true}
          else
-            testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase();
+            testFunction = function(childNode){childNode.tagName.toUpperCase()==tagName.toUpperCase()
          }
          return this.getFirstChildBy(element, testFunction, true)
-      },
-      
-      getFirstDescendantByTagName: function(element, tagName){
-         element = element?element:document.documentElement
-         var descendants = element.getElementsByTagName(tagName)
-         if(descendants.length==0)
-            return null
-         else
-            return descendants[0]
       },
       
       getFrameByName: function(win, name){
@@ -255,20 +188,19 @@ with(this){
          return result
       },
 
-      getNextElementSibling: function(element, onlyVisible){
+      getNextElementSibling: function(element){
          var node = element.nextSibling 
          while(node){
-            if(node.nodeType==1 && (!onlyVisible || DomUtils.isVisible(node))){
-               return node
-            }
-            node = node.nextSibling;
+            if(node.nodeType==1)
+               break
+            node = node.nextSibling
          }
-         return null
+         return (node && node.nodeType==1)?node:null
       },
       
       /*
        * @param element: element for which offset should be computed @param
-       * @returns Object: values y x
+       * leftOrTop: values offsetLeft/offsetTop
        */
       getOffsetToBody : function(element) {
          var offset = {}
@@ -276,21 +208,9 @@ with(this){
          offset.x = element.offsetLeft
          while (element.offsetParent != null) {
             element = element.offsetParent
-            offset.y += element.offsetTop;
+            offset.y += element.offsetTop
             offset.x += element.offsetLeft
          }
-         return offset
-      },
-      
-      /*
-       * Returns
-       */
-      getOffsetToViewport: function(element){
-         var offsetToBody = this.getOffsetToBody(element)
-         var win = element.ownerDocument.defaultView
-         offset = {}
-         offset.y = offsetToBody.y - win.scrollY
-         offset.x = offsetToBody.x - win.scrollX
          return offset
       },
       
@@ -298,39 +218,23 @@ with(this){
       	return element.ownerDocument.defaultView
       },
       
-      getPreviousElementSibling: function(element, onlyVisible){
+      getPreviousElementSibling: function(element){
          var node = element.previousSibling 
          while(node){
-            if(node.nodeType==1 && (!onlyVisible || DomUtils.isVisible(node))){
-               return node
-            }
-            node = node.previousSibling;
+            if(node.nodeType==1)
+               break
+            node = node.previousSibling
          }
-         return null
-      },
-      
-      insertAsFirstChild: function(newElement, parent){
-         Assert.paramsNotNull(arguments)
-         if(parent.hasChildNodes()){
-            parent.insertBefore(newElement, parent.firstChild)
-         }else{
-            parent.appendChild(newElement)
-         }
+         return node
       },
       
       insertAfter: function(newElement, refElement){
-         Assert.paramsNotNull(arguments)
          var parent = refElement.parentNode
          if(refElement.nextSibling!=null){
             parent.insertBefore(newElement, refElement.nextSibling)
          }else{
             parent.appendChild(newElement)
          }
-      },
-      
-      insertBefore: function(newElement, refElement){
-         Assert.paramsNotNull(arguments);
-         refElement.parentNode.insertBefore(newElement, refElement)
       },
       
       isEditableElement: function(element){
@@ -344,26 +248,7 @@ with(this){
                                    (element.ownerDocument && element.ownerDocument.designMode=="on")
          return isEditableElement;
       },
-      
-      isChildOf: function(parentElem, childElem){
-         if(parentElem == null || childElem == null){
-            return false
-         }
-         var childNodes = parentElem.childNodes
-         for (var i = 0; i < childNodes.length; i++) {
-            if(childNodes.item(i)==childElem){
-               return true
-            }
-         }
-         return false
-      },
-      
-      isEditableIFrame: function(element){
-         if(!element){
-            return false
-         }
-         return element.localName.toLowerCase()=="iframe" && element.contentDocument.designMode=="on"
-      },
+
 
       isFramesetWindow: function(win){
          if(win.document.getElementsByTagName('frameset').length>0)
@@ -387,12 +272,12 @@ with(this){
       	}
       },
       
-      // Taken and modified from firebug, see firebug-license.txt
-      iterateWindows : function(win, handler, thisObj) {
+      // Taken from firebug, see firebug-license.txt
+      iterateWindows : function(win, handler) {
          if (!win || !win.document)
             return;
 
-         ObjectUtils.callFunction(handler, thisObj, [win])
+         handler(win);
 
          if (win == top)
             return; // XXXjjb hack for chromeBug
@@ -400,13 +285,13 @@ with(this){
          for (var i = 0; i < win.frames.length; ++i) {
             var subWin = win.frames[i];
             if (subWin != win)
-               this.iterateWindows(subWin, handler, thisObj);
+               this.iterateWindows(subWin, handler);
          }
       },
       
       moveTo: function(elt, x, y){
-         elt.style.left = x + "px";
-         elt.style.top = y + "px";
+         elt.style.left = x + "px"
+         elt.style.top = y + "px"
       },
       
       //Taken from firebug, see firebug-license.txt
@@ -425,10 +310,10 @@ with(this){
       },
       
       resizeTo: function(elt, w, h){
-         elt.style.width = w + "px";
-         elt.style.height = h + "px";
+         elt.style.width = w + "px"
+         elt.style.height = h + "px"
       }
-   };
+   }
    this["DomUtils"] = DomUtils;
    
    HtmlElementType = {
@@ -442,8 +327,8 @@ with(this){
       RADIO: "RADIO",
       SELECT: "SELECT",
       TEXT: "TEXT",
-      TEXTAREA: "TEXTAREA"
-   };
+      TEXTAREA: "TEXTAREA",
+   }
    this["HtmlElementType"] = HtmlElementType
       
 }).apply(this)
