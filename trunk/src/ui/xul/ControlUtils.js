@@ -93,7 +93,14 @@ with(this){
 			var beforeText = currentValue.substring(0, insertAt);
 			var afterText = currentValue.substring(insertAt);
 
-			element.value = beforeText + textToInsert + afterText;
+			//Save scroll top as it will be reset on setting value
+         var scrollTop = element.inputField.scrollTop
+         
+         //Set new value
+         element.value = beforeText + textToInsert + afterText;
+         
+         //Restore scrollTop
+         element.inputField.scrollTop = scrollTop
 
 			element.setSelectionRange(newSelectionStart, newSelectionEnd);
 		},  
