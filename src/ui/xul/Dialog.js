@@ -68,6 +68,7 @@ with(this){
       show: function(point){
          this.dialogContext = new DialogContext(this.argObj)
          var features = this.features?this.features:""
+         //TODO change
          features += this.modal?", modal=yes":""
          if(point==null)
             features += ", centerscreen=yes"

@@ -63,7 +63,7 @@ with(this){
 		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
          contextNode = contextNode?contextNode:document
-         //FIXME Remove nsContextNode or implement it correctly
+         //TODO Implement namespace handling correctly
 //         var nsContextNode = contextNode
          var doc = null
          if(contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
