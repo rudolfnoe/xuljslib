@@ -44,6 +44,9 @@ with (this) {
 			logMessage : function(messageString) {
 				var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
 						.getService(Components.interfaces.nsIConsoleService);
+            var now = new Date();
+            messageString = now.getMonth() + '/' + now.getDate() + '/' + now.getYear() + ' ' + 
+               now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + '   ' + messageString
 				consoleService.logStringMessage(messageString);
 			},
 
