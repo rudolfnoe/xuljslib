@@ -46,27 +46,26 @@ with(this){
       getTreeBox: function(){
          return this.treebox
       },
-      addItem: function(item, parent, index){
+      addItem: function(item, parent){
          if(parent==null)
             var parent = this.getRootItem()
          Assert.isTrue(parent.isContainer(), 'Parent is no container')
          //first add child to parent!
-         if(arguments.length>=3){
-            parent.addChildAtIndex(item, index)
-         }else{
-            parent.addChild(item)
-         }
+         parent.addChild(item)
          this.notifyListeners({type:"add", item:item})
          //then ajust visible items
          if(parent.isVisible() && parent.isContainerOpen()){
-            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleIndexOfChild(item) + 1 
+            var insertIndex = this.getIndexForItem(parent) + parent.getVisibleDescendantsCount() 
+            if(item.isContainer()){
+               insertIndex -= item.getVisibleDescendantsCount()
+            }
             var itemsToAdd = new ArrayList()
             itemsToAdd.add(item)
             if(item.isContainer()){
                itemsToAdd.addAll(item.getVisibleDescendants())
             }
    			this.visibleItems.addAllAtIndex(insertIndex, itemsToAdd)
-   			this.rowCountChanged(insertIndex, itemsToAdd.size())
+   			this.rowCountChanged(this.insertIndex, itemsToAdd.size())
          }
       },
       closeContainer: function(item, row){
@@ -134,7 +133,7 @@ with(this){
          this.treebox.rowCountChanged(0, this.visibleItems.size())
       },
 		getCellProperties : function(row, col, props) {
-         //ENHANCEMENT Not implemented
+         //TODO
 		},
 		getCellText : function(row, column) {
          return this.visibleItems.get(row).getCellText(column)
@@ -146,7 +145,7 @@ with(this){
          return this.visibleItems.get(row).setCellValue(column, value)
 		},
 		getColumnProperties : function(colid, col, props) {
-         //ENHANCEMENT Not implemented
+         //TODO
 		},
 		getImageSrc : function(row, col) {
          return this.visibleItems.get(row).getImageSrc(col)
@@ -174,11 +173,8 @@ with(this){
          }
          return -1
       },
-      getVisibleRowCount: function(){
-         return this.rowCount
-      },
 		getRowProperties : function(row, props) {
-         //ENHANCEMENT Not implemented
+         //TODO
 		},
       getSelectedIndex: function(){
          return this.tree.currentIndex
@@ -241,7 +237,7 @@ with(this){
          return this.visibleItems.get(row).isSeparator()
 		},
 		isSorted : function() {
-         //ENHANCEMENT Not implemented
+         //TODO
 			return false;
 		},
       iterateTree: function(callBackFunction, skipRoot){

@@ -19,29 +19,11 @@ with(this){
       //Map: key: SuperClass name (string), value: Array of constructor functions of the corresponding subclasses
       waitTillSuperClassIsLoadedMap: {},
       
-      /*
-       * Add subclass constructor the a global map where the key is the name of the superclass which is not loaded yet
-       * and the value is an array of subclasses waiting to be initialized
-       */
-      _addToSuperclassNameToSubclassConstructorMap: function(superClassName, subClassConstructor){
+      _addToWaitTillSuperClassIsLoadedMap: function(superClassName, subClassConstructor){
          if(this.waitTillSuperClassIsLoadedMap[superClassName]==null){
             this.waitTillSuperClassIsLoadedMap[superClassName] = new Array()
          }
          this.waitTillSuperClassIsLoadedMap[superClassName].push(subClassConstructor)
-      },
-      
-      /*
-       * Adds the name of a not yet loaded superclass to an array stored as a memeber of the constructor
-       * of the waiting subclass 
-       */
-      _storeSuperclassToWaitFor: function(constructorSubClass, superClassName){
-         //Temporary storing of superclasses to wait in subclass constr. 
-         if(constructorSubClass.__superClassesToWait==null){
-            constructorSubClass.__superClassesToWait = new Array()
-         }
-         if(constructorSubClass.__superClassesToWait.indexOf(superClassName)==-1){
-            constructorSubClass.__superClassesToWait.push(superClassName)
-         }
       },
       
       callFunction: function(functionPnt, thisObj, args){
@@ -57,24 +39,6 @@ with(this){
                return true
          }
          return false
-      },
-      
-      /*
-       * Copys the members from source to target
-       * Copies no functions
-       * @param Object source
-       * @param Object target
-       * @param boolean overwrite 
-       * @retun void
-       */
-      copyMembers: function(source, target, overwrite){ 
-         for(var m in source){
-            if(!(typeof source[m] == "function")){
-               if(overwrite || !target[m]){
-                  target[m] = source[m]
-               }
-            }
-         }
       },
       
       /*
@@ -192,17 +156,13 @@ with(this){
       },
       
       /*
-       * Inheritence mechanism
        * Only functions are inherited
-       * @param function ptr constructorSubClass: Pointer to the constructor function of the subclass
-       * @param function ptr|String constructorSuperClassOrName: Pointer ot or Name of the constructor function of the superclass
-       * @param Object namespaceObj: Namespace object of the superclass
+       * @param 
        */
       extend : function(constructorSubClass, constructorSuperClassOrName, namespaceObj) {
          Assert.notNull(constructorSubClass, 'Param constructorSubClass must not be null')
          Assert.notNull(constructorSuperClassOrName, 'Param constructorSuperClass must not be null')
          
-         //Determine supclass name and pointer to superclass function
          var superClassName = null
          var constructorSuperClass = null
          if(typeof constructorSuperClassOrName == "string"){
@@ -215,8 +175,8 @@ with(this){
             superClassName = this.getTypeFromConstructor(constructorSuperClass)
          }
          
-         //If superclass is not loaded yet, define watch point and store subclass constructor for later initialization
          if(constructorSuperClass==null){
+            //Superclass is not loaded yet
 //          consoleService.logStringMessage(constructorSuperClass + " not loaded yet");
             if(this.waitTillSuperClassIsLoadedMap[superClassName]==null){
                //create map for storing waiting subclasses
@@ -234,34 +194,26 @@ with(this){
                   return boundConstructorSuperClass
                })
             }
-            this._addToSuperclassNameToSubclassConstructorMap(superClassName, constructorSubClass)
+            this._addToWaitTillSuperClassIsLoadedMap(superClassName, constructorSubClass)
             
-            this._storeSuperclassToWaitFor(constructorSubClass, superClassName)
+            //Temp storing superclasses to wait in subclass constr. 
+            if(constructorSubClass.__superClassesToWait==null){
+               constructorSubClass.__superClassesToWait = new Array()
+            }
+            constructorSubClass.__superClassesToWait.push(superClassName)
             return
          }
 
-         //If superclass is also waiting on it's superclass make sure functionality of super-super-class is added to subclass as well 
+         //If superclass hasn't been extended yet make sure functionality is added to subclass as well 
          if(constructorSuperClass.__superClassesToWait!=null){
             for (var i = 0; i < constructorSuperClass.__superClassesToWait.length; i++) {
                var superSuperClassConstructorName = constructorSuperClass.__superClassesToWait[i]
-               ObjectUtils._addToSuperclassNameToSubclassConstructorMap(superSuperClassConstructorName, constructorSubClass)
-               this._storeSuperclassToWaitFor(constructorSubClass, superSuperClassConstructorName)
+               ObjectUtils._addToWaitTillSuperClassIsLoadedMap(superSuperClassConstructorName, constructorSubClass)
             }
-         }
-         
-         //Remove superclass name form array of superclasses the subclass is waiting on and delete array if empty
-         if(constructorSubClass.__superClassesToWait!=null){
-            constructorSubClass.__superClassesToWait = constructorSubClass.__superClassesToWait.filter(function(superclassToWaitName){
-               return superclassToWaitName != superClassName
-            })
-            if(constructorSubClass.__superClassesToWait.length==0){
-               delete constructorSubClass.__superClassesToWait
-            }
-         }
+         }         
 //         consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(constructorSubClass) + " extends " + superClassName);
          
-         //Here begins the actual process of inheritence
-         //Only functions are copied to subclasses
+         //Copy functions
          var prototypeSuperClass = constructorSuperClass.prototype
          var prototypeSubClass = constructorSubClass.prototype 
 
@@ -271,18 +223,14 @@ with(this){
             }
             var propName = null
             if(prototypeSubClass.hasOwnProperty(member)){
-               //Enable subclasses to call overridden functions by prefixing it with the Superclass name
                var memberName = superClassName + "_" + member 
             }else{
                var memberName = member
             }
             prototypeSubClass[memberName] = prototypeSuperClass[member]
          }
-         //set reference to superclass constructor in subclass so it can be initialized
-         //via a call within the subclass contructor
-         prototypeSubClass[superClassName] = constructorSuperClass
          
-         //Fill supertype array in subclass for type-checking purposes
+         //fill supertype array for instanceof
          if(!prototypeSubClass.__supertypes){
             prototypeSubClass.__supertypes = new Array()
          }
@@ -291,6 +239,7 @@ with(this){
             prototypeSubClass.__supertypes = ArrayUtils.concatAsSet(prototypeSubClass.__supertypes, prototypeSuperClass.__supertypes)
          }
          
+         delete constructorSubClass.__superClassesToWait
 //         consoleService.logStringMessage(ObjectUtils.getTypeFromConstructor(constructorSubClass) + " extends " + 
 //            this.getTypeFromConstructor(constructorSuperClass) +
 //            " supertypes: " + prototypeSubClass.__supertypes.toString());

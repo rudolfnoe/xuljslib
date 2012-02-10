@@ -6,12 +6,9 @@ with(this){
  * Partly copied from pref-tabprefs.js (c) Bradley Chapman (THANKS!)
  */
 (function() {
-   const CONTROL_LISTENER_BACKUP_VALUE = "CONTROL_LISTENER_BACKUP_VALUE"
    
 	// Attribute of a control under which key the preference should be stored
 	var ControlUtils = {
-      EventType: {VALUE_CHANGED:"VALUE_CHANGED"},
-      
 		/*
 		 * Appends menuitem to menulist
 		 */
@@ -21,7 +18,7 @@ with(this){
 			}
 		   var newItem = document.createElementNS(Constants.XUL_NS, "menuitem");
          newItem.setAttribute('label', label)
-         newItem.setAttribute('value', value);
+         newItem.setAttribute('value', value)
          menulist.menupopup.appendChild(newItem)
 		},
 		
@@ -41,8 +38,8 @@ with(this){
 		   for (var i = 0; i < labelArray.length; i++) {
 		   	var value = valueArray[i]
 		   	if(itemsMap.containsKey(value))
-		   	   continue;
-		   	menulist.appendItem(labelArray[i], value, null);
+		   	   continue
+		   	menulist.appendItem(labelArray[i], value, null)
 		   }
 		},
 		
@@ -68,14 +65,14 @@ with(this){
                startindex = menuItemValue.indexOf(parts[j], startindex)
                if(startindex==-1){
                   fit = false
-                  break;
+                  break
                }
                startindex += parts[j].length
             }
             if(!fit)
                menuitem.style.display = "none"
             else{
-               menuitem.style.display = "block";
+               menuitem.style.display = "block"
                menuitemsFit.push(menuitem)
             }
          }
@@ -93,14 +90,7 @@ with(this){
 			var beforeText = currentValue.substring(0, insertAt);
 			var afterText = currentValue.substring(insertAt);
 
-			//Save scroll top as it will be reset on setting value
-         var scrollTop = element.inputField.scrollTop
-         
-         //Set new value
-         element.value = beforeText + textToInsert + afterText;
-         
-         //Restore scrollTop
-         element.inputField.scrollTop = scrollTop
+			element.value = beforeText + textToInsert + afterText;
 
 			element.setSelectionRange(newSelectionStart, newSelectionEnd);
 		},  
@@ -109,48 +99,27 @@ with(this){
          this.insertTextAt(element, textToInsert, element.selectionEnd, after)
       },
       
-      
-      observeControl: function(control, /*function | EventHandler*/ callbackFuncOrEventHandler, /*Object (optional)*/ thisObj){
-         //Defintion of callback function
-         var notifyCallback = function(control, newValue){
-            if(newValue!=control.getAttribute(CONTROL_LISTENER_BACKUP_VALUE)){
-               control.setAttribute(CONTROL_LISTENER_BACKUP_VALUE, control.value)
-            }else{
-               //No change
-               return
-            }
-               
-            if(callbackFuncOrEventHandler.handleEvent){
-               //EventHandler   
-               var event = {type:ControlUtils.EventType.VALUE_CHANGED, target:control, value:newValue};
-               callbackFuncOrEventHandler.handleEvent(event)
-            }else{
-               var callBack = thisObj?Utils.bind(callbackFuncOrEventHandler, thisObj):callbackFuncOrEventHandler;
-               callBack(control, newValue);
-            }
-         }
-         //Adding event listener
+      observeControl: function(control, callbackFunc, thisObj){
+         var callBack = Utils.bind(callbackFunc, thisObj)
          var tagName = control.localName.toLowerCase() 
-         control.setAttribute(CONTROL_LISTENER_BACKUP_VALUE, control.value)
          if(tagName=="menulist" || "colorfield"){
             control.addEventListener("select", function(){
-              notifyCallback(control, control.value)
+               callBack(control, control.value)
             }, true)
          }
          if(tagName=="textbox" || tagName=="menulist" || tagName=="colorfield"){
-            control.addEventListener("input", function(event){
-               var tagName = event.target.tagName;
-               notifyCallback(control, control.value)
+            control.addEventListener("input", function(){
+               callBack(control, control.value)
             }, true)
             Utils.observeObject(control, "value", function(newValue){
-               notifyCallback(control, newValue)
+               callBack(control, newValue)
             })
          }else if(tagName=="checkbox"){
             control.addEventListener("command", function(){
-               notifyCallback(control, control.checked)
+               callBack(control, control.checked)
             }, true)
             Utils.observeObject(control, "checked", function(newValue){
-               notifyCallback(control, newValue)
+               callBack(control, newValue)
             })
          }
       },
@@ -159,12 +128,24 @@ with(this){
 		 * Selects item of menulist by its value and returns the item 
 		 */
 		selectMenulistByValue : function(menulist, value) {
-			PresentationMapper.setUiElementValue(menulist, value);
+			this.selectChoiceElementByValue(menulist, "menuitem", value)
 		},
 		
 		selectRadiogroupByValue: function(radiogroup, value){
-			PresentationMapper.setUiElementValue(radiogroup, value);
-		}
+			this.selectChoiceElementByValue(radiogroup, "radio", value)
+		},
+		
+		selectChoiceElementByValue: function(choiceElement, childrenTagName, value){
+			var items = choiceElement.getElementsByTagName(childrenTagName);
+			for (var i = 0; i < items.length; i++) {
+				if (items[i].value == value) {
+					choiceElement.selectedItem = items[i]
+					choiceElement.value = value
+					return items[i]
+				}
+			}
+		},
+		
 	}
 	this["ControlUtils"]= ControlUtils;
 }).apply(this)

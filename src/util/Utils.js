@@ -52,7 +52,7 @@ with (this) {
 			 */
 			logError : function(error, message) {
 				var errorMessage = message?message+"\n":"";
-				for (e in error) {
+				for (var e in error) {
 					errorMessage = errorMessage + e + ": " + error[e] + "\n";
 				}
 				Components.utils.reportError(errorMessage);
@@ -104,38 +104,6 @@ with (this) {
 			},
 
 			/*
-			 * Checks wether a certain extension is installed and enabled @param
-			 * guiId: GUI-Id of extension
-          * Only up to FF 3.6
-			 */
-			isExtensionInstalledAndEnabled : function(guiId) {
-            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.isExtensionInstalledAndEnabled can only be called up to FF version 3.6")
-            //Up to FF 3.6
-				if (!Application.extensions.has(guiId)) {
-					return false
-				}
-				var rdfService = this.getService(
-						'@mozilla.org/rdf/rdf-service;1', 'nsIRDFService')
-				var extensionDatasource = this.getService(
-						'@mozilla.org/extensions/manager;1',
-						'nsIExtensionManager').datasource
-
-				var ext = rdfService.GetResource("urn:mozilla:item:" + guiId);
-				var userDisabled = rdfService
-						.GetResource("http://www.mozilla.org/2004/em-rdf#userDisabled");
-				var appDisabled = rdfService
-						.GetResource("http://www.mozilla.org/2004/em-rdf#appDisabled");
-
-				if (extensionDatasource.hasArcOut(ext, userDisabled, true)
-						|| extensionDatasource
-								.hasArcOut(ext, appDisabled, true)) {
-					return false
-				} else {
-					return true
-				}
-			},
-
-			/*
 			 * Copies provided string to the clipboard where is it accessible
 			 * for paste. It needs a short amount of time until the string is
 			 * available in the clipboard @param string: string which is copied
@@ -165,7 +133,7 @@ with (this) {
 			registerObserver : function(observerKey, observerObj) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.addObserver(observerObj, observerKey, false);
+				observerService.addObserver(observerObj, observerKey, true);
 			},
 
 			/*
@@ -188,7 +156,7 @@ with (this) {
 				return observer;
 			},
 
-			createObserverForInterface : function(nsIObserver, funcPtr) {
+			createObserverForInterface : function(nsIObserver) {
 				var observer = {
 					QueryInterface : function(iid) {
 						if (!iid.equals(Components.interfaces.nsISupports)
@@ -200,12 +168,8 @@ with (this) {
 						}
 						return this;
 					},
-					observe : function(subject, topic, data) {
-                  if(funcPtr){
-                     funcPtr.apply(nsIObserver, [subject, topic, data]);
-                  }else{
-						   nsIObserver.observe(subject, topic, data);
-                  }
+					observe : function() {
+						nsIObserver.observe();
 					}
 				}
 				return observer;
@@ -215,10 +179,10 @@ with (this) {
 			 * Notifies all observers listen to the provided observerId @param
 			 * observerId
 			 */
-			notifyObservers : function(topic, subject, data) {
+			notifyObservers : function(observerId) {
 				var observerService = Components.classes["@mozilla.org/observer-service;1"]
 						.getService(Components.interfaces.nsIObserverService);
-				observerService.notifyObservers(subject, topic, data);
+				observerService.notifyObservers(null, observerId, null);
 			},
 
 			/*

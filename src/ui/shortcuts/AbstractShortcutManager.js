@@ -94,7 +94,7 @@ with(this){
       },
       
       /*
-       * Loescht alle Shortcuts mit einer bestimmten
+       * Löscht alle Shortcuts mit einer bestimmten
        * ClientId
        */
       clearAllShortcuts: function(clientId){
@@ -103,7 +103,7 @@ with(this){
             return
          }
          try{
-            for(i in this.shortcutToCommandMap){
+            for(var i in this.shortcutToCommandMap){
                var shortcutArray = this.shortcutToCommandMap[i];
                var newShortcutArray = new Array();
                for(var j = 0; j < shortcutArray.length; j++){

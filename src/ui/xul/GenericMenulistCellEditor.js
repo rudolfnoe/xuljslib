@@ -13,17 +13,19 @@ with(this){
          return this.menulist
       },
       
-      
       getValue: function(){
-         return this.menulist.value
+         if(this.menulist.selectedIndex!=-1)
+            return this.menulist.selectedItem.value
+         else
+            return this.menulist.inputField.value
+
       },
       
       getLabel: function(){
-         if(this.menulist.editable){
-            return this.menulist.inputField.value
-         }else{
+         if(this.menulist.selectedIndex!=-1)
             return this.menulist.selectedItem.label
-         }
+         else
+            return this.menulist.inputField.value
       },    
       
       //Called after editing element is inserted in the DOM

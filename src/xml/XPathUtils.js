@@ -3,10 +3,7 @@ with(this){
 	var XPathUtils = {
       defaultPredicateStrategies: null,
       
-	  /*
-      * FIXME throws error on pages with multiple namespaces e.g. http://www.html-5.com/tutorial/namespaces.html
-      */
-      createXPath: function(element, predicateStrategies){
+		createXPath: function(element, predicateStrategies){
          predicateStrategies= predicateStrategies?predicateStrategies:this.getDefaultPredicateStrategies()
 			var result = ""
          var loopElem = element
@@ -17,14 +14,14 @@ with(this){
                predicateStrategy = predicateStrategies[i]
                var predicate = predicateStrategy.getPredicate(loopElem)
                if(predicate==null)
-                  continue;
+                  continue
                locationStep += predicate
-               break;
+               break
             }
 				result = locationStep + result
             if(predicateStrategy.isStopFurtherEvalutation(loopElem))
-               break;
-				loopElem = loopElem.parentNode;
+               break
+				loopElem = loopElem.parentNode
 			}while((loopElem.nodeName!='HTML') && !(loopElem instanceof HTMLDocument))
          
          result = "/" + result
@@ -35,8 +32,8 @@ with(this){
             var found = false
             for (var i = 0; i < elements.length; i++) {
                if(element==elements[i]){
-                  result = "(" + result + ")[" + (i+1) + "]";
-                  found = true;
+                  result = "(" + result + ")[" + (i+1) + "]"
+                  found = true
                }
             }
             if(!found)
@@ -63,25 +60,13 @@ with(this){
 		getElements: function(xPath, contextNode, xPathResultType){
 			var resultType = xPathResultType?xPathResultType:XPathResult.UNORDERED_NODE_ITERATOR_TYPE
          contextNode = contextNode?contextNode:document
-         //TODO Implement namespace handling correctly
-//         var nsContextNode = contextNode
-         var doc = null
-         if(contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
-            contextNode instanceof Components.interfaces.nsIDOMXMLDocument){
-            doc = contextNode
-//            nsContextNode = doc.documentElement
-         }else{
-            doc = contextNode.ownerDocument
-         }
-//         var nsResolver = doc.createNSResolver(nsContextNode);
+         var doc = (contextNode instanceof HTMLDocument || contextNode instanceof XULDocument || 
+            contextNode instanceof Components.interfaces.nsIDOMXMLDocument)?contextNode:contextNode.ownerDocument
 			try{
             var xPathResult = doc.evaluate(xPath, contextNode, null, resultType, null)
          }catch(e){
-            //New error must be created as stack on old one is vanished
-            var newError = new Error()
-            ObjectUtils.copyMembers(e, newError, true)
-            newError.xPath = xPath
-            throw newError
+            e.xPath = xPath
+            throw e
          }
 			var resultArray = []
 			while(entry = xPathResult.iterateNext()){
@@ -167,10 +152,8 @@ with(this){
          if(element.hasAttribute(this.attrName)){
             var attrValue = element.getAttribute(this.attrName)
             //Determine which qutoation marks to use
-//            var quotationMark = StringUtils.contains("'", attrValue)?'"':"'"
-//            return "[@" + this.attrName + "=" + quotationMark + attrValue + quotationMark + "]"
-            attrValue = attrValue.replace(/["]/g, "&quot;")
-            return "[@" + this.attrName + '="' + attrValue + '"]'
+            var quotationMark = StringUtils.contains("'", attrValue)?'"':"'"
+            return "[@" + this.attrName + "=" + quotationMark + attrValue + quotationMark + "]"
          }else{
             return null
          }

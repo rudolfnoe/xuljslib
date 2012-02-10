@@ -34,34 +34,6 @@ with(this){
             }
          }
          return resultArr
-      },
-      
-      /*
-       * Returns true if the array1 contains the same elements in the same order
-       * as array2
-       * If one of the parameters are null, always false is given back
-       */
-      equals: function(array1, array2){
-         if(!array2 || !array2 || array1.length!=array2.length){
-            return false
-         }
-         for (var i = 0; i < array1.length; i++) {
-            if(array1[i]!==array2[i]){
-               return false
-            }
-         }
-         return true
-      }, 
-      
-      swap: function(array, element1, element2){
-         Assert.paramsNotNull(arguments)
-         Assert.isTrue(array.indexOf(element1)>=0)
-         Assert.isTrue(array.indexOf(element2)>=0)
-         var index1 = array.indexOf(element1)
-         var index2 = array.indexOf(element2)
-         var temp = array[index1]
-         array[index1] = array[index2]
-         array[index2] = array[temp]
       }
    }
 

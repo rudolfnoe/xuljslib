@@ -79,7 +79,7 @@ with(this){
          if(this.backupChanges){
             this.backupProperty(prop)
          }
-         this.element[prop] = value
+         this.element[prop] = value            
       },
       setStyle: function(prop, value, priority){
          if(this.backupChanges){         

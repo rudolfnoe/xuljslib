@@ -1,8 +1,5 @@
 with(this){
-(function(){
-   /*
-    * @see ArrayList
-    */
+(function(){   
    function Set (arg){
       this.ArrayList(arg)
    }
@@ -22,7 +19,7 @@ with(this){
             arr = arr.array
          }
          for (var i = 0; i < arr.length; i++) {
-            this.add(arr[i], compareFunc)
+            this.add(obj, compareFunc)
          }
       },
       
@@ -32,6 +29,12 @@ with(this){
       
       addAtIndex: function(index, obj){
          Assert.fail("Not supported")
+//         if(index<0 || index>this.array.length)
+//            throw new Error('IndexOutOfBounds')
+//         if(index==this.array.length)
+//            this.array.push(obj)
+//         else
+//           this.array = this.array.slice(0,index).concat(obj).concat(this.array.slice(index))
       },
       
       set: function(index, obj, compareFunc){

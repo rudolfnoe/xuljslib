@@ -72,7 +72,7 @@ with(this){
       			for(var name in ObjectToSerialize)
       			{
                   if(!ObjectToSerialize.hasOwnProperty(name))
-                     continue;
+                     continue
       				s += JSerialize(ObjectToSerialize[name], name, indentSpace + "   ", ommitFunctions, prefixOfTransientMembers);
       			};
       			

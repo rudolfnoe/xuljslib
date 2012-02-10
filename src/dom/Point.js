@@ -22,7 +22,7 @@ with(this){
 
       setY: function(y){
          this.y = y
-      }
+      },
    }
 
    this.Point = Point;

@@ -1,6 +1,6 @@
 with(this){
 (function(){
-   const LISTENING_EVENTS_OF_POPUP = ["dblclick", "popuphiding"];
+   const LISTENING_EVENTS_OF_POPUP = ["dblclick", "popuphiding"]
    
    function Autocomplete(targetElement, searchHandler){
       Assert.paramsNotNull(arguments)
@@ -26,7 +26,7 @@ with(this){
             var selectedEntry = this.searchResults[selectedIndex]
             this.targetElement.value = selectedEntry.getValue()
             this.targetTextbox.selectionStart = selectedEntry.getSelectionStart()
-            this.targetTextbox.selectionEnd = selectedEntry.getSelectionEnd();
+            this.targetTextbox.selectionEnd = selectedEntry.getSelectionEnd()
             this.hideResultPopup()
          }
       },
@@ -44,7 +44,7 @@ with(this){
       
       destroy: function(){
          if(this.resultPopup){
-            this.hideResultPopup();
+            this.hideResultPopup()
             DomUtils.removeElement(this.resultPopup)
          }
          this.scm.destroy()
@@ -86,7 +86,7 @@ with(this){
          }
          this.fillResultPopup(this.searchResults)
          this.scm.clearAllShortcuts()
-         this.initForPopupOpen();
+         this.initForPopupOpen()
          this.getResultPopup().openPopup(this.targetElement, "after_start")
       },
       
@@ -109,7 +109,7 @@ with(this){
          this.searchResults = null
          this.scm.clearAllShortcuts()
          this.targetTextbox.removeEventListener("input", this, true)
-         this.unRegisterMultipleEventListener(this.getResultPopup(), LISTENING_EVENTS_OF_POPUP, true);
+         this.unRegisterMultipleEventListener(this.getResultPopup(), LISTENING_EVENTS_OF_POPUP, true)
          this.initForPopupClosed()
       },
       
@@ -125,7 +125,7 @@ with(this){
          this.scm.addShortcut("Down", this.selectNextResult, this)   
          this.scm.addShortcut("Up", this.selectPreviousResult, this)
 
-         this.targetTextbox.addEventListener("input", this, true);
+         this.targetTextbox.addEventListener("input", this, true)
          this.registerMultipleEventListener(this.getResultPopup(),  LISTENING_EVENTS_OF_POPUP, true)
       },
       
@@ -149,10 +149,10 @@ with(this){
             lb.selectedIndex = lb.selectedIndex-1
          }
       }
-   };
+   }
    
-   ObjectUtils.extend(Autocomplete, "AbstractGenericEventHandler", this);
+   ObjectUtils.extend(Autocomplete, "AbstractGenericEventHandler", this)
    
    this.Autocomplete = Autocomplete;
 }).apply(this)
-};
+}
