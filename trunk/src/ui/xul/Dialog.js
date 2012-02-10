@@ -37,7 +37,7 @@ with(this){
       
       getNamedResult: function(key){
          //As dialog is closed objects must be cloned so they get the new context of the calling window
-         return ObjectUtils.deepClone(this.dialogContext.resultObj[key])
+         return ObjectUtils.deepClone(this.dialogContext.resultObj[key]);
       },
       
       getResult: function(){

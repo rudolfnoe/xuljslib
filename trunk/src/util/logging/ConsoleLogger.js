@@ -59,6 +59,10 @@ with(this){
       
       log: function(message, logLevel){
          if(this.isLogLevel(logLevel)){
+            var now = new Date();
+            message = (now.getMonth()+1) + '/' + now.getDate() + '/' + now.getFullYear() + ' ' + 
+               now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + ':' + 
+               now.getMilliseconds() + '   ' + message;
             if(logLevel >= LogLevel.ERROR){
                Components.utils.reportError(message)
             }else{

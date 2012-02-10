@@ -83,7 +83,7 @@ with(this){
          scopeObj = scopeObj?scopeObj:window
          var names = ns.split('.');
          var obj = scopeObj;
-         for (key in names){
+         for (var key in names){
             var name = names[key];
             if(obj[name] == undefined){
                obj[name] = new Object();

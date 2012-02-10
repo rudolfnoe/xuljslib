@@ -77,10 +77,10 @@ with(this){
       },
       
       abstractDestroy: function(){
+         this.shortcutToCommandMap = null
          for (var i = 0; i < this.targetObjects.length; i++) {
             this.targetObjects[i].removeEventListener(this.eventType, this.keyEventHandler, this.useCapture);
          }
-         this.shortcutToCommandMap = null
          this.destroyed = true
       },
       
