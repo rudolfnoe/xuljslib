@@ -28,7 +28,7 @@ with(this){
             var errorMessage = message?message+": ":"";
             errorMessage += err.message + "\n"
             if(err){
-               for (m in err) {
+               for (var m in err) {
                   errorMessage = errorMessage + m + ": " + err[m] + "\n";
                }
             }

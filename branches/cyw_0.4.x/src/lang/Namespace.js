@@ -23,7 +23,7 @@ with(this){
          targetWin = targetWin?targetWin:window
 			var names = ns.split('.');
 			var obj = targetWin
-			for (key in names){
+			for (var key in names){
 				var name = names[key];
 				if(obj[name] == undefined){
 					obj[name] = new Object();

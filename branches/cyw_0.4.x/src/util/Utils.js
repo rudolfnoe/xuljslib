@@ -52,7 +52,7 @@ with (this) {
 			 */
 			logError : function(error, message) {
 				var errorMessage = message?message+"\n":"";
-				for (e in error) {
+				for (var e in error) {
 					errorMessage = errorMessage + e + ": " + error[e] + "\n";
 				}
 				Components.utils.reportError(errorMessage);
@@ -101,38 +101,6 @@ with (this) {
 				return Components.classes[componentName]
 						.getService(Components.interfaces[interfaceName]);
 
-			},
-
-			/*
-			 * Checks wether a certain extension is installed and enabled @param
-			 * guiId: GUI-Id of extension
-          * Only up to FF 3.6
-			 */
-			isExtensionInstalledAndEnabled : function(guiId) {
-            Assert.isTrue(Application.version.substring(0,1)<4, "Utils.isExtensionInstalledAndEnabled can only be called up to FF version 3.6")
-            //Up to FF 3.6
-				if (!Application.extensions.has(guiId)) {
-					return false
-				}
-				var rdfService = this.getService(
-						'@mozilla.org/rdf/rdf-service;1', 'nsIRDFService')
-				var extensionDatasource = this.getService(
-						'@mozilla.org/extensions/manager;1',
-						'nsIExtensionManager').datasource
-
-				var ext = rdfService.GetResource("urn:mozilla:item:" + guiId);
-				var userDisabled = rdfService
-						.GetResource("http://www.mozilla.org/2004/em-rdf#userDisabled");
-				var appDisabled = rdfService
-						.GetResource("http://www.mozilla.org/2004/em-rdf#appDisabled");
-
-				if (extensionDatasource.hasArcOut(ext, userDisabled, true)
-						|| extensionDatasource
-								.hasArcOut(ext, appDisabled, true)) {
-					return false
-				} else {
-					return true
-				}
 			},
 
 			/*

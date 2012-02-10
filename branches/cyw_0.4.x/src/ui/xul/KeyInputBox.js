@@ -38,7 +38,7 @@ with(this){
 				return ""
 			}
 			var charString = ""
-			for (key in KeyEvent) {
+			for (var key in KeyEvent) {
 				if (KeyEvent[key] == keyCode) {
 					charString = key.substring(7)
 					break

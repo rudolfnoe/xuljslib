@@ -258,7 +258,7 @@ with(this){
 		split  : function(str, join) {
 			var arr = str.split(/\/|\\/), i;
 			str = new String();
-			for (i = 0; i < arr.length; ++i) {
+			for (var i = 0; i < arr.length; ++i) {
 				str += arr[i] + ((i != arr.length - 1) ? 
 										join : '');
 			}
@@ -268,7 +268,7 @@ with(this){
 		join   : function(str, split) {
 			var arr = str.split(split), i;
 			str = new String();
-			for (i = 0; i < arr.length; ++i) {
+			for (var i = 0; i < arr.length; ++i) {
 				str += arr[i] + ((i != arr.length - 1) ? 
 										this.sep : '');
 			}
