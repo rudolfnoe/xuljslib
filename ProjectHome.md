@@ -1,0 +1,1 @@
+This project contains a java script library used in the projects Mouseless Browsing, Execute JS and EasyGreasy
